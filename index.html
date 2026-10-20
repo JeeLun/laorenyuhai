@@ -852,6 +852,117 @@ kbd {
 }
 .debug-panel .mini-hint { text-align: center; }
 
+.boss-ui {
+  position: absolute;
+  left: calc(var(--u) * 8);
+  top: calc(var(--u) * 8);
+  width: calc(var(--u) * 224);
+  z-index: 10;
+  text-align: center;
+  pointer-events: none;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .3s, visibility .3s;
+}
+.boss-ui.hidden { opacity: 0; visibility: hidden; }
+.boss-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(var(--u) * 2);
+  color: #ffd9c4;
+  text-shadow: 0 0 calc(var(--u) * 4) rgba(178, 41, 31, .6);
+}
+.boss-head span {
+  font-size: calc(var(--u) * 5.2);
+  font-weight: 700;
+  letter-spacing: calc(var(--u) * 1.2);
+}
+.boss-head em {
+  color: #d98772;
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 4.2);
+  font-style: normal;
+}
+.boss-track {
+  position: relative;
+  height: calc(var(--u) * 9);
+  margin-top: calc(var(--u) * 2);
+  overflow: hidden;
+  background: #0b0707;
+  border: calc(var(--u) * 1) solid rgba(195, 91, 70, .68);
+  box-shadow:
+    inset 0 calc(var(--u) * 2) calc(var(--u) * 2) rgba(0, 0, 0, .7),
+    0 0 calc(var(--u) * 8) rgba(150, 30, 22, .22);
+}
+#boss-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(180deg, rgba(255, 221, 175, .48), transparent 36%),
+    linear-gradient(90deg, #7c1c1c 0%, #b43628 48%, #dc5940 100%);
+  box-shadow: inset 0 0 calc(var(--u) * 3) rgba(255, 190, 140, .2);
+  transition: width .16s linear;
+}
+.boss-track::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0, transparent calc(var(--u) * 17), rgba(0, 0, 0, .28) calc(var(--u) * 17), rgba(0, 0, 0, .28) calc(var(--u) * 18.5));
+  pointer-events: none;
+}
+.boss-shout {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--u) * 64);
+  z-index: 9;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s, visibility .35s;
+}
+.boss-shout.show { opacity: 1; visibility: visible; }
+.boss-shout span {
+  display: inline-block;
+  color: #f4e0c2;
+  font-family: "STKaiti", "KaiTi", "Kaiti SC", "FangSong", serif;
+  font-size: calc(var(--u) * 9.2);
+  font-weight: 700;
+  letter-spacing: calc(var(--u) * 2.4);
+  text-indent: calc(var(--u) * 2.4);
+  text-shadow:
+    0 0 calc(var(--u) * 8) rgba(255, 220, 180, .5),
+    0 0 calc(var(--u) * 22) rgba(141, 25, 20, .8),
+    0 calc(var(--u) * 2) 0 #120706;
+  animation: bossShoutPulse .9s steps(2, end) infinite alternate;
+}
+@keyframes bossShoutPulse {
+  from { opacity: .55; transform: scale(.985); }
+  to { opacity: 1; transform: scale(1.015); }
+}
+#boss-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .55s;
+  background:
+    radial-gradient(ellipse at 72% 40%, transparent 14%, rgba(3, 11, 15, .2) 55%, rgba(1, 4, 7, .55) 100%),
+    linear-gradient(180deg, rgba(64, 0, 10, .14), rgba(0, 0, 0, .22));
+}
+#wrap.boss-mode #boss-veil {
+  opacity: 1;
+  animation: bossVeilPulse 2.6s ease-in-out infinite alternate;
+}
+@keyframes bossVeilPulse {
+  from { filter: saturate(.9) brightness(.92); }
+  to { filter: saturate(1.15) brightness(1.02); }
+}
+
 @media (max-width: 720px) {
   #stage { padding: 1vw; }
   #wrap { width: min(98vw, calc(94vh * 16 / 9)); width: min(98vw, calc(94dvh * 16 / 9)); }
@@ -937,6 +1048,13 @@ kbd {
       <div class="hud-bottom"><span>鼠标瞄准 · 左键/空格开火 · 1-5/滚轮切枪 · R 装填 · P 暂停</span></div>
     </div>
 
+    <div class="boss-ui hidden" id="boss-ui">
+      <div class="boss-head"><span>死神利维坦</span><em id="boss-hp-text">2600</em></div>
+      <div class="boss-track"><i id="boss-fill"></i></div>
+    </div>
+    <div id="boss-shout" class="boss-shout hidden"><span>海底传来一阵尖啸……</span></div>
+    <div id="boss-veil"></div>
+
     <div id="danger-glow"></div>
     <div id="vignette"></div>
     <div id="scanlines"></div>
@@ -985,7 +1103,7 @@ kbd {
             <input id="debug-jump" class="debug-input" type="number" min="0" max="4" step="1" inputmode="numeric" value="0" aria-label="跳跃时空">
           </div>
           <div class="debug-row">
-            <div><b>来自深渊</b><span>开启后记录 BOSS 战开关。<em>BOSS 战尚未制作，本局仍为普通海面。</em></span></div>
+            <div><b>来自深渊</b><span>开启后下一局直接进入死神利维坦 BOSS 战；开局解锁 1~5 号武器。<em>它会从深渊里游上来。</em></span></div>
             <button id="debug-abyss" class="debug-toggle" type="button" data-on="false">否</button>
           </div>
         </div>
@@ -1012,9 +1130,9 @@ kbd {
 
     <section class="screen hidden" id="over-screen">
       <div class="panel-screen over-panel">
-        <div class="eyebrow bad">THE SEA HAS TAKEN IT</div>
-        <h2>只剩一副骨架</h2>
-        <p class="lore over-lore">马林鱼被啃食殆尽。<br>你带回了一副骨架，和一身不肯低头的伤。</p>
+        <div class="eyebrow bad" id="over-eyebrow">THE SEA HAS TAKEN IT</div>
+        <h2 id="over-title">只剩一副骨架</h2>
+        <p class="lore over-lore" id="over-lore">马林鱼被啃食殆尽。<br>你带回了一副骨架，和一身不肯低头的伤。</p>
         <div class="final-score"><span>总分</span><b id="final-score">0</b></div>
         <div class="breakdown">
           <div><span>击杀得分</span><b id="r-kill">0</b></div>
@@ -1271,6 +1389,34 @@ kbd {
       this.tone(82, 2.0, 0.16, 'triangle', 41);
       this.noise(1.2, 260, 0.16, 'lowpass');
     },
+    bossRoar() {
+      this.noise(1.4, 260, 0.55, 'lowpass');
+      this.noise(0.8, 900, 0.22, 'bandpass');
+      this.tone(38, 1.5, 0.5, 'sawtooth', 24);
+      this.tone(74, 1.1, 0.25, 'triangle', 32);
+      this.tone(180, 0.5, 0.12, 'square', 60);
+    },
+    bossShrink() {
+      this.tone(180, 0.9, 0.22, 'triangle', 38);
+      this.noise(0.9, 700, 0.28, 'lowpass');
+      this.tone(48, 1.1, 0.3, 'sine', 26);
+    },
+    bossHit() {
+      this.noise(0.12, 600, 0.3, 'lowpass');
+      this.tone(90, 0.12, 0.18, 'square', 55);
+      this.tone(900, 0.03, 0.06, 'triangle', 600);
+    },
+    bossKnock() {
+      this.noise(0.5, 340, 0.42, 'lowpass');
+      this.tone(46, 0.5, 0.34, 'triangle', 22);
+      this.tone(120, 0.18, 0.12, 'square', 50);
+    },
+    bossDeath() {
+      this.noise(1.8, 220, 0.48, 'lowpass');
+      this.tone(34, 2.0, 0.48, 'sine', 18);
+      this.tone(62, 1.5, 0.24, 'sawtooth', 25);
+      this.noise(2.4, 600, 0.2, 'bandpass');
+    },
     shotgun() { this.shot(); },
     pistol() {
       this.noise(0.12, 2200, 0.34, 'bandpass');
@@ -1415,7 +1561,7 @@ kbd {
   function drawSky() {
     ctx.drawImage(skyCanvas, 0, 0);
     drawStars();
-    drawSun();
+    if (!bossWindowView) drawSun();
     drawCirrus();
     drawGulls();
   }
@@ -1512,7 +1658,7 @@ kbd {
   function drawSea() {
     ctx.drawImage(seaCanvas, 0, SEA_Y);
     // 夕阳倒影：散开的光斑，而不是一根根竖线
-    const cx = 369;
+    const cx = bossWindowView ? -999 : 369;
     for (let y = SEA_Y + 2; y < SEA_Y + 36; y += 2) {
       const t = (y - SEA_Y) / 36;
       const cxw = cx + Math.sin(y * 0.7 + clock * 1.6) * (2 + t * 6);
@@ -1694,6 +1840,9 @@ kbd {
     while (d > Math.PI) d -= Math.PI * 2;
     while (d < -Math.PI) d += Math.PI * 2;
     return d;
+  }
+  function angleLerp(a, b, t) {
+    return a + angleDiff(b, a) * clamp(t, 0, 1);
   }
 
   function sharkProfile(kind, t) {
@@ -1947,6 +2096,7 @@ kbd {
     }
   } catch (e) { /* 调试存档不可用时忽略 */ }
   let debugSeq = [];
+  let bossWindowView = false;
   function saveDebugState() {
     try { localStorage.setItem(DEBUG_KEY, JSON.stringify(debugState)); } catch (e) { /* ignore */ }
   }
@@ -2009,6 +2159,11 @@ kbd {
     }
   }
 
+  const BOSS_WIN = { x: 240, y: 0, w: 240, h: 135, s: 0.5 };
+  const BOSS_FISH = { x: BOSS_WIN.x + 243 * BOSS_WIN.s, y: BOSS_WIN.y + 180 * BOSS_WIN.s };
+  const BOSS_GUN = { x: BOSS_WIN.x + 241 * BOSS_WIN.s, y: BOSS_WIN.y + 120 * BOSS_WIN.s };
+  const BOSS_CONTACT = 42;
+
   function comboMultiplier(combo) {
     return Math.min(5, 1 + Math.floor(Math.max(0, combo - 1) / 3));
   }
@@ -2060,8 +2215,139 @@ kbd {
       frozenFish: false,
       abyss: false,
       debugRun: false,
+      bossMode: false,
+      bossPhase: 'none',
+      bossT: 0,
+      boss: null,
+      bossShots: [],
+      bossOutcome: null,
       demo: false
     };
+  }
+
+  function createBoss() {
+    const angle = Math.atan2(BOSS_FISH.y - 246, BOSS_FISH.x - 82);
+    return {
+      x: 82, y: 246, angle,
+      hp: 2600, maxHp: 2600,
+      state: 'approach', stateT: 0, recoilAngle: angle,
+      mouthT: rand(0, TAU), mouth: 0,
+      flash: 0, hitFlash: 0, deathT: 0,
+      spine: [], reveal: 0
+    };
+  }
+
+  function startBossMode() {
+    if (!game) return;
+    game.bossMode = true;
+    game.bossPhase = 'intro';
+    game.bossT = 0;
+    game.boss = createBoss();
+    game.bossShots = [];
+    game.bossOutcome = null;
+    game.sharks = [];
+    game.pellets = [];
+    game.parts = [];
+    game.texts = [];
+    game.blasts = [];
+    game.spawnTimer = 1e9;
+    game.spawnCount = 0;
+    game.t = 0;
+    game.timeAlive = 0;
+    game.killBase = 0;
+    game.comboBonus = 0;
+    game.defenseBonus = 0;
+    game.kills = 0;
+    game.combo = 0;
+    game.comboTimer = 0;
+    game.bestCombo = 0;
+    game.meat = game.maxMeat;
+    for (let i = 0; i < FISH_SEG_N; i++) {
+      game.segMeat[i] = FISH_SEG_MEAT;
+      game.segFlash[i] = 0;
+    }
+    // 深渊开局只给 1~5，自动装备 AK；RPG 不参与正常 Boss 流程
+    for (const key of WEAPON_ORDER) {
+      game.unlocked[key] = true;
+      game.weaponAmmo[key] = WEAPONS[key].mag;
+      game.unlockFlash[key] = 1.2;
+    }
+    game.unlocked.rpg = false;
+    game.weaponAmmo.rpg = WEAPONS.rpg.mag;
+    game.weapon = 'rifle';
+    game.fireCd = 0;
+    game.reloading = false;
+    game.reloadTimer = 0;
+    game.reloadTotal = 0;
+    game.reloadPose = 0;
+    game.switchPose = 0;
+    game.trigger = false;
+    game.recoil = 0;
+    game.aimAngle = Math.atan2(game.boss.y - BOSS_GUN.y, game.boss.x - BOSS_GUN.x);
+    wrap.classList.add('boss-mode');
+    $('boss-ui').classList.add('hidden');
+    const shout = $('boss-shout');
+    shout.classList.remove('hidden');
+    shout.classList.add('show');
+    $('toast').classList.remove('show');
+    toastTimer = 0;
+    Sound.bossRoar();
+    initBossSpine(game.boss);
+  }
+
+  function initBossSpine(b) {
+    b.spine = [];
+    const n = 17;
+    const step = 12.5;
+    let x = b.x, y = b.y;
+    for (let i = 0; i < n; i++) {
+      let a = b.angle + Math.PI;
+      if (i > 0) {
+        a = b.angle + Math.PI + Math.sin(i * 0.7) * 0.14;
+        x += Math.cos(a) * step;
+        y += Math.sin(a) * step;
+      }
+      const k = i / (n - 1);
+      b.spine.push({
+        x, y, angle: a,
+        r: i === 0 ? 30 : 21 * (1 - k * 0.82) + 2
+      });
+    }
+  }
+
+  function updateBossSpine(b, dt) {
+    if (!b.spine || b.spine.length < 2) { initBossSpine(b); return; }
+    const n = b.spine.length;
+    const step = 12.5;
+    const head = b.spine[0];
+    head.x = b.x;
+    head.y = b.y;
+    head.angle = b.angle;
+    head.r = 30;
+    for (let i = 1; i < n; i++) {
+      const prev = b.spine[i - 1];
+      const s = b.spine[i];
+      const targetAngle = Math.atan2(prev.y - s.y, prev.x - s.x);
+      s.angle = angleLerp(s.angle, targetAngle, 1 - Math.exp(-dt * 10.5));
+      // 每一节都有独立的肌肉摆动，越靠尾摆幅越大
+      const sway = Math.sin(clock * 2.05 - i * 0.62) * Math.min(1.7, i * 0.13);
+      const nx = -Math.sin(prev.angle), ny = Math.cos(prev.angle);
+      const tx = prev.x - Math.cos(prev.angle) * step + nx * sway;
+      const ty = prev.y - Math.sin(prev.angle) * step + ny * sway;
+      const follow = 1 - Math.exp(-dt * 9.5);
+      s.x += (tx - s.x) * follow;
+      s.y += (ty - s.y) * follow;
+      // 防止高速击退时被无限拉长
+      const dx = s.x - prev.x, dy = s.y - prev.y;
+      const d = Math.hypot(dx, dy) || 1;
+      const maxD = step * 1.35;
+      if (d > maxD) {
+        const k = (d - maxD) / d;
+        s.x -= dx * k;
+        s.y -= dy * k;
+      }
+      s.r = 2 + 21 * (1 - (i / (n - 1)) * 0.82);
+    }
   }
 
   function totalScore() {
@@ -2206,15 +2492,16 @@ kbd {
     game.abyss = active && !!debugState.abyss;
     game.debugRun = active && (!!debugState.sixGod || !!debugState.frozenFish || debugState.jump > 0 || !!debugState.abyss);
     if (!active) return;
+    if (debugState.abyss) {
+      startBossMode();
+      return;
+    }
     if (debugState.sixGod) {
       unlockDebugArsenal();
     } else if (debugState.jump > 0) {
       applyDebugJump(debugState.jump);
     } else if (debugState.frozenFish) {
       showToast('DEBUG：冰冻马林鱼', 2200, true);
-    }
-    if (debugState.abyss) {
-      showToast('DEBUG：来自深渊（BOSS 战尚未制作）', 2600, true);
     }
   }
 
@@ -2839,6 +3126,7 @@ kbd {
 
   function tryFire() {
     if (mode !== 'playing' || !game) return;
+    if (game.bossMode && game.bossPhase !== 'fight') return;
     if (game.fireCd > 0 || game.reloading) return;
     const w = currentWeaponCfg();
     if (w.kind === 'melee') {
@@ -2860,6 +3148,11 @@ kbd {
       game.reloadDelay = currentAmmo() <= 0 ? 0.35 : 0.48;
     } else {
       game.reloadDelay = currentAmmo() <= 0 ? 0.22 : 0.45;
+    }
+
+    if (game.bossMode) {
+      fireBossShot(w);
+      return;
     }
 
     const m = muzzlePoint(game.aimAngle);
@@ -2925,6 +3218,51 @@ kbd {
     } else {
       addParticle(gunPivot().x, gunPivot().y, rand(-24, -8), rand(-40, -20),
         w.key === 'sniper' ? 0.9 : 0.7, '#d8aa52', w.key === 'sniper' ? 2 : 1, 150, 0.99);
+    }
+    game.hitMark = 0;
+    game.hitMarkHead = 0;
+    if (Sound[w.sound]) Sound[w.sound]();
+  }
+
+  function fireBossShot(w) {
+    if (!game || !game.boss || !game.bossMode) return;
+    const m = muzzlePoint(game.aimAngle);
+    const mx = BOSS_WIN.x + m.x * BOSS_WIN.s;
+    const my = BOSS_WIN.y + m.y * BOSS_WIN.s;
+    const base = Math.atan2(pointer.y - my, pointer.x - mx);
+    const n = w.pellets || 1;
+    const speed = w.speed;
+    const bossRange = w.key === 'rifle' ? 380 : w.range;
+    const life = bossRange / speed;
+    const isAK = w.key === 'rifle';
+    const isSniper = w.key === 'sniper';
+    for (let i = 0; i < n; i++) {
+      const a = n > 1
+        ? base + ((i / (n - 1)) - 0.5) * 2 * w.spread + rand(-0.006, 0.006)
+        : base + rand(-w.spread, w.spread);
+      const x = mx + Math.cos(a) * rand(0, 2);
+      const y = my + Math.sin(a) * rand(0, 2);
+      game.bossShots.push({
+        x, y, px: x, py: y,
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed,
+        life, max: life,
+        weapon: w.key,
+        damage: isAK ? 7 : isSniper ? 12 : 0,
+        knockback: isAK ? 0.35 : isSniper ? 45 : 0
+      });
+    }
+    // 窗口里的枪口火光之外，再加几颗飞向深渊的火星
+    const sparkColors = isSniper
+      ? ['#ffffff', '#dff7ff', '#ffb45a']
+      : isAK
+        ? ['#ffd27a', '#ff9e3f', '#fff0c0']
+        : ['#ffe6a6', '#ffbd61', '#f7f0d0'];
+    for (let i = 0; i < (n > 1 ? 8 : isSniper ? 10 : 4); i++) {
+      const a = base + rand(-0.35, 0.35);
+      addParticle(mx, my, Math.cos(a) * rand(20, isSniper ? 120 : 80),
+        Math.sin(a) * rand(20, isSniper ? 120 : 80), rand(0.18, 0.45),
+        choice(sparkColors), Math.random() < 0.3 ? 2 : 1, 10, 0.94);
     }
     game.hitMark = 0;
     game.hitMarkHead = 0;
@@ -3197,20 +3535,217 @@ kbd {
   }
 
   /* ---------------- 主更新 ---------------- */
+  function updateBoss(dt) {
+    if (!game || !game.boss) return;
+    const b = game.boss;
+    const wx = (pointer.x - BOSS_WIN.x) / BOSS_WIN.s;
+    const wy = (pointer.y - BOSS_WIN.y) / BOSS_WIN.s;
+    const pivot = gunPivot();
+    game.aimAngle = Math.atan2(wy - pivot.y, wx - pivot.x);
+
+    if (game.bossPhase === 'intro') {
+      game.bossT += dt;
+      game.shake = Math.max(game.shake, 0.55 + Math.sin(clock * 3.2) * 0.35);
+      if (game.bossT >= 2.2) {
+        game.bossPhase = 'shrink';
+        game.bossT = 0;
+        const shout = $('boss-shout');
+        shout.classList.remove('show');
+        shout.classList.add('hidden');
+        Sound.bossShrink();
+      }
+      return;
+    }
+    if (game.bossPhase === 'shrink') {
+      game.bossT += dt;
+      const k = clamp(game.bossT / 1.25, 0, 1);
+      b.reveal = clamp((k - 0.22) / 0.78, 0, 1);
+      game.shake = Math.max(game.shake, 1.4 + k * 4.8);
+      if (game.bossT >= 1.25) {
+        game.bossPhase = 'fight';
+        game.bossT = 0;
+        b.reveal = 1;
+        $('boss-ui').classList.remove('hidden');
+        Sound.bossRoar();
+      }
+      return;
+    }
+    if (game.bossPhase !== 'fight') return;
+
+    b.mouthT += dt;
+    b.mouth = 0.5 + 0.5 * Math.sin(b.mouthT * 2.25);
+    b.flash = Math.max(0, b.flash - dt);
+    b.hitFlash = Math.max(0, b.hitFlash - dt);
+
+    const recoiling = b.state === 'recoil';
+    const desired = recoiling ? b.recoilAngle : Math.atan2(BOSS_FISH.y - b.y, BOSS_FISH.x - b.x);
+    const turnRate = recoiling ? 1.7 : 1.25;
+    b.angle = angleLerp(b.angle, desired, 1 - Math.exp(-dt * turnRate));
+    const speed = recoiling ? 26 : 8.4;
+    b.x += Math.cos(b.angle) * speed * dt;
+    b.y += Math.sin(b.angle) * speed * dt;
+    if (recoiling) {
+      b.stateT -= dt;
+      if (b.stateT <= 0) b.state = 'approach';
+    }
+    b.x = clamp(b.x, 60, W - 30);
+    b.y = clamp(b.y, 78, H - 20);
+    updateBossSpine(b, dt);
+    updateBossShots(dt);
+    if (Math.random() < dt * 2.8) {
+      addParticle(b.x + rand(-20, 20), b.y + rand(-14, 14), rand(-6, 6), rand(-18, -3),
+        rand(0.4, 1.1), choice(['#8fd8ef', '#b9e8f0', '#5b8f9c']), 1, -8, 0.98);
+    }
+    if (Math.hypot(b.x - BOSS_FISH.x, b.y - BOSS_FISH.y) < BOSS_CONTACT) {
+      endBoss(false);
+    }
+  }
+
+  function updateBossShots(dt) {
+    if (!game || !game.boss) return;
+    const b = game.boss;
+    for (let i = game.bossShots.length - 1; i >= 0; i--) {
+      const p = game.bossShots[i];
+      p.px = p.x;
+      p.py = p.y;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      if (Math.random() < 0.34) {
+        addParticle(p.x, p.y, -p.vx * 0.03 + rand(-5, 5), -p.vy * 0.03 + rand(-5, 5),
+          rand(0.15, 0.38), choice(['#ffd27a', '#ff9e3f', '#8f8f85']), 1, 0, 0.96);
+      }
+      let hit = null;
+      for (const s of b.spine) {
+        if (segPointDist(s.x, s.y, p.px, p.py, p.x, p.y) < s.r + 1.5) {
+          hit = { x: s.x, y: s.y };
+          break;
+        }
+      }
+      if (hit) {
+        hitBoss(p, hit.x, hit.y);
+        game.bossShots.splice(i, 1);
+        continue;
+      }
+      if (p.life <= 0 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) {
+        game.bossShots.splice(i, 1);
+      }
+    }
+  }
+
+  function hitBoss(p, x, y) {
+    const b = game.boss;
+    if (!b || b.hp <= 0) return;
+    b.flash = 0.16;
+    b.hitFlash = 0.12;
+    const isAK = p.weapon === 'rifle';
+    const isSniper = p.weapon === 'sniper';
+    if (isAK) {
+      b.hp = Math.max(0, b.hp - 7);
+      const dir = Math.atan2(b.y - BOSS_GUN.y, b.x - BOSS_GUN.x);
+      b.x += Math.cos(dir) * 0.35;
+      b.y += Math.sin(dir) * 0.35;
+      game.shake = Math.max(game.shake, 2.2);
+      addText(x, y - 12, '-7', '#ffd9a0', 1);
+      Sound.bossHit();
+    } else if (isSniper) {
+      b.hp = Math.max(0, b.hp - 14);
+      const away = Math.atan2(b.y - BOSS_FISH.y, b.x - BOSS_FISH.x);
+      b.state = 'recoil';
+      b.stateT = 2.6;
+      b.recoilAngle = away;
+      // 不瞬间改头朝向：让头部、每一节身体和尾巴逐帧转过去
+      b.x += Math.cos(away) * 4;
+      b.y += Math.sin(away) * 4;
+      game.shake = Math.max(game.shake, 9);
+      addText(x, y - 18, '击退', '#e7f4ff', 1);
+      Sound.bossKnock();
+    } else {
+      for (let i = 0; i < 5; i++) {
+        addParticle(x, y, rand(-30, 30), rand(-30, 30), rand(0.15, 0.4),
+          choice(['#ffe7ab', '#ffd27a', '#8f8f85']), 1, 20, 0.95);
+      }
+      Sound.hit();
+    }
+    b.x = clamp(b.x, 60, W - 30);
+    b.y = clamp(b.y, 78, H - 20);
+    if (b.hp <= 0) endBoss(true);
+  }
+
+  function endBoss(win) {
+    if (mode !== 'playing' || !game || game.bossPhase === 'win' || game.bossPhase === 'lose') return;
+    game.bossPhase = win ? 'win' : 'lose';
+    game.bossOutcome = win ? 'win' : 'lose';
+    game.endT = win ? 2.6 : 2.2;
+    mode = 'ending';
+    game.trigger = false;
+    wrap.classList.remove('playing', 'low-meat');
+    const shout = $('boss-shout');
+    shout.classList.remove('show');
+    shout.classList.add('hidden');
+    if (win) {
+      game.boss.hp = 0;
+      game.boss.state = 'dying';
+      game.boss.deathT = 0;
+      game.killBase += 5000;
+      game.kills++;
+      game.shake = 12;
+      Sound.bossDeath();
+      showToast('死神利维坦沉入深渊', 2100);
+    } else {
+      game.boss.state = 'kill';
+      game.boss.deathT = 0;
+      game.boss.mouth = 1;
+      game.shake = 14;
+      Sound.bossRoar();
+      showToast('利维坦吞没了马林鱼……', 2200);
+    }
+  }
+
+  function updateBossEnding(dt) {
+    const b = game.boss;
+    if (!b) return;
+    b.deathT += dt;
+    if (game.bossOutcome === 'win') {
+      b.y += dt * 18;
+      b.angle += dt * 0.2;
+      b.reveal = Math.max(0, 1 - b.deathT / 2.6);
+      if (Math.random() < dt * 18) {
+        addParticle(b.x + rand(-30, 30), b.y + rand(-20, 20), rand(-20, 20), rand(-30, 10),
+          rand(0.4, 1.2), choice(['#b43628', '#6b1718', '#8f8f85']), 2, 10, 0.96);
+      }
+    } else {
+      b.mouth = 1;
+      b.x += Math.cos(b.angle) * 6 * dt;
+      b.y += Math.sin(b.angle) * 6 * dt;
+      if (Math.random() < dt * 12) {
+        addParticle(b.x + rand(-20, 20), b.y + rand(-14, 14), rand(-20, 20), rand(-30, 10),
+          rand(0.3, 1.0), choice(['#ffd27a', '#a52b22', '#8f8f85']), 2, 10, 0.96);
+      }
+    }
+    updateBossSpine(b, dt);
+  }
+
   function updateGame(dt) {
     if (!game) return;
     if (mode === 'playing') {
       game.t += dt;
       game.timeAlive = game.t;
       updatePlayerTimers(dt);
-      // 先检查解锁：新层级的亮相鲨会先刷新并把常规刷新计时推后
-      checkUnlocks();
-      applyDifficultySpawn(dt);
+      if (game.bossMode) {
+        updateBoss(dt);
+      } else {
+        // 先检查解锁：新层级的亮相鲨会先刷新并把常规刷新计时推后
+        checkUnlocks();
+        applyDifficultySpawn(dt);
+      }
     } else if (mode === 'ending') {
       game.endT -= dt;
       updatePlayerTimers(dt);
+      if (game.bossMode) updateBossEnding(dt);
       if (game.endT <= 0) { showResults(); return; }
     }
+    if (game.bossMode) return;
     const allowBite = mode === 'playing';
     for (const s of game.sharks) {
       if (!s.remove) updateShark(s, dt, allowBite);
@@ -3375,11 +3910,41 @@ kbd {
     }
     $('mute').textContent = Sound.muted ? '×' : '♪';
     $('mute').classList.toggle('muted', Sound.muted);
+
+    const bossUI = $('boss-ui');
+    if (bossUI) {
+      const showBoss = !!game.bossMode && (game.bossPhase === 'fight' || game.bossPhase === 'win' || game.bossPhase === 'lose');
+      bossUI.classList.toggle('hidden', !showBoss);
+      if (game.boss) {
+        setText($('boss-hp-text'), String(Math.max(0, Math.ceil(game.boss.hp))));
+        $('boss-fill').style.width = clamp(game.boss.hp / game.boss.maxHp * 100, 0, 100).toFixed(1) + '%';
+      }
+    }
+    wrap.classList.toggle('boss-mode', !!game.bossMode && (mode === 'playing' || mode === 'ending'));
+
+    let hudScale = 1;
+    if (game.bossMode) {
+      if (game.bossPhase === 'intro') hudScale = 1;
+      else if (game.bossPhase === 'shrink') {
+        const raw = clamp(game.bossT / 1.25, 0, 1);
+        const k = 1 - Math.pow(1 - raw, 3);
+        hudScale = 1 - BOSS_WIN.s * k;
+      } else hudScale = BOSS_WIN.s;
+    }
+    const hudEl = $('hud');
+    if (hudEl) {
+      hudEl.style.transformOrigin = 'top right';
+      hudEl.style.transform = hudScale === 1 ? '' : 'scale(' + hudScale + ')';
+    }
   }
 
   /* ---------------- 模式切换 ---------------- */
   function startGame() {
     debugSeq = [];
+    wrap.classList.remove('boss-mode');
+    $('boss-ui').classList.add('hidden');
+    const shoutEl = $('boss-shout');
+    if (shoutEl) { shoutEl.classList.remove('show'); shoutEl.classList.add('hidden'); }
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     for (const k in uiCache) delete uiCache[k];
     wrap.classList.remove('low-meat');
@@ -3394,13 +3959,18 @@ kbd {
     pointer.y = 208;
     hideScreens();
     wrap.classList.add('playing');
-    showToast('血腥味把鲨鱼引来了', 1800);
+    const bossStart = debugState.unlocked && debugState.abyss;
+    if (!bossStart) showToast('血腥味把鲨鱼引来了', 1800);
     applyDebugStart();
     updateSoundButtons();
   }
 
   function goMenu() {
     debugSeq = [];
+    wrap.classList.remove('boss-mode');
+    $('boss-ui').classList.add('hidden');
+    const shoutEl = $('boss-shout');
+    if (shoutEl) { shoutEl.classList.remove('show'); shoutEl.classList.add('hidden'); }
     mode = 'menu';
     spawnDemoWorld();
     overAnim = 0;
@@ -3434,7 +4004,30 @@ kbd {
     overAnim = 0;
     hideScreens();
     showScreen('over');
-    wrap.classList.remove('playing', 'low-meat');
+    wrap.classList.remove('playing', 'low-meat', 'boss-mode');
+    $('boss-ui').classList.add('hidden');
+    const shoutEl = $('boss-shout');
+    if (shoutEl) { shoutEl.classList.remove('show'); shoutEl.classList.add('hidden'); }
+    const outcome = game.bossOutcome;
+    const eyebrowEl = $('over-eyebrow');
+    if (eyebrowEl) {
+      if (outcome === 'win') {
+        eyebrowEl.textContent = 'THE ABYSS RECEDES';
+        eyebrowEl.classList.remove('bad');
+        setText($('over-title'), '利维坦沉入深渊');
+        $('over-lore').innerHTML = '死神利维坦的血染红了深海。<br>海面重新安静下来——归航继续。';
+      } else if (outcome === 'lose') {
+        eyebrowEl.textContent = 'THE ABYSS CLAIMS ALL';
+        eyebrowEl.classList.add('bad');
+        setText($('over-title'), '深渊吞没了归航');
+        $('over-lore').innerHTML = '利维坦的颚骨合拢。<br>马林鱼、船、老人，都沉入黑暗。';
+      } else {
+        eyebrowEl.textContent = 'THE SEA HAS TAKEN IT';
+        eyebrowEl.classList.add('bad');
+        setText($('over-title'), '只剩一副骨架');
+        $('over-lore').innerHTML = '马林鱼被啃食殆尽。<br>你带回了一副骨架，和一身不肯低头的伤。';
+      }
+    }
     const total = totalScore();
     setText($('final-score'), '0');
     setText($('r-kill'), formatComma(game.killBase));
@@ -4828,7 +5421,536 @@ kbd {
   }
 
   /* ---------------- 总渲染 ---------------- */
+  function bossEllipse(x, y, a, rx, ry, color, ox, oy) {
+    const pts = [];
+    const ca = Math.cos(a), sa = Math.sin(a);
+    const lx = ox || 0, ly = oy || 0;
+    for (let i = 0; i < 10; i++) {
+      const t = i / 10 * TAU;
+      const ex = Math.cos(t) * rx + lx;
+      const ey = Math.sin(t) * ry + ly;
+      pts.push([x + ca * ex - sa * ey, y + sa * ex + ca * ey]);
+    }
+    fillPoly(ctx, pts, color);
+  }
+
+  function bossLocal(x, y, a, lx, ly) {
+    const ca = Math.cos(a), sa = Math.sin(a);
+    return { x: x + ca * lx - sa * ly, y: y + sa * lx + ca * ly };
+  }
+
+  function drawBossTendril(pts, b) {
+    const hit = b.flash > 0;
+    for (let i = 0; i < pts.length - 1; i++) {
+      pxLine(ctx, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], '#1a0709', 9);
+    }
+    for (let i = 0; i < pts.length - 1; i++) {
+      pxLine(ctx, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], hit ? '#ff8f70' : '#a91926', 6);
+    }
+    for (let i = 0; i < pts.length - 1; i++) {
+      pxLine(ctx, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], hit ? '#ffd0b4' : '#d93637', 2);
+    }
+    // 苍白的筋与尖端
+    const tip = pts[pts.length - 1];
+    const prev = pts[pts.length - 2];
+    const a = Math.atan2(tip[1] - prev[1], tip[0] - prev[0]);
+    fillPoly(ctx, [
+      [tip[0] - Math.cos(a) * 4, tip[1] - Math.sin(a) * 4],
+      [tip[0] + Math.cos(a) * 8, tip[1] + Math.sin(a) * 8],
+      [tip[0] - Math.sin(a) * 4, tip[1] + Math.cos(a) * 4]
+    ], hit ? '#fff0d8' : '#e8e2d3');
+    pxLine(ctx, prev[0], prev[1], tip[0], tip[1], '#eadfc9', 1);
+  }
+
+  function drawBossHead(b) {
+    const hit = b.flash > 0;
+    const red = hit ? '#ff886a' : '#a61924';
+    const redHi = hit ? '#ffc0a0' : '#d63837';
+    const redDark = hit ? '#8a2c2b' : '#520c13';
+    const bone = hit ? '#fff3df' : '#e6dfcf';
+    const boneShade = hit ? '#ffe0c6' : '#c9c0ad';
+    const gum = '#4e1014';
+    const open = 4 + b.mouth * 18;
+    const upperY = -open * 0.14;
+    const lowerY = open;
+
+    // 一堆红色触须先把“脸”遮住
+    const tendrils = [
+      [[-16, -14], [6, -33], [33, -41], [59, -30 - open * .45]],
+      [[-23, -6], [1, -25], [29, -31], [56, -19 - open * .35]],
+      [[-23, 7], [1, 26], [29, 32], [56, 20 + open * .35]],
+      [[-15, 16], [7, 35], [34, 41], [60, 30 + open * .45]],
+      [[-30, -1], [-4, -14], [18, -15], [39, -6]],
+      [[-30, 1], [-4, 15], [18, 15], [39, 7]]
+    ];
+    for (const t of tendrils) drawBossTendril(t, b);
+
+    // 不规则、模糊的头部暗影：不再是白色椭圆脸
+    fillPoly(ctx, [
+      [-37, -6], [-30, -21], [-15, -30], [4, -33], [24, -29],
+      [43, -20], [54, -8], [58, 3], [50, 15], [33, 25],
+      [11, 29], [-13, 24], [-31, 15], [-38, 4]
+    ], '#120407');
+    fillPoly(ctx, [
+      [-33, -4], [-26, -17], [-13, -25], [4, -28], [22, -24],
+      [39, -16], [49, -6], [52, 3], [45, 12], [30, 21],
+      [10, 25], [-11, 20], [-27, 12], [-33, 3]
+    ], redDark);
+    fillPoly(ctx, [
+      [-27, -2], [-21, -12], [-9, -19], [4, -22], [19, -18],
+      [33, -11], [41, -3], [39, 5], [27, 12], [9, 16], [-9, 12], [-22, 7]
+    ], red);
+
+    // 红色头冠棘
+    const crest = [
+      [[-31, -9], [-25, -28], [-14, -12]],
+      [[-19, -16], [-10, -34], [1, -16]],
+      [[-4, -20], [7, -38], [16, -20]],
+      [[14, -18], [27, -32], [30, -15]]
+    ];
+    for (const c of crest) {
+      fillPoly(ctx, c, redDark);
+      fillPoly(ctx, [
+        [c[0][0] + 2, c[0][1] + 2],
+        [c[1][0], c[1][1] + 2],
+        [c[2][0] - 1, c[2][1] - 1]
+      ], redHi);
+    }
+
+    // 口腔：上下颚之间巨大的黑洞
+    fillPoly(ctx, [
+      [-2, 0 + upperY], [20, 1 + upperY], [42, 1 + upperY], [55, 4 + upperY],
+      [57, 7 + lowerY * .25], [48, 10 + lowerY], [30, 12 + lowerY],
+      [9, 10 + lowerY], [-4, 6 + lowerY]
+    ], '#0b0305');
+    fillPoly(ctx, [
+      [4, 2 + upperY], [25, 3 + upperY], [44, 3 + upperY], [51, 6 + upperY],
+      [48, 8 + lowerY * .8], [29, 10 + lowerY * .9], [10, 9 + lowerY * .85], [2, 5 + lowerY * .7]
+    ], gum);
+
+    // 上颚：细长的骨甲边缘，不再是一整块头骨
+    const upperJaw = [
+      [0, -9 + upperY], [12, -13 + upperY], [28, -13 + upperY], [44, -10 + upperY],
+      [55, -4 + upperY], [50, 1 + upperY], [33, 1 + upperY], [14, 3 + upperY], [1, -2 + upperY]
+    ];
+    fillPoly(ctx, upperJaw, '#140507');
+    fillPoly(ctx, [
+      [2, -7 + upperY], [13, -10 + upperY], [28, -10 + upperY], [42, -7 + upperY],
+      [50, -3 + upperY], [45, -1 + upperY], [31, -1 + upperY], [14, 1 + upperY], [3, -3 + upperY]
+    ], bone);
+    fillPoly(ctx, [[6, -4 + upperY], [17, -6 + upperY], [31, -6 + upperY], [43, -3 + upperY], [38, -1 + upperY], [18, 0 + upperY], [7, -1 + upperY]], boneShade);
+
+    // 下颚：独立向下移动
+    const lowerJaw = [
+      [-3, 5 + lowerY], [10, 7 + lowerY], [28, 8 + lowerY], [46, 5 + lowerY],
+      [56, 9 + lowerY], [48, 18 + lowerY], [30, 22 + lowerY], [10, 20 + lowerY], [-5, 13 + lowerY]
+    ];
+    fillPoly(ctx, lowerJaw, '#140507');
+    fillPoly(ctx, [
+      [0, 8 + lowerY], [11, 10 + lowerY], [27, 11 + lowerY], [43, 8 + lowerY],
+      [50, 10 + lowerY], [43, 16 + lowerY], [29, 19 + lowerY], [11, 17 + lowerY], [1, 12 + lowerY]
+    ], bone);
+    fillPoly(ctx, [[4, 11 + lowerY], [15, 12 + lowerY], [29, 13 + lowerY], [40, 11 + lowerY], [29, 16 + lowerY], [12, 15 + lowerY]], boneShade);
+
+    // 长而尖的牙：上排向下、下排向上，随上下颚一起动
+    for (let i = 0; i < 12; i++) {
+      const x = 5 + i * 4.1;
+      const baseY = 1 + upperY;
+      const len = 8 + (i % 3) * 2.2;
+      fillPoly(ctx, [[x - 1.6, baseY], [x + 1.6, baseY], [x, baseY + len]], '#f8f1e0');
+      fillPoly(ctx, [[x - .7, baseY], [x + .7, baseY], [x, baseY + len - 2]], '#d9cdb4');
+    }
+    for (let i = 0; i < 11; i++) {
+      const x = 5 + i * 4.4;
+      const baseY = 7 + lowerY;
+      const len = 9 + (i % 3) * 2.0;
+      fillPoly(ctx, [[x - 1.6, baseY], [x + 1.6, baseY], [x, baseY - len]], '#efe7d5');
+      fillPoly(ctx, [[x - .7, baseY], [x + .7, baseY], [x, baseY - len + 2]], '#d4c7ae');
+    }
+
+    // 同一侧两颗纯黑眼球：没有高光
+    for (const [ex, ey] of [[3, -15], [17, -12]]) {
+      fillCircle(ctx, ex, ey, 6.5, '#3d0c12', 1);
+      fillCircle(ctx, ex, ey, 4.6, '#000000', 1);
+    }
+    // 眼眶红色肌肉
+    fillPoly(ctx, [[-4, -22], [6, -23], [9, -19], [0, -17]], redDark);
+    fillPoly(ctx, [[17, -18], [25, -16], [23, -11], [16, -13]], red);
+    // 口腔深处的红光
+    ctx.globalAlpha = .12 + b.mouth * .12;
+    fillCircle(ctx, 28, 6, 20, '#ff8b5c', .6);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawBossBodyNode(s, b, i, n) {
+    const hit = b.flash > 0;
+    const a = s.angle;
+    const r = s.r;
+    const red = hit ? '#ff8f74' : '#b51f28';
+    const redHi = hit ? '#ffc1a4' : '#db3936';
+    const redDark = hit ? '#9c3a35' : '#681018';
+    // 暗红外轮廓，衔接成一条连续的躯体
+    bossEllipse(s.x, s.y, a, r * 1.42 + 2, r + 2, '#3a070d');
+    bossEllipse(s.x, s.y, a, r * 1.38, r, red);
+    bossEllipse(s.x, s.y, a, r * 1.2, r * .72, redHi, 0, -r * .2);
+    bossEllipse(s.x, s.y, a, r * 1.08, r * .3, redDark, 0, -r * .52);
+    // 背棘：每一节都有，但高矮不一
+    const p1 = bossLocal(s.x, s.y, a, -r * .18, -r * .68);
+    const p2 = bossLocal(s.x, s.y, a, r * .28, -r * (1.7 + (i % 4) * .3));
+    const p3 = bossLocal(s.x, s.y, a, r * .58, -r * .62);
+    fillPoly(ctx, [[p1.x, p1.y], [p2.x, p2.y], [p3.x, p3.y]], '#430810');
+    fillPoly(ctx, [[p1.x, p1.y], [p2.x, p2.y], [p3.x - 1, p3.y + 2]], red);
+    // 旧伤
+    if (i % 3 === 0) {
+      const sc = bossLocal(s.x, s.y, a, r * .2, -r * .3);
+      pxLine(ctx, sc.x - 2, sc.y, sc.x + 3, sc.y - 2, '#f2e7d2', 1, 2);
+      pxLine(ctx, sc.x - 1, sc.y + 1, sc.x + 2, sc.y + 2, '#7e1a20', 1, 2);
+    }
+  }
+
+  function drawBossBelly(b) {
+    const n = b.spine.length;
+    if (n < 3) return;
+    const inner = [], outer = [];
+    for (let i = 1; i < n; i++) {
+      const s = b.spine[i];
+      const a = s.angle;
+      const nx = -Math.sin(a), ny = Math.cos(a);
+      inner.push([s.x + nx * s.r * .08, s.y + ny * s.r * .08]);
+      outer.push([s.x + nx * s.r * .76, s.y + ny * s.r * .76]);
+    }
+    const poly = inner.concat(outer.slice().reverse());
+    fillPoly(ctx, poly, '#e9e4d6');
+    // 红白交界与腹面高光
+    for (let i = 1; i < inner.length; i++) {
+      pxLine(ctx, inner[i - 1][0], inner[i - 1][1], inner[i][0], inner[i][1], '#8d1c22', 1);
+    }
+    for (let i = 1; i < outer.length; i++) {
+      pxLine(ctx, outer[i - 1][0], outer[i - 1][1], outer[i][0], outer[i][1], '#f5edde', 1, 3);
+    }
+    // 零散鳞光，不是一节一节的白色斑块
+    for (let i = 2; i < n - 1; i += 2) {
+      const s = b.spine[i];
+      const a = s.angle;
+      const nx = -Math.sin(a), ny = Math.cos(a);
+      ctx.globalAlpha = .34;
+      ctx.fillStyle = '#c9c0ad';
+      ctx.fillRect(Math.round(s.x + nx * s.r * .4), Math.round(s.y + ny * s.r * .4), 1, 1);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function drawBossSideFins(b) {
+    const n = b.spine.length;
+    for (let i = 2; i < n - 2; i++) {
+      if (i % 4 !== 1) continue;
+      const s = b.spine[i];
+      const a = s.angle;
+      const r = s.r;
+      const f1 = bossLocal(s.x, s.y, a, 0, r * .38);
+      const f2 = bossLocal(s.x, s.y, a, -r * .95, r * 1.8);
+      const f3 = bossLocal(s.x, s.y, a, r * .65, r * 1.25);
+      fillPoly(ctx, [[f1.x, f1.y], [f2.x, f2.y], [f3.x, f3.y]], '#430810');
+      fillPoly(ctx, [[f1.x, f1.y], [f2.x, f2.y], [f3.x - 1, f3.y - 2]], b.flash > 0 ? '#ff987a' : '#a81925');
+      pxLine(ctx, f1.x, f1.y, f2.x, f2.y, '#efe5d2', 1);
+    }
+  }
+
+  function drawBossTail(b) {
+    const s = b.spine[b.spine.length - 1];
+    const prev = b.spine[b.spine.length - 2];
+    const a = Math.atan2(s.y - prev.y, s.x - prev.x);
+    const red = b.flash > 0 ? '#ff8f74' : '#b51f28';
+    const redDark = '#671018';
+    const bone = '#e9e4d6';
+    const p0 = bossLocal(s.x, s.y, a, 0, 0);
+    const p1 = bossLocal(s.x, s.y, a, 10, -25);
+    const p2 = bossLocal(s.x, s.y, a, 30, -10);
+    const p3 = bossLocal(s.x, s.y, a, 34, 8);
+    const p4 = bossLocal(s.x, s.y, a, 12, 25);
+    fillPoly(ctx, [[p0.x, p0.y], [p1.x, p1.y], [p2.x, p2.y], [p3.x, p3.y], [p4.x, p4.y]], '#160608');
+    fillPoly(ctx, [[p0.x, p0.y], [p1.x, p1.y], [p2.x, p2.y], [p3.x, p3.y], [p4.x, p4.y]], redDark);
+    const q1 = bossLocal(s.x, s.y, a, 7, -17);
+    const q2 = bossLocal(s.x, s.y, a, 24, -7);
+    const q3 = bossLocal(s.x, s.y, a, 25, 6);
+    const q4 = bossLocal(s.x, s.y, a, 8, 17);
+    fillPoly(ctx, [[p0.x, p0.y], [q1.x, q1.y], [q2.x, q2.y], [q3.x, q3.y], [q4.x, q4.y]], red);
+    pxLine(ctx, q1.x, q1.y, q2.x, q2.y, bone, 1);
+    pxLine(ctx, q4.x, q4.y, q3.x, q3.y, bone, 1);
+  }
+
+  function drawBoss(b) {
+    if (!b || b.reveal <= 0) return;
+    if (!b.spine || b.spine.length < 2) initBossSpine(b);
+    ctx.save();
+    ctx.globalAlpha = clamp(b.reveal, 0, 1);
+    // 深渊红光
+    fillCircle(ctx, b.x, b.y, 94, '#651a18', .08);
+    fillCircle(ctx, b.x, b.y, 48, '#d14b35', .05);
+
+    const n = b.spine.length;
+    for (let i = n - 1; i >= 1; i--) drawBossBodyNode(b.spine[i], b, i, n);
+    drawBossBelly(b);
+    drawBossSideFins(b);
+    drawBossTail(b);
+
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(b.angle);
+    drawBossHead(b);
+    ctx.restore();
+
+    for (let i = 0; i < 6; i++) {
+      const a = clock * .7 + i * 1.7;
+      const d = 34 + (i % 3) * 9;
+      ctx.globalAlpha = .18 + (i % 3) * .06;
+      ctx.fillStyle = '#bfe9ef';
+      ctx.fillRect(Math.round(b.x + Math.cos(a) * d), Math.round(b.y + Math.sin(a) * d), 1, 1);
+    }
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  function drawBossWindow(x, y, s) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, W * s, H * s);
+    ctx.clip();
+    ctx.translate(x, y);
+    ctx.scale(s, s);
+    const oldWindowView = bossWindowView;
+    bossWindowView = s < 0.995;
+    drawSky();
+    drawSea();
+    drawMotes();
+    drawBoat();
+    drawMarlin();
+    drawRopes();
+    drawUnderwaterTint();
+    drawSurface();
+    drawLanternGlow();
+    drawOldMan();
+    bossWindowView = oldWindowView;
+    ctx.restore();
+  }
+
+  function drawBossWindowFrame(x, y, w, h) {
+    const dist = game.boss ? Math.hypot(game.boss.x - BOSS_FISH.x, game.boss.y - BOSS_FISH.y) : 999;
+    const danger = dist < 105;
+    ctx.save();
+    ctx.strokeStyle = danger ? 'rgba(221, 78, 56, .75)' : 'rgba(142, 206, 192, .38)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x - .5, y - .5, w + 1, h + 1);
+    ctx.strokeStyle = danger ? 'rgba(255, 160, 125, .8)' : 'rgba(201, 169, 111, .33)';
+    const c = 9;
+    ctx.beginPath();
+    ctx.moveTo(x, y + c); ctx.lineTo(x, y); ctx.lineTo(x + c, y);
+    ctx.moveTo(x + w - c, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + c);
+    ctx.moveTo(x, y + h - c); ctx.lineTo(x, y + h); ctx.lineTo(x + c, y + h);
+    ctx.moveTo(x + w - c, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - c);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawBossArena() {
+    const horizon = SEA_Y * BOSS_WIN.s + BOSS_WIN.y;
+    // 更辽阔的天空
+    const sky = ctx.createLinearGradient(0, 0, 0, horizon);
+    sky.addColorStop(0, '#050b18');
+    sky.addColorStop(.34, '#1a1830');
+    sky.addColorStop(.62, '#4a2c3d');
+    sky.addColorStop(.82, '#9a4f45');
+    sky.addColorStop(1, '#d08a5f');
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, horizon);
+
+    // 星星与高空云
+    for (let i = 0; i < 34; i++) {
+      const x = (i * 83 + 17) % W;
+      const y = (i * 37 + 11) % 76;
+      ctx.globalAlpha = .12 + (i % 5) * .06 + Math.sin(clock * 1.3 + i) * .04;
+      ctx.fillStyle = i % 7 === 0 ? '#ffe2ba' : '#b8d6df';
+      ctx.fillRect(x, y, 1, 1);
+    }
+    ctx.globalAlpha = 1;
+    // 远处低垂的云带
+    for (let i = 0; i < 5; i++) {
+      const y = 54 + i * 11;
+      ctx.globalAlpha = .07 + i * .015;
+      ctx.fillStyle = i % 2 === 0 ? '#24162a' : '#6e3b42';
+      ctx.fillRect(0, y, W, 4 + i);
+    }
+    ctx.globalAlpha = 1;
+    // 唯一的一轮低垂夕阳（小窗口里的太阳会被关闭）
+    ctx.globalAlpha = .21;
+    fillCircle(ctx, 146, 57, 38, '#ffc080', .2);
+    ctx.globalAlpha = .72;
+    fillCircle(ctx, 146, 57, 17, '#ffe4b0', .95);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#fff0ca';
+    ctx.fillRect(144, 55, 4, 4);
+    // 海平线
+    ctx.fillStyle = 'rgba(255, 205, 155, .5)';
+    ctx.fillRect(0, horizon - 1, W, 1);
+    ctx.fillStyle = 'rgba(255, 175, 128, .16)';
+    ctx.fillRect(0, horizon, W, 2);
+
+    // 更大的海面与深海
+    const sea = ctx.createLinearGradient(0, horizon, 0, H);
+    sea.addColorStop(0, '#a46e5b');
+    sea.addColorStop(.06, '#2f6567');
+    sea.addColorStop(.25, '#123d4b');
+    sea.addColorStop(.62, '#071f2c');
+    sea.addColorStop(1, '#010509');
+    ctx.fillStyle = sea;
+    ctx.fillRect(0, horizon, W, H - horizon);
+    // 海面波纹
+    for (let i = 0; i < 18; i++) {
+      const y = horizon + 2 + i * 3.4;
+      const off = Math.sin(clock * .5 + i * .8) * 8;
+      ctx.globalAlpha = Math.max(.04, .18 - i * .008);
+      ctx.fillStyle = i < 4 ? '#ffcf9c' : '#9fd6d1';
+      ctx.fillRect((off + i * 29) % W, Math.round(y), 18 + (i % 4) * 7, 1);
+    }
+    // 唯一太阳的倒影
+    for (let i = 0; i < 9; i++) {
+      const y = horizon + 1 + i * 2.2;
+      const w = 20 - i * 1.2 + Math.sin(clock * 1.2 + i) * 2;
+      ctx.globalAlpha = .16 - i * .012;
+      ctx.fillStyle = i < 3 ? '#ffe3b0' : '#eaa26f';
+      ctx.fillRect(Math.round(146 - w / 2 + Math.sin(clock * .9 + i * 1.3) * 3), Math.round(y), Math.round(w), 1);
+    }
+    ctx.globalAlpha = 1;
+    // 深海光柱
+    for (let i = 0; i < 6; i++) {
+      const x = 34 + i * 74;
+      ctx.globalAlpha = .022 + (i % 3) * .012;
+      fillPoly(ctx, [[x, horizon], [x + 16, horizon], [x + 68, H], [x + 40, H]], '#bfe9e2');
+    }
+    ctx.globalAlpha = 1;
+    // 悬浮颗粒与远处小鱼
+    for (let i = 0; i < 26; i++) {
+      const x = (i * 61 + clock * (2 + i % 3)) % W;
+      const y = horizon + 6 + ((i * 41 + clock * 4) % (H - horizon - 10));
+      ctx.globalAlpha = .06 + (i % 4) * .03;
+      ctx.fillStyle = i % 3 === 0 ? '#a9e1df' : '#587a83';
+      ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
+    }
+    for (let i = 0; i < 5; i++) {
+      const x = (i * 103 + 30) % W;
+      const y = horizon + 35 + (i % 3) * 27;
+      ctx.globalAlpha = .12;
+      ctx.fillStyle = '#07151d';
+      ctx.fillRect(x, y, 9 + i * 2, 2);
+      ctx.fillRect(x + 7 + i, y - 2, 2, 1);
+    }
+    ctx.globalAlpha = 1;
+    // 深渊底部
+    const deep = ctx.createLinearGradient(0, H - 64, 0, H);
+    deep.addColorStop(0, 'rgba(1, 6, 9, 0)');
+    deep.addColorStop(1, 'rgba(1, 4, 7, .85)');
+    ctx.fillStyle = deep;
+    ctx.fillRect(0, H - 64, W, 64);
+  }
+
+  function drawBossShots() {
+    if (!game.bossShots) return;
+    for (const p of game.bossShots) {
+      const t = clamp(p.life / p.max, 0, 1);
+      ctx.globalAlpha = clamp(.4 + t * 1.5, 0, 1);
+      if (p.weapon === 'sniper') {
+        pxLine(ctx, p.px, p.py, p.x, p.y, '#dff7ff', 3);
+        pxLine(ctx, p.px, p.py, p.x, p.y, '#ffffff', 1);
+      } else if (p.weapon === 'rifle') {
+        pxLine(ctx, p.px, p.py, p.x, p.y, '#ffb45a', 2);
+        ctx.fillStyle = '#ffe2a0';
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
+      } else {
+        pxLine(ctx, p.px, p.py, p.x, p.y, '#ffe3a0', 1);
+        ctx.fillStyle = '#fff4c8';
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function bossPointHit(x, y) {
+    if (!game || !game.boss) return false;
+    for (const s of game.boss.spine) {
+      if (Math.hypot(x - s.x, y - s.y) < s.r + 5) return true;
+    }
+    return false;
+  }
+
+  function drawBossReticle() {
+    if (!game || !pointer.inside || game.bossPhase !== 'fight') return;
+    const x = Math.round(pointer.x), y = Math.round(pointer.y);
+    const w = currentWeaponCfg();
+    const hit = bossPointHit(x, y);
+    const col = hit ? '#ff8d69' : '#e7d2ad';
+    const off = w.key === 'sniper' ? 13 : w.key === 'rifle' ? 10 : 11;
+    const dark = '#0b0707';
+    for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+      const bx = x + sx * off, by = y + sy * off;
+      const hx = sx < 0 ? bx : bx - 6;
+      const vy = sy < 0 ? by : by - 6;
+      ctx.fillStyle = dark;
+      ctx.fillRect(hx + 1, by + 1, 6, 1);
+      ctx.fillRect(bx + 1, vy + 1, 1, 6);
+      ctx.fillStyle = col;
+      ctx.fillRect(hx, by, 6, 1);
+      ctx.fillRect(bx, vy, 1, 6);
+    }
+    ctx.fillStyle = col;
+    ctx.fillRect(x, y, 1, 1);
+    if (hit) {
+      ctx.globalAlpha = .35;
+      ctx.fillStyle = '#ffb08a';
+      for (let i = 0; i < 16; i++) {
+        const a = i / 16 * TAU;
+        ctx.fillRect(Math.round(x + Math.cos(a) * 22), Math.round(y + Math.sin(a) * 22), 1, 1);
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  function renderBoss() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#020508';
+    ctx.fillRect(0, 0, W, H);
+    let sx = 0, sy = 0;
+    if (game.shake > 0.3 && mode !== 'paused') {
+      sx = Math.round((Math.random() * 2 - 1) * game.shake * 0.55);
+      sy = Math.round((Math.random() * 2 - 1) * game.shake * 0.55);
+    }
+    ctx.save();
+    ctx.translate(sx, sy);
+    drawBossArena();
+
+    let k = 1;
+    if (game.bossPhase === 'intro') k = 0;
+    else if (game.bossPhase === 'shrink') {
+      const raw = clamp(game.bossT / 1.25, 0, 1);
+      k = 1 - Math.pow(1 - raw, 3);
+    }
+    const s = lerp(1, BOSS_WIN.s, k);
+    const wx = lerp(0, BOSS_WIN.x, k);
+    const wy = lerp(0, BOSS_WIN.y, k);
+    drawBossWindow(wx, wy, s);
+    if (k > 0.015) drawBossWindowFrame(wx, wy, W * s, H * s);
+
+    if (game.boss && game.bossPhase !== 'intro' && game.boss.reveal > 0) {
+      drawBoss(game.boss);
+    }
+    drawBossShots();
+    drawParticles();
+    ctx.restore();
+    if (mode === 'playing') drawBossReticle();
+  }
+
   function render() {
+    if (game && game.bossMode) { renderBoss(); return; }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = 1;
     ctx.fillStyle = '#040f17';

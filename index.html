@@ -102,7 +102,7 @@ button { font: inherit; }
   letter-spacing: calc(var(--u) * .7);
 }
 
-.score-panel { width: calc(var(--u) * 108); }
+.score-panel { width: calc(var(--u) * 118); }
 .score {
   margin-top: calc(var(--u) * 1);
   color: #f7e6bd;
@@ -151,66 +151,72 @@ button { font: inherit; }
   background: #e9b261;
 }
 
-.meat-panel {
-  width: calc(var(--u) * 166);
-  padding-bottom: calc(var(--u) * 8);
+.meat-mini {
+  margin-top: calc(var(--u) * 3);
+  padding-top: calc(var(--u) * 2.5);
+  border-top: calc(var(--u) * .8) solid rgba(211, 162, 98, .2);
 }
 .meat-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: calc(var(--u) * 3);
+  gap: calc(var(--u) * 2);
+  margin-bottom: calc(var(--u) * 1.5);
+  white-space: nowrap;
+}
+.meat-head .label {
+  font-size: calc(var(--u) * 3.8);
+  letter-spacing: calc(var(--u) * .45);
 }
 .meat-head b {
+  margin-left: auto;
   color: #f4e0b5;
   font-family: "Courier New", monospace;
-  font-size: calc(var(--u) * 8.4);
-  letter-spacing: calc(var(--u) * .3);
+  font-size: calc(var(--u) * 4.4);
+  letter-spacing: calc(var(--u) * .2);
 }
 .meat-bar {
   position: relative;
-  height: calc(var(--u) * 8);
+  height: calc(var(--u) * 4);
   overflow: hidden;
   background: #110d0b;
-  border: calc(var(--u) * 1) solid rgba(213, 166, 105, .38);
-  box-shadow: inset 0 calc(var(--u) * 2) calc(var(--u) * 2) rgba(0, 0, 0, .55);
+  border: calc(var(--u) * .7) solid rgba(213, 166, 105, .38);
+  box-shadow: inset 0 calc(var(--u) * 1) calc(var(--u) * 1) rgba(0, 0, 0, .55);
 }
 .meat-bar::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(90deg, transparent 0, transparent calc(var(--u) * 9), rgba(8, 10, 10, .42) calc(var(--u) * 9), rgba(8, 10, 10, .42) calc(var(--u) * 11));
+  background: repeating-linear-gradient(90deg, transparent 0, transparent calc(var(--u) * 7), rgba(8, 10, 10, .42) calc(var(--u) * 7), rgba(8, 10, 10, .42) calc(var(--u) * 8.5));
 }
 #meat-fill {
   display: block;
   width: 100%;
   height: 100%;
   background: linear-gradient(180deg, #e7d7ab 0%, #c9a775 45%, #9a7149 100%);
-  box-shadow: inset 0 0 calc(var(--u) * 3) rgba(255, 240, 200, .25);
+  box-shadow: inset 0 0 calc(var(--u) * 2) rgba(255, 240, 200, .25);
   transition: width .16s linear, background .4s;
 }
 #meat-fill.mid { background: linear-gradient(180deg, #e6b571 0%, #d0834b 50%, #92502f 100%); }
 #meat-fill.low { background: linear-gradient(180deg, #ec8059 0%, #c3442e 55%, #7c231c 100%); }
+.meat-mini.frozen .label { color: #bfe9ff; }
+.meat-mini.frozen .label::after { content: " ❄"; color: #dff9ff; }
+.meat-mini.frozen .meat-bar { border-color: rgba(150, 225, 255, .55); }
+.meat-mini.frozen #meat-fill { background: linear-gradient(180deg, #e6fbff 0%, #9edcf2 50%, #5da6c3 100%); }
 .danger-label {
-  position: absolute;
-  left: 50%;
-  bottom: calc(var(--u) * 1.2);
-  transform: translateX(-50%);
   display: none;
-  color: #ffd6a3;
-  font-size: calc(var(--u) * 4.8);
+  color: #ffb08a;
+  font-size: calc(var(--u) * 3);
   font-weight: 700;
-  letter-spacing: calc(var(--u) * 1.2);
-  text-shadow: 0 0 calc(var(--u) * 4) #d13d22;
+  letter-spacing: calc(var(--u) * .5);
+  text-shadow: 0 0 calc(var(--u) * 3) #d13d22;
   animation: dangerBlink .7s steps(2, end) infinite;
-  white-space: nowrap;
 }
-.meat-panel.danger .danger-label { display: block; }
-.meat-panel.danger { border-color: rgba(226, 96, 55, .65); }
+.meat-mini.danger .danger-label { display: inline; }
+.meat-mini.danger .meat-bar { border-color: rgba(226, 96, 55, .65); }
 @keyframes dangerBlink { 50% { opacity: .28; } }
 
 .right-panel {
-  width: calc(var(--u) * 106);
+  width: calc(var(--u) * 164);
   padding-bottom: calc(var(--u) * 4.5);
 }
 .stat-row {
@@ -230,6 +236,23 @@ button { font: inherit; }
   font-weight: 700;
   letter-spacing: calc(var(--u) * .3);
 }
+.ammo-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: calc(var(--u) * 2);
+  min-width: calc(var(--u) * 48);
+}
+.ammo-box b {
+  color: #f1dfb8;
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 6.8);
+  font-weight: 700;
+  letter-spacing: calc(var(--u) * .2);
+  white-space: nowrap;
+}
+.ammo-box b.low { color: #e57f5b; text-shadow: 0 0 calc(var(--u) * 5) rgba(210, 63, 34, .45); }
+.weapon-row b { color: #f0c47a; font-size: calc(var(--u) * 6.2); letter-spacing: 0; }
 .shells { display: inline-flex; gap: calc(var(--u) * 2.2); align-items: center; height: calc(var(--u) * 9); }
 .shell {
   display: block;
@@ -279,11 +302,117 @@ button { font: inherit; }
 .sound-toggle:hover { color: #f2d79d; border-color: rgba(230, 180, 110, .65); }
 .sound-toggle.muted { color: #7d7063; text-decoration: line-through; }
 
+.weapon-bar {
+  position: relative;
+  width: 100%;
+  margin-top: calc(var(--u) * 3);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 2);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.weapon-slots {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--u) * 1.5);
+  width: 100%;
+}
+.wslot {
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * .5);
+  width: calc(var(--u) * 21);
+  min-height: calc(var(--u) * 7.5);
+  padding: calc(var(--u) * 1.2) calc(var(--u) * .5);
+  background: linear-gradient(180deg, rgba(12, 19, 25, .88), rgba(6, 10, 14, .82));
+  border: calc(var(--u) * .7) solid rgba(196, 150, 92, .26);
+  box-shadow: inset 0 0 0 calc(var(--u) * .6) rgba(0, 0, 0, .4);
+  opacity: .85;
+  transition: opacity .2s, border-color .2s, background .2s;
+}
+.wslot.current {
+  opacity: 1;
+  border-color: rgba(239, 192, 112, .82);
+  background: linear-gradient(180deg, rgba(63, 43, 18, .94), rgba(26, 18, 10, .92));
+  box-shadow:
+    0 0 calc(var(--u) * 6) rgba(225, 162, 72, .18),
+    inset 0 0 0 calc(var(--u) * .6) rgba(255, 219, 155, .12);
+}
+.wslot .wnum {
+  color: #e4b46a;
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 3);
+  font-weight: 700;
+}
+.wslot .wname {
+  color: #ead9b8;
+  font-size: calc(var(--u) * 3.6);
+  font-weight: 700;
+  letter-spacing: calc(var(--u) * .1);
+}
+.wslot.new {
+  animation: weaponNew .34s steps(2, end) infinite alternate;
+  border-color: #ffe1a0;
+}
+@keyframes weaponNew {
+  from { box-shadow: 0 0 0 rgba(255, 205, 110, 0); }
+  to { box-shadow: 0 0 calc(var(--u) * 8) rgba(255, 205, 110, .55); }
+}
+.next-weapon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: calc(var(--u) * 2) calc(var(--u) * 4);
+  background: linear-gradient(180deg, rgba(13, 19, 24, .84), rgba(7, 11, 14, .8));
+  border: calc(var(--u) * .7) dashed rgba(196, 150, 92, .28);
+  box-shadow: inset 0 0 0 calc(var(--u) * .6) rgba(0, 0, 0, .35);
+  opacity: .92;
+  pointer-events: none;
+}
+.next-top {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--u) * 2);
+  white-space: nowrap;
+}
+.next-top > span {
+  color: #8e8170;
+  font-size: calc(var(--u) * 3.4);
+  letter-spacing: calc(var(--u) * .5);
+}
+.next-top em {
+  margin-left: auto;
+  color: #c9a268;
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 3.4);
+  font-style: normal;
+  letter-spacing: calc(var(--u) * .1);
+}
+.next-track {
+  height: calc(var(--u) * 1.6);
+  margin-top: calc(var(--u) * 1.5);
+  overflow: hidden;
+  background: rgba(0, 0, 0, .55);
+  box-shadow: inset 0 calc(var(--u) * 1) calc(var(--u) * 1) rgba(0, 0, 0, .5);
+}
+.next-track i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #8e5a2d, #e7bd78);
+  transition: width .18s linear;
+}
+
 .hud-bottom {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: calc(var(--u) * 7);
+  bottom: calc(var(--u) * 6);
   text-align: center;
   color: rgba(242, 224, 188, .42);
   font-size: calc(var(--u) * 5.2);
@@ -334,6 +463,15 @@ button { font: inherit; }
   white-space: nowrap;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast.unlock {
+  color: #ffe8ad;
+  background: linear-gradient(180deg, rgba(43, 29, 9, .96), rgba(19, 13, 6, .96));
+  border-color: rgba(245, 198, 108, .86);
+  box-shadow:
+    0 0 calc(var(--u) * 18) rgba(244, 180, 73, .24),
+    0 calc(var(--u) * 3) 0 rgba(0, 0, 0, .38),
+    inset 0 0 0 calc(var(--u) * 1) rgba(255, 223, 153, .1);
+}
 
 .screen {
   position: absolute;
@@ -446,12 +584,19 @@ h2 {
   letter-spacing: calc(var(--u) * .35);
 }
 .over-lore { font-size: calc(var(--u) * 6.8); }
+.unlock-note {
+  margin: calc(var(--u) * 3) auto 0;
+  color: #d3a363;
+  font-size: calc(var(--u) * 4.7);
+  letter-spacing: calc(var(--u) * .3);
+  line-height: 1.4;
+}
 .keys {
   display: grid;
   grid-template-columns: repeat(4, auto);
   justify-content: center;
   gap: calc(var(--u) * 4) calc(var(--u) * 6);
-  margin: calc(var(--u) * 8) auto calc(var(--u) * 7);
+  margin: calc(var(--u) * 6) auto calc(var(--u) * 5);
 }
 .keys > div { display: flex; align-items: center; gap: calc(var(--u) * 2.4); }
 kbd {
@@ -599,13 +744,120 @@ kbd {
 .pause-panel .lore { margin-top: calc(var(--u) * 5); }
 .mini-hint { margin-top: calc(var(--u) * 5); color: #74695b; font-size: calc(var(--u) * 5); }
 
+.debug-btn {
+  position: absolute;
+  right: calc(var(--u) * 12);
+  bottom: calc(var(--u) * 9);
+  z-index: 2;
+  padding: calc(var(--u) * 2.2) calc(var(--u) * 5);
+  color: rgba(185, 214, 199, .7);
+  background: rgba(8, 15, 16, .72);
+  border: calc(var(--u) * .8) solid rgba(133, 186, 160, .28);
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 4.2);
+  letter-spacing: calc(var(--u) * 1.2);
+  cursor: pointer;
+}
+.debug-btn:hover {
+  color: #d6f5df;
+  border-color: rgba(160, 230, 190, .6);
+}
+.debug-btn.hidden { display: none; }
+
+.debug-panel {
+  width: min(calc(var(--u) * 360), 90%);
+  padding: calc(var(--u) * 10) calc(var(--u) * 16) calc(var(--u) * 10);
+  text-align: left;
+}
+.debug-panel h2 {
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 20);
+  letter-spacing: calc(var(--u) * 2);
+  color: #c7e6d2;
+}
+.debug-sub {
+  margin: calc(var(--u) * 1) 0 calc(var(--u) * 5);
+  color: #7f9589;
+  font-size: calc(var(--u) * 4.6);
+  line-height: 1.4;
+}
+.debug-list {
+  border-top: calc(var(--u) * .8) solid rgba(140, 190, 166, .18);
+}
+.debug-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--u) * 5);
+  padding: calc(var(--u) * 4.2) 0;
+  border-bottom: calc(var(--u) * .8) solid rgba(140, 190, 166, .12);
+}
+.debug-row > div { min-width: 0; }
+.debug-row b {
+  display: block;
+  color: #e3d3ae;
+  font-size: calc(var(--u) * 6.2);
+  letter-spacing: calc(var(--u) * .5);
+}
+.debug-row span {
+  display: block;
+  margin-top: calc(var(--u) * .8);
+  color: #8d9e92;
+  font-size: calc(var(--u) * 4.2);
+  line-height: 1.35;
+}
+.debug-row span em {
+  color: #c98a6a;
+  font-style: normal;
+}
+.debug-toggle {
+  flex: 0 0 auto;
+  min-width: calc(var(--u) * 42);
+  padding: calc(var(--u) * 2.4) calc(var(--u) * 5);
+  color: #9b8f7c;
+  background: rgba(17, 25, 26, .8);
+  border: calc(var(--u) * .8) solid rgba(167, 185, 164, .28);
+  font-size: calc(var(--u) * 5);
+  font-weight: 700;
+  cursor: pointer;
+}
+.debug-toggle[data-on="true"] {
+  color: #122018;
+  background: #a7d5b4;
+  border-color: #d4f2da;
+}
+.debug-input {
+  flex: 0 0 calc(var(--u) * 44);
+  width: calc(var(--u) * 44);
+  padding: calc(var(--u) * 2.2) calc(var(--u) * 3);
+  color: #dff2df;
+  background: rgba(10, 17, 16, .9);
+  border: calc(var(--u) * .8) solid rgba(167, 185, 164, .32);
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 6);
+  text-align: center;
+  outline: none;
+}
+.debug-input:focus { border-color: rgba(190, 235, 203, .75); }
+.debug-panel .btn-row {
+  justify-content: flex-start;
+  margin-top: calc(var(--u) * 6);
+  gap: calc(var(--u) * 4);
+}
+.debug-panel .btn {
+  min-width: calc(var(--u) * 96);
+  padding: calc(var(--u) * 4.4) calc(var(--u) * 8);
+  font-size: calc(var(--u) * 7);
+  letter-spacing: calc(var(--u) * 1);
+}
+.debug-panel .mini-hint { text-align: center; }
+
 @media (max-width: 720px) {
   #stage { padding: 1vw; }
   #wrap { width: min(98vw, calc(94vh * 16 / 9)); width: min(98vw, calc(94dvh * 16 / 9)); }
   .hud-top { gap: calc(var(--u) * 3); }
-  .score-panel { width: calc(var(--u) * 94); }
-  .meat-panel { width: calc(var(--u) * 142); }
-  .right-panel { width: calc(var(--u) * 94); }
+  .score-panel { width: calc(var(--u) * 104); }
+  .right-panel { width: calc(var(--u) * 154); }
   .score { font-size: calc(var(--u) * 13); }
   .combo { font-size: calc(var(--u) * 5); gap: calc(var(--u) * 1.5); }
   .hud-bottom { display: none; }
@@ -650,22 +902,39 @@ kbd {
             <em id="combo-mult">×1</em>
             <div class="combo-bar"><i id="combo-fill"></i></div>
           </div>
-        </section>
-
-        <section class="panel meat-panel" id="meat-panel">
-          <div class="meat-head"><span class="label">马林鱼</span><b id="meat-pct">100%</b></div>
-          <div class="meat-bar"><i id="meat-fill"></i></div>
-          <div class="danger-label" id="danger-label">危在旦夕</div>
+          <div class="meat-mini" id="meat-panel">
+            <div class="meat-head">
+              <span class="label">马林鱼</span>
+              <span class="danger-label" id="danger-label">危在旦夕</span>
+              <b id="meat-pct">100%</b>
+            </div>
+            <div class="meat-bar"><i id="meat-fill"></i></div>
+          </div>
         </section>
 
         <section class="panel right-panel">
+          <div class="stat-row weapon-row"><span class="label">武器</span><b id="weapon-name">鱼叉</b></div>
           <div class="stat-row"><span class="label">存活</span><b id="time">00:00</b></div>
-          <div class="stat-row"><span class="label">弹药</span><span class="shells" id="shells"></span></div>
+          <div class="stat-row ammo-row"><span class="label">弹药</span><span class="ammo-box"><b id="ammo-text">近战</b><span class="shells" id="shells"></span></span></div>
           <div class="reload-track"><i id="reload-fill"></i></div>
           <div class="stat-row threat-row"><span class="label">威胁</span><b><span id="threat">0</span> 条</b><button id="mute" class="sound-toggle" title="静音 (M)" aria-label="静音">♪</button></div>
+          <div class="weapon-bar" id="weapon-bar">
+            <div class="weapon-slots">
+              <div class="wslot" id="wslot-harpoon"><span class="wnum">1</span><span class="wname">鱼叉</span></div>
+              <div class="wslot" id="wslot-pistol" style="display:none"><span class="wnum">2</span><span class="wname">手枪</span></div>
+              <div class="wslot" id="wslot-shotgun" style="display:none"><span class="wnum">3</span><span class="wname">猎枪</span></div>
+              <div class="wslot" id="wslot-rifle" style="display:none"><span class="wnum">4</span><span class="wname">AK</span></div>
+              <div class="wslot" id="wslot-sniper" style="display:none"><span class="wnum">5</span><span class="wname">巴雷特</span></div>
+              <div class="wslot" id="wslot-rpg" style="display:none"><span class="wnum">6</span><span class="wname">RPG</span></div>
+            </div>
+            <div class="next-weapon" id="next-weapon">
+              <div class="next-top"><span>下一把武器</span><em id="next-weapon-score">1,000 分</em></div>
+              <div class="next-track"><i id="next-fill"></i></div>
+            </div>
+          </div>
         </section>
       </div>
-      <div class="hud-bottom"><span>鼠标瞄准 · 左键/空格开火 · R 装填 · P 暂停</span></div>
+      <div class="hud-bottom"><span>鼠标瞄准 · 左键/空格开火 · 1-5/滚轮切枪 · R 装填 · P 暂停</span></div>
     </div>
 
     <div id="danger-glow"></div>
@@ -679,19 +948,52 @@ kbd {
         <h1>老人与海</h1>
         <div class="subtitle">鲨 口 余 生</div>
         <div class="ornament"><i></i><b>◆</b><i></i></div>
-        <p class="lore">第八十五天，大鱼终于上钩。<br>归航途中，血腥味惊动了整片海。<br>船已无法再动——举起猎枪，守住你的马林鱼。</p>
+        <p class="lore">第八十五天，大鱼终于上钩。<br>归航途中，血腥味惊动了整片海。<br>船已无法再动——举起武器，守住你的马林鱼。</p>
+        <div class="unlock-note">得分会解锁新武器，并自动装备 · 1-5 / 滚轮切枪 · 触屏点槽</div>
         <div class="keys">
           <div><kbd>鼠标</kbd><span>瞄准</span></div>
           <div><kbd>左键</kbd><span>开火</span></div>
           <div><kbd>R</kbd><span>装填</span></div>
           <div><kbd>P</kbd><span>暂停</span></div>
         </div>
-        <div class="touch-note">触屏：轻触海面瞄准并开火 · 横屏更佳</div>
+        <div class="touch-note">触屏：轻触海面开火 · 点武器槽切枪</div>
         <button id="start-btn" class="btn primary">出 海</button>
         <div class="start-foot">
           <button id="sound-btn" class="linkbtn">声音：开</button>
           <span>最高分 <b id="start-best">0</b></span>
         </div>
+      </div>
+      <button id="debug-btn" class="debug-btn hidden" type="button">debug</button>
+    </section>
+
+    <section class="screen hidden" id="debug-screen">
+      <div class="panel-screen debug-panel">
+        <div class="eyebrow">DEV · 海面之下</div>
+        <h2>DEBUG</h2>
+        <p class="debug-sub">这些开关只影响下一局，不写入正常存档。</p>
+        <div class="debug-list">
+          <div class="debug-row">
+            <div><b>开局六神装</b><span>开局解锁全部武器与隐藏 6 号武器 RPG。RPG 备弹 1 发，1 秒装填，范围爆炸伤害。</span></div>
+            <button id="debug-sixgod" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
+            <div><b>冰冻马林鱼</b><span>马林鱼不会掉血，贴图保持冰冻；鲨鱼仍会撕咬并造成屏幕震动。</span></div>
+            <button id="debug-frozen" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
+            <div><b>跳跃时空</b><span>0 正常开局 · 1 手枪 · 2 猎枪 · 3 AK · 4 巴雷特</span></div>
+            <input id="debug-jump" class="debug-input" type="number" min="0" max="4" step="1" inputmode="numeric" value="0" aria-label="跳跃时空">
+          </div>
+          <div class="debug-row">
+            <div><b>来自深渊</b><span>开启后记录 BOSS 战开关。<em>BOSS 战尚未制作，本局仍为普通海面。</em></span></div>
+            <button id="debug-abyss" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button id="debug-start-btn" class="btn primary" type="button">应用并开始</button>
+          <button id="debug-close-btn" class="btn ghost" type="button">返回主菜单</button>
+        </div>
+        <div class="mini-hint">按 Esc 返回主菜单</div>
       </div>
     </section>
 
@@ -720,7 +1022,7 @@ kbd {
           <div><span>护鱼奖励</span><b id="r-defense">0</b></div>
           <div><span>生存奖励</span><b id="r-survival">0</b></div>
         </div>
-        <div class="run-stats">击杀 <b id="r-kills">0</b><i>·</i>存活 <b id="r-time">0:00</b><i>·</i>最高连击 <b id="r-bestcombo">0</b></div>
+        <div class="run-stats">击杀 <b id="r-kills">0</b><i>·</i>存活 <b id="r-time">0:00</b><i>·</i>最高连击 <b id="r-bestcombo">0</b><i>·</i>最终武器 <b id="r-weapon">鱼叉</b></div>
         <div class="new-best hidden" id="new-best">★ 新纪录 ★</div>
         <div class="btn-row">
           <button id="retry-btn" class="btn primary">再试一次</button>
@@ -968,6 +1270,72 @@ kbd {
       this.tone(55, 2.2, 0.32, 'sine', 34);
       this.tone(82, 2.0, 0.16, 'triangle', 41);
       this.noise(1.2, 260, 0.16, 'lowpass');
+    },
+    shotgun() { this.shot(); },
+    pistol() {
+      this.noise(0.12, 2200, 0.34, 'bandpass');
+      this.tone(150, 0.09, 0.2, 'square', 60);
+      this.tone(880, 0.04, 0.06, 'triangle', 320);
+    },
+    rifle() {
+      this.noise(0.2, 900, 0.5, 'lowpass');
+      this.noise(0.08, 2800, 0.24, 'bandpass');
+      this.tone(58, 0.18, 0.34, 'triangle', 30);
+      this.tone(165, 0.07, 0.12, 'square', 68);
+    },
+    sniper() {
+      this.noise(0.45, 1200, 0.62, 'lowpass');
+      this.tone(55, 0.5, 0.42, 'sine', 28);
+      this.tone(210, 0.25, 0.16, 'triangle', 50);
+      this.noise(0.7, 300, 0.16, 'lowpass');
+    },
+    rpg() {
+      this.noise(0.42, 1400, 0.55, 'lowpass');
+      this.tone(62, 0.3, 0.35, 'triangle', 32);
+      this.noise(0.65, 380, 0.22, 'bandpass');
+      this.tone(180, 0.12, 0.1, 'square', 70);
+    },
+    explosion() {
+      this.noise(0.85, 520, 0.8, 'lowpass');
+      this.noise(1.2, 210, 0.45, 'lowpass');
+      this.tone(44, 0.9, 0.55, 'sine', 18);
+      this.tone(92, 0.35, 0.2, 'sawtooth', 32);
+      this.tone(1300, 0.05, 0.08, 'square', 240);
+    },
+    harpoon() {
+      this.noise(0.16, 850, 0.13, 'bandpass');
+      this.tone(240, 0.1, 0.045, 'sine', 110);
+    },
+    iceHit() {
+      this.noise(0.08, 3600, 0.13, 'highpass');
+      this.tone(1320, 0.06, 0.08, 'sine', 1780);
+      this.tone(480, 0.035, 0.05, 'square', 900);
+    },
+    harpoonHit() {
+      this.noise(0.1, 1700, 0.24, 'bandpass');
+      this.noise(0.16, 300, 0.34, 'lowpass');
+      this.tone(92, 0.13, 0.18, 'triangle', 42);
+      this.tone(1050, 0.035, 0.07, 'square', 620);
+    },
+    switchWeapon() {
+      this.tone(500, 0.035, 0.08, 'square', 300);
+      this.tone(900, 0.03, 0.05, 'square', 650, (this.ac ? this.ac.currentTime : 0) + 0.06);
+    },
+    headshot() {
+      this.tone(1320, 0.08, 0.1, 'triangle', 1760);
+      this.tone(880, 0.04, 0.05, 'square', 1200);
+    },
+    threat() {
+      this.noise(0.55, 240, 0.32, 'lowpass');
+      this.tone(43, 0.6, 0.2, 'sine', 28);
+      this.tone(86, 0.35, 0.08, 'triangle', 48);
+    },
+    unlock() {
+      const t = this.ac ? this.ac.currentTime : 0;
+      this.tone(520, 0.11, 0.12, 'triangle', 660, t);
+      this.tone(780, 0.12, 0.1, 'triangle', 980, t + 0.12);
+      this.tone(1040, 0.25, 0.12, 'triangle', 1320, t + 0.24);
+      this.noise(0.22, 1600, 0.08, 'bandpass', t);
     },
     ui() { this.tone(600, 0.05, 0.07, 'square', 840); }
   };
@@ -1236,17 +1604,97 @@ kbd {
     },
     galano: {
       name: '铲鼻鲨', len: 61, bodyH: 13, dorsalH: 7, tailH: 14, jaw: 9,
-      hp: 5, speed: 41, dmg: 1.75, points: 150, hitR: 17,
+      hp: 6, speed: 41, dmg: 1.75, points: 150, hitR: 17,
       colors: { line: '#2c2118', top: '#6f5c43', mid: '#a88e6c', belly: '#dcd1b8', fin: '#594832', finEdge: '#987a54', scar: '#c3b08d' },
       profile: 'galano', bite: [0.8, 1.1]
     },
     white: {
       name: '大白鲨', len: 79, bodyH: 20, dorsalH: 13, tailH: 21, jaw: 12,
-      hp: 8, speed: 31, dmg: 2.55, points: 300, hitR: 22,
+      hp: 10, speed: 31, dmg: 2.55, points: 300, hitR: 22,
       colors: { line: '#18262e', top: '#4e626c', mid: '#96a7ab', belly: '#e4e5da', fin: '#394b55', finEdge: '#78909a', scar: '#cbd4d1' },
       profile: 'white', bite: [0.9, 1.2]
+    },
+    mega: {
+      name: '巨型白鲨', len: 96, bodyH: 24, dorsalH: 16, tailH: 25, jaw: 14,
+      hp: 20, speed: 24, dmg: 3.2, points: 500, hitR: 27,
+      colors: { line: '#53666c', top: '#8d9fa3', mid: '#c9d3d4', belly: '#f4f5eb', fin: '#657b82', finEdge: '#e0e8e4', scar: '#ffffff' },
+      profile: 'mega', bite: [1.0, 1.3]
     }
   };
+
+  /* ---------------- 武器 ---------------- */
+  const WEAPONS = {
+    harpoon: {
+      key: 'harpoon', name: '鱼叉', short: '鱼叉', slot: 1, unlock: 0, kind: 'melee',
+      mag: 0, reload: 0, reloadType: 'none', fireCd: 0.55,
+      damage: 2, range: 150, arc: 0.58,
+      gripBack: 4, gripFront: 26, muzzleLen: 62, recoilKick: 0.6, recoil: 0.35,
+      sound: 'harpoon', muzzleSize: 0
+    },
+    pistol: {
+      key: 'pistol', name: 'M1911', short: '手枪', slot: 2, unlock: 1000, kind: 'gun',
+      mag: 8, reload: 1.15, reloadType: 'mag', fireCd: 0.22,
+      speed: 760, range: 260, damage: 1, headDamage: 4, penetration: 0,
+      pellets: 1, spread: 0.006, auto: false,
+      gripBack: 2, gripFront: 5, muzzleLen: 12, recoilKick: 1.5, recoil: 0.55,
+      tracerColor: '#ffe3a0', tracerSize: 1, sound: 'pistol', muzzleSize: 0.7
+    },
+    shotgun: {
+      key: 'shotgun', name: '双管猎枪', short: '猎枪', slot: 3, unlock: 5000, kind: 'gun',
+      mag: 2, reload: 0.78, reloadType: 'shell', fireCd: 0.34,
+      speed: 605, range: 170, damage: 1, headDamage: 12, penetration: 1,
+      pellets: 9, spread: 0.16, auto: false,
+      gripBack: 3, gripFront: 10, muzzleLen: 24.5, recoilKick: 2.2, recoil: 1,
+      tracerColor: '#ffd98a', tracerSize: 1, sound: 'shotgun', muzzleSize: 1
+    },
+    rifle: {
+      key: 'rifle', name: 'AK-47', short: 'AK', slot: 4, unlock: 10000, kind: 'gun',
+      mag: 30, reload: 1.55, reloadType: 'mag', fireCd: 0.105,
+      speed: 860, range: 320, damage: 3, headDamage: 12, penetration: 2,
+      pellets: 1, spread: 0.012, auto: true,
+      gripBack: 3, gripFront: 13, muzzleLen: 29, recoilKick: 1.6, recoil: 0.45,
+      tracerColor: '#ffb45a', tracerSize: 2, sound: 'rifle', muzzleSize: 0.85
+    },
+    sniper: {
+      key: 'sniper', name: '巴雷特', short: '巴雷特', slot: 5, unlock: 40000, kind: 'gun',
+      mag: 5, reload: 2.1, reloadType: 'mag', fireCd: 0.85,
+      speed: 1800, range: 620, damage: 9999, headDamage: 9999, penetration: 99,
+      pellets: 1, spread: 0.0005, auto: false,
+      gripBack: 3, gripFront: 15, muzzleLen: 36, recoilKick: 4, recoil: 1.2,
+      tracerColor: '#dff7ff', tracerSize: 2, sound: 'sniper', muzzleSize: 1.5
+    },
+    rpg: {
+      key: 'rpg', name: 'RPG', short: 'RPG', slot: 6, unlock: Infinity, hidden: true, kind: 'gun',
+      mag: 1, reload: 1.0, reloadType: 'mag', fireCd: 0.85,
+      speed: 430, range: 620, damage: 9999, headDamage: 9999, penetration: 0,
+      pellets: 1, spread: 0.002, auto: false,
+      gripBack: 3, gripFront: 18, muzzleLen: 28, recoilKick: 3, recoil: 1.3,
+      tracerColor: '#ffd27a', tracerSize: 2, sound: 'rpg', muzzleSize: 1.4,
+      blastRadius: 96
+    }
+  };
+  const WEAPON_ORDER = ['harpoon', 'pistol', 'shotgun', 'rifle', 'sniper'];
+  const ALL_WEAPON_ORDER = WEAPON_ORDER.concat(['rpg']);
+
+  function freshAmmoState() {
+    const o = {};
+    for (const k of ALL_WEAPON_ORDER) o[k] = WEAPONS[k].mag;
+    return o;
+  }
+  function freshUnlockState() {
+    const o = {};
+    for (const k of ALL_WEAPON_ORDER) o[k] = WEAPONS[k].unlock <= 0;
+    return o;
+  }
+  function currentWeaponCfg() { return WEAPONS[game ? game.weapon : 'harpoon']; }
+  function currentAmmo() { return game ? game.weaponAmmo[game.weapon] : 0; }
+  function setCurrentAmmo(v) { if (game) game.weaponAmmo[game.weapon] = v; }
+  function angleDiff(a, b) {
+    let d = a - b;
+    while (d > Math.PI) d -= Math.PI * 2;
+    while (d < -Math.PI) d += Math.PI * 2;
+    return d;
+  }
 
   function sharkProfile(kind, t) {
     t = clamp(t, 0, 1);
@@ -1263,6 +1711,13 @@ kbd {
       if (t < 0.70) return 1.06;
       if (t < 0.91) return 1.06 - ((t - 0.70) / 0.21) * 0.48;
       return lerp(0.58, 0.3, (t - 0.91) / 0.09);
+    }
+    if (kind === 'mega') {
+      if (t < 0.10) return 0.34 + (t / 0.10) * 0.44;
+      if (t < 0.28) return 0.78 + ((t - 0.10) / 0.18) * 0.34;
+      if (t < 0.70) return 1.12;
+      if (t < 0.91) return 1.12 - ((t - 0.70) / 0.21) * 0.52;
+      return lerp(0.60, 0.36, (t - 0.91) / 0.09);
     }
     if (t < 0.11) return 0.22 + (t / 0.11) * 0.5;
     if (t < 0.30) return 0.72 + ((t - 0.11) / 0.19) * 0.28;
@@ -1462,7 +1917,8 @@ kbd {
   const sharkSprites = {
     mako: makeSharkSprites('mako'),
     galano: makeSharkSprites('galano'),
-    white: makeSharkSprites('white')
+    white: makeSharkSprites('white'),
+    mega: makeSharkSprites('mega')
   };
 
 
@@ -1475,8 +1931,29 @@ kbd {
   let toastTimer = 0;
   let overAnim = 0;
   const pointer = { x: 334, y: 208, inside: false };
+  const DEBUG_KEY = 'oldman-sea-debug-v1';
+  const debugState = { unlocked: false, sixGod: false, frozenFish: false, jump: 0, abyss: false };
+  try {
+    const raw = localStorage.getItem(DEBUG_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved === 'object') {
+        debugState.unlocked = !!saved.unlocked;
+        debugState.sixGod = !!saved.sixGod;
+        debugState.frozenFish = !!saved.frozenFish;
+        debugState.jump = clamp(Math.round(Number(saved.jump) || 0), 0, 4);
+        debugState.abyss = !!saved.abyss;
+      }
+    }
+  } catch (e) { /* 调试存档不可用时忽略 */ }
+  let debugSeq = [];
+  function saveDebugState() {
+    try { localStorage.setItem(DEBUG_KEY, JSON.stringify(debugState)); } catch (e) { /* ignore */ }
+  }
+
   const screens = {
     start: $('start-screen'),
+    debug: $('debug-screen'),
     pause: $('pause-screen'),
     over: $('over-screen')
   };
@@ -1548,14 +2025,22 @@ kbd {
       pellets: [],
       parts: [],
       texts: [],
-      ammo: 2,
-      maxAmmo: 2,
+      blasts: [],
+      weapon: 'harpoon',
+      weaponAmmo: freshAmmoState(),
+      unlocked: freshUnlockState(),
       fireCd: 0,
       reloading: false,
       reloadTimer: 0,
+      reloadTotal: 0,
       reloadDelay: 0.5,
       recoil: 0,
       reloadPose: 0,
+      switchPose: 0,
+      meleeT: 0,
+      trigger: false,
+      unlockFlash: {},
+      hitMarkHead: 0,
       spawnTimer: 2.2,
       spawnCount: 0,
       aimAngle: 0.52,
@@ -1572,6 +2057,9 @@ kbd {
       hitMarkX: 0,
       hitMarkY: 0,
       endT: 0,
+      frozenFish: false,
+      abyss: false,
+      debugRun: false,
       demo: false
     };
   }
@@ -1613,10 +2101,128 @@ kbd {
     if (name && screens[name]) screens[name].classList.remove('hidden');
   }
 
-  function showToast(message, ms) {
+  function refreshDebugButton() {
+    const btn = $('debug-btn');
+    if (btn) btn.classList.toggle('hidden', !debugState.unlocked);
+  }
+
+  function syncDebugUI() {
+    const bind = [
+      ['debug-sixgod', 'sixGod'],
+      ['debug-frozen', 'frozenFish'],
+      ['debug-abyss', 'abyss']
+    ];
+    for (const [id, flag] of bind) {
+      const btn = $(id);
+      if (!btn) continue;
+      const on = !!debugState[flag];
+      btn.textContent = on ? '是' : '否';
+      btn.setAttribute('data-on', on ? 'true' : 'false');
+    }
+    const jump = $('debug-jump');
+    if (jump) jump.value = String(debugState.jump);
+  }
+
+  function openDebug() {
+    if (!debugState.unlocked || mode === 'debug') return;
+    if (mode !== 'menu') return;
+    mode = 'debug';
+    hideScreens();
+    showScreen('debug');
+    wrap.classList.remove('playing', 'low-meat');
+    syncDebugUI();
+    Sound.ui();
+  }
+
+  function closeDebug() {
+    if (mode !== 'debug') return;
+    goMenu();
+  }
+
+  function unlockDebug() {
+    debugState.unlocked = true;
+    saveDebugState();
+    refreshDebugButton();
+    openDebug();
+  }
+
+  function toggleDebugFlag(flag) {
+    if (!debugState.unlocked) return;
+    debugState[flag] = !debugState[flag];
+    saveDebugState();
+    syncDebugUI();
+    Sound.ui();
+  }
+
+  function setDebugJump(value) {
+    const n = Number(value);
+    debugState.jump = Number.isFinite(n) ? clamp(Math.round(n), 0, 4) : 0;
+    saveDebugState();
+    syncDebugUI();
+  }
+
+  function unlockDebugArsenal() {
+    if (!game) return;
+    for (const key of ALL_WEAPON_ORDER) {
+      game.unlocked[key] = true;
+      game.weaponAmmo[key] = WEAPONS[key].mag;
+      game.unlockFlash[key] = 1.2;
+    }
+    game.spawnTimer = Math.max(game.spawnTimer, 3.5);
+    switchWeapon('rpg', true);
+    Sound.unlock();
+    showToast('DEBUG：六神装 · 隐藏武器 RPG 已装备', 3000, true);
+  }
+
+  function applyDebugJump(level) {
+    if (!game) return;
+    level = clamp(Math.round(level), 1, 4);
+    const target = WEAPON_ORDER[level];
+    if (!target) return;
+    const jumpTime = [0, 30, 75, 120, 180][level];
+    const threshold = WEAPONS[target].unlock;
+    game.t = game.timeAlive = jumpTime;
+    game.killBase = Math.max(0, threshold - Math.floor(jumpTime * 2));
+    game.comboBonus = 0;
+    game.defenseBonus = 0;
+    for (let i = 0; i <= level; i++) {
+      const key = WEAPON_ORDER[i];
+      game.unlocked[key] = true;
+      game.weaponAmmo[key] = WEAPONS[key].mag;
+      game.unlockFlash[key] = 1.2;
+    }
+    game.spawnTimer = Math.max(game.spawnTimer, 3.4);
+    switchWeapon(target, true);
+    const tierShark = { pistol: 'galano', shotgun: 'white', rifle: 'mega' };
+    if (tierShark[target]) spawnShark(tierShark[target]);
+    Sound.unlock();
+    showToast('DEBUG：时空跳转 · ' + WEAPONS[target].name + ' · ' + formatComma(threshold) + ' 分', 3000, true);
+  }
+
+  function applyDebugStart() {
+    if (!game || mode !== 'playing') return;
+    const active = debugState.unlocked;
+    game.frozenFish = active && !!debugState.frozenFish;
+    game.abyss = active && !!debugState.abyss;
+    game.debugRun = active && (!!debugState.sixGod || !!debugState.frozenFish || debugState.jump > 0 || !!debugState.abyss);
+    if (!active) return;
+    if (debugState.sixGod) {
+      unlockDebugArsenal();
+    } else if (debugState.jump > 0) {
+      applyDebugJump(debugState.jump);
+    } else if (debugState.frozenFish) {
+      showToast('DEBUG：冰冻马林鱼', 2200, true);
+    }
+    if (debugState.abyss) {
+      showToast('DEBUG：来自深渊（BOSS 战尚未制作）', 2600, true);
+    }
+  }
+
+  function showToast(message, ms, unlockStyle) {
     const el = $('toast');
     if (!el) return;
     el.textContent = message;
+    el.classList.toggle('unlock', !!unlockStyle);
     el.classList.add('show');
     toastTimer = Math.max(0.8, (ms || 1800) / 1000);
   }
@@ -1716,6 +2322,16 @@ kbd {
     }
   }
 
+  function burstIce(x, y, n, dirX, dirY) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.atan2(dirY || 0, dirX || 0) + rand(-1.4, 1.4);
+      const sp = rand(18, 70);
+      addParticle(x + rand(-3, 3), y + rand(-3, 3), Math.cos(a) * sp, Math.sin(a) * sp - rand(0, 10),
+        rand(0.25, 0.7), choice(['#e8fbff', '#b8ecff', '#ffffff', '#8fd8ef']),
+        Math.random() < 0.3 ? 2 : 1, 55, 0.94);
+    }
+  }
+
   function burstFlesh(x, y, n) {
     const colors = ['#d8d2b8', '#a9bdb8', '#8f5a4a', '#e7dfc4'];
     for (let i = 0; i < n; i++) {
@@ -1758,7 +2374,13 @@ kbd {
     for (let i = 0; i < game.segFlash.length; i++) {
       game.segFlash[i] = Math.max(0, game.segFlash[i] - dt * 2.2);
     }
+    for (let i = game.blasts.length - 1; i >= 0; i--) {
+      const b = game.blasts[i];
+      b.t -= dt;
+      if (b.t <= 0) game.blasts.splice(i, 1);
+    }
     game.hitMark = Math.max(0, game.hitMark - dt);
+    game.hitMarkHead = Math.max(0, game.hitMarkHead - dt);
     game.hurtFlash = Math.max(0, game.hurtFlash - dt * 3.2);
     game.shake = Math.max(0, game.shake - dt * 25);
     game.recoil = Math.max(0, game.recoil - dt * 8);
@@ -1783,13 +2405,10 @@ kbd {
 
   /* ---------------- 鲨鱼 ---------------- */
   function pickSharkType() {
-    const t = game ? game.t : 0;
     const pool = [['mako', 10]];
-    if (t > 14) pool.push(['galano', 7]);
-    if (t > 42) {
-      const whites = game.sharks.filter(s => !s.dead && s.type === 'white').length;
-      pool.push(['white', whites > 0 ? 1 : (t > 95 ? 5 : 3)]);
-    }
+    if (game && game.unlocked.pistol) pool.push(['galano', 5]);
+    if (game && game.unlocked.shotgun) pool.push(['white', 3]);
+    if (game && game.unlocked.rifle) pool.push(['mega', 2]);
     let total = 0;
     for (const p of pool) total += p[1];
     let r = Math.random() * total;
@@ -1872,15 +2491,28 @@ kbd {
     return game.sharks.filter(s => !s.dead);
   }
 
-  function spawnShark() {
-    if (!game || mode !== 'playing') return;
-    if (aliveSharks().length >= Math.min(7, 3 + Math.floor(game.t / 30))) return;
+  function spawnShark(forcedType) {
+    if (!game || mode !== 'playing') return null;
+    const type = forcedType || pickSharkType();
+    if (!SHARK_TYPES[type]) return null;
+    if (!forcedType && aliveSharks().length >= Math.min(7, 3 + Math.floor(game.t / 30))) return null;
     const target = pickTargetSeg();
-    if (target < 0) return;
-    const type = pickSharkType();
+    if (target < 0) return null;
     const edge = randi(0, 2);
     let x, y;
-    if (edge === 0) {
+    if (forcedType) {
+      // 新层级亮相：贴着屏幕边缘出现，立刻可见
+      if (edge === 0) {
+        x = -8;
+        y = rand(SEA_Y + 46, H - 30);
+      } else if (edge === 1) {
+        x = W + 8;
+        y = rand(SEA_Y + 46, H - 30);
+      } else {
+        x = rand(60, W - 60);
+        y = H - 6;
+      }
+    } else if (edge === 0) {
       x = -SHARK_TYPES[type].len * 0.7 - 10;
       y = rand(SEA_Y + 24, H - 20);
     } else if (edge === 1) {
@@ -1892,10 +2524,12 @@ kbd {
     }
     const s = newShark(type, x, y);
     setSharkTarget(s, target, x, y);
-    // 进场的水花
-    burstBubbles(x, Math.min(y, H - 4), 6, 8);
+    // 进场的水花；强制刷新时水花更大，提醒玩家
+    const bubbleX = clamp(x, 4, W - 4);
+    burstBubbles(bubbleX, Math.min(y, H - 4), forcedType ? 16 : 6, forcedType ? 16 : 8);
     game.sharks.push(s);
     game.spawnCount++;
+    return s;
   }
 
   function makeDemoShark(type, x, y, vx) {
@@ -1912,7 +2546,7 @@ kbd {
     game = createGame();
     game.demo = true;
     game.sharks = [
-      makeDemoShark('white', -110, 226, 19),
+      makeDemoShark('mako', -110, 226, 19),
       makeDemoShark('mako', W + 100, 202, -25)
     ];
   }
@@ -2035,6 +2669,15 @@ kbd {
     if (!game || game.meat <= 0) return;
     const seg = s.targetSeg;
     if (seg < 0 || game.segMeat[seg] <= 0) return;
+    if (game.frozenFish) {
+      const bp = FISH_SEGS[seg];
+      const dir = normalize(bp.biteX - s.x, bp.biteY - s.y);
+      game.shake = Math.max(game.shake, 3.2);
+      burstIce(bp.biteX, bp.biteY, 12, dir.x, dir.y);
+      game.segFlash[seg] = 0.25;
+      Sound.iceHit();
+      return;
+    }
     const cfg = s.cfg;
     const amount = cfg.dmg * (1 + Math.min(0.35, game.t / 220));
     game.segMeat[seg] = Math.max(0, game.segMeat[seg] - amount);
@@ -2055,7 +2698,7 @@ kbd {
     if (game.meat <= 0) endGame();
   }
 
-  function killShark(s, wasBiting) {
+  function killShark(s, wasBiting, headshot) {
     if (s.dead) return;
     s.dead = true;
     s.state = 'dying';
@@ -2074,129 +2717,348 @@ kbd {
     if (wasBiting) game.defenseBonus += 40;
     const earned = points * mult + (wasBiting ? 40 : 0);
     addText(s.x, s.y - 12, '+' + earned, '#ffe2a1', 2);
-    if (mult > 1) addText(s.x, s.y - 26, 'X' + mult, '#ffb066', 1);
-    if (wasBiting) addText(s.x, s.y - 38, 'SAVED +40', '#9fe3d8', 1);
+    if (headshot) addText(s.x, s.y - 30, 'HEADSHOT!', '#ffd776', 1);
+    if (mult > 1) addText(s.x, s.y - 48, 'X' + mult, '#ffb066', 1);
+    if (wasBiting) addText(s.x, s.y - 60, 'SAVED +40', '#9fe3d8', 1);
     burstBlood(s.x, s.y, 20, Math.cos(s.angle), Math.sin(s.angle));
     burstBubbles(s.x, s.y, 9, 12);
-    game.shake = Math.max(game.shake, 3.6);
+    game.shake = Math.max(game.shake, headshot ? 4.2 : 3.6);
     Sound.kill();
   }
 
-  function hitShark(s, px0, py0, dirX, dirY) {
-    if (s.dead) return;
+  function hitShark(s, px0, py0, dirX, dirY, opts) {
+    if (s.dead) return false;
+    opts = opts || {};
     const wasBiting = s.state === 'bite';
-    s.hp -= 1;
+    const damage = opts.damage == null ? 1 : opts.damage;
+    const headshot = !!opts.headshot;
+    s.hp -= damage;
     s.flash = 0.16;
     game.hitMark = 0.13;
     game.hitMarkX = px0;
     game.hitMarkY = py0;
-    burstBlood(px0, py0, 5, dirX, dirY);
-    addParticle(px0, py0, rand(-20, 20), rand(-20, 20), 0.18, '#ffe7ab', 2, 0, 0.9);
-    if (s.hp <= 0) {
-      killShark(s, wasBiting);
-      return;
+    if (headshot) game.hitMarkHead = 0.2;
+    // 血雾与命中特效
+    burstBlood(px0, py0, headshot ? 8 : 5, dirX, dirY);
+    addParticle(px0, py0, rand(-22, 22), rand(-22, 22), 0.18, headshot ? '#ffd775' : '#ffe7ab', 2, 0, 0.9);
+    if (headshot) {
+      for (let i = 0; i < 6; i++) {
+        addParticle(px0 + rand(-3, 3), py0 + rand(-3, 3), rand(-30, 30), rand(-30, 30), rand(0.2, 0.45), '#ffd166', Math.random() < 0.35 ? 2 : 1, 20, 0.94);
+      }
+      Sound.headshot();
+    } else if (opts.weapon === 'harpoon') {
+      Sound.harpoonHit();
+      game.shake = Math.max(game.shake, 2.2);
+    } else if (opts.weapon === 'rpg') {
+      // 爆炸音效由 explodeRPG 统一播放
+    } else {
+      Sound.hit();
     }
-    Sound.hit();
-    s.vx += dirX * 26;
-    s.vy += dirY * 26;
+    if (s.hp <= 0) {
+      killShark(s, wasBiting, headshot);
+      return true;
+    }
+    const force = opts.knockback == null ? 26 : opts.knockback;
+    s.vx += dirX * force;
+    s.vy += dirY * force;
+    const stagger = opts.stagger == null ? (wasBiting ? 0.42 : 0.22) : opts.stagger;
     if (wasBiting) {
       s.state = 'stagger';
-      s.stateT = 0.42;
+      s.stateT = stagger;
       s.x += dirX * 2;
       s.y += dirY * 2;
     } else if (s.state === 'approach') {
       s.state = 'stagger';
-      s.stateT = 0.22;
+      s.stateT = Math.min(0.25, stagger);
     }
+    return true;
   }
 
-  /* ---------------- 玩家动作 ---------------- */
+  function sharkHeadPoint(s) {
+    const d = s.cfg.len * 0.31;
+    return {
+      x: s.x + Math.cos(s.angle) * d,
+      y: s.y + Math.sin(s.angle) * d,
+      r: Math.max(5, s.cfg.len * 0.135)
+    };
+  }
+
   function muzzlePoint(angle) {
+    const w = currentWeaponCfg();
     const p = gunPivot();
-    const a = (angle == null ? game.aimAngle : angle) + game.reloadPose * 0.32;
-    const len = 24.5 - game.recoil * 2.2;
+    const a = (angle == null ? game.aimAngle : angle) + game.reloadPose * 0.32 + game.switchPose * 0.28;
+    const len = (w.muzzleLen || 24) - game.recoil * (w.recoilKick || 2.2);
     return { x: p.x + Math.cos(a) * len, y: p.y + Math.sin(a) * len, angle: a, pivot: p };
+  }
+
+  function findMeleeTarget() {
+    const w = WEAPONS.harpoon;
+    const pivot = gunPivot();
+    const aim = game.aimAngle + game.reloadPose * 0.32 + game.switchPose * 0.28;
+    let best = null, bestD = Infinity;
+    for (const s of game.sharks) {
+      if (s.dead) continue;
+      const d = Math.hypot(s.x - pivot.x, s.y - pivot.y);
+      if (d > w.range + s.cfg.hitR * 0.18) continue;
+      const a = Math.atan2(s.y - pivot.y, s.x - pivot.x);
+      if (Math.abs(angleDiff(a, aim)) > w.arc) continue;
+      if (d < bestD) { bestD = d; best = s; }
+    }
+    return best;
+  }
+
+  function meleeAttack() {
+    const w = WEAPONS.harpoon;
+    const pivot = gunPivot();
+    const aim = game.aimAngle + game.reloadPose * 0.32 + game.switchPose * 0.28;
+    game.fireCd = w.fireCd;
+    game.meleeT = 0.22;
+    game.recoil = w.recoil;
+    game.shake = Math.max(game.shake, 1.5);
+    Sound.harpoon();
+
+    const best = findMeleeTarget();
+    if (best) {
+      const dir = normalize(best.x - pivot.x, best.y - pivot.y);
+      hitShark(best, best.x, best.y, dir.x, dir.y, {
+        damage: w.damage,
+        headshot: false,
+        weapon: 'harpoon',
+        knockback: 8,
+        stagger: 0.13
+      });
+      burstFlesh(best.x, best.y, 4);
+      addParticle(best.x, best.y, rand(-18, 18), rand(-18, 18), 0.22, '#fff0c0', 2, 0, 0.9);
+    } else {
+      const tx = pivot.x + Math.cos(aim) * Math.min(w.range, 72);
+      const ty = pivot.y + Math.sin(aim) * Math.min(w.range, 72);
+      burstBubbles(tx, ty, 3, 6);
+      addParticle(tx, ty, rand(-8, 8), rand(-8, 8), 0.2, '#c8e6dd', 1, -4, 0.98);
+    }
   }
 
   function tryFire() {
     if (mode !== 'playing' || !game) return;
     if (game.fireCd > 0 || game.reloading) return;
-    if (game.ammo <= 0) {
-      Sound.dry();
-      game.reloadDelay = Math.min(game.reloadDelay, 0.08);
-      showToast('猎枪空了 · 按 R 装填', 900);
+    const w = currentWeaponCfg();
+    if (w.kind === 'melee') {
+      meleeAttack();
       return;
     }
-    game.ammo--;
-    game.fireCd = 0.34;
-    game.recoil = 1;
-    game.reloadDelay = 0.48;
-    game.shake = Math.max(game.shake, 1.6);
+    if (currentAmmo() <= 0) {
+      Sound.dry();
+      game.reloadDelay = 0.02;
+      startReload();
+      return;
+    }
+    setCurrentAmmo(currentAmmo() - 1);
+    game.fireCd = w.fireCd;
+    game.recoil = w.recoil;
+    game.shake = Math.max(game.shake, w.key === 'sniper' ? 4.2 : w.key === 'rpg' ? 2.6 : w.key === 'shotgun' ? 1.7 : 1.1);
+    // 旧式猎枪保持逐发自动装填；弹匣武器只打空后自动装填
+    if (w.reloadType === 'shell') {
+      game.reloadDelay = currentAmmo() <= 0 ? 0.35 : 0.48;
+    } else {
+      game.reloadDelay = currentAmmo() <= 0 ? 0.22 : 0.45;
+    }
+
     const m = muzzlePoint(game.aimAngle);
     const base = m.angle;
-    for (let i = 0; i < 9; i++) {
-      const a = base + (i - 4) * 0.036 + rand(-0.013, 0.013);
-      const sp = 605;
-      const x = m.x + Math.cos(a) * rand(0, 3);
-      const y = m.y + Math.sin(a) * rand(0, 3);
+    const n = w.pellets || 1;
+    const speed = w.speed;
+    const life = w.range / speed;
+    for (let i = 0; i < n; i++) {
+      const a = n > 1
+        ? base + ((i / (n - 1)) - 0.5) * 2 * w.spread + rand(-0.008, 0.008)
+        : base + rand(-w.spread, w.spread);
+      const x = m.x + Math.cos(a) * rand(0, 2.5);
+      const y = m.y + Math.sin(a) * rand(0, 2.5);
       game.pellets.push({
         x, y, px: x, py: y,
-        vx: Math.cos(a) * sp,
-        vy: Math.sin(a) * sp,
-        life: 0.28, max: 0.28
+        vx: Math.cos(a) * speed,
+        vy: Math.sin(a) * speed,
+        life, max: life,
+        weapon: w.key,
+        damage: w.damage,
+        headDamage: w.headDamage,
+        penetration: w.penetration,
+        rpg: !!w.blastRadius,
+        blastRadius: w.blastRadius || 0,
+        hitSet: []
       });
     }
-    // 枪口硝烟与火星
-    for (let i = 0; i < 8; i++) {
+
+    // 枪口烟火
+    const sparkColors = w.key === 'sniper'
+      ? ['#ffffff', '#dff7ff', '#ffb45a']
+      : w.key === 'rpg'
+        ? ['#ffffff', '#ffd27a', '#ff7a3f', '#8f8f85']
+        : w.key === 'pistol'
+          ? ['#ffe6a6', '#ffbd61', '#f7f0d0']
+          : ['#ffd27a', '#ff9e3f', '#fff0c0'];
+    const sparks = w.key === 'rpg' ? 10 : w.key === 'shotgun' ? 8 : w.key === 'sniper' ? 12 : w.key === 'rifle' ? 4 : 3;
+    for (let i = 0; i < sparks; i++) {
       const a = base + rand(-0.45, 0.45);
       addParticle(
         m.x, m.y,
-        Math.cos(a) * rand(12, 70), Math.sin(a) * rand(12, 70) - 4,
-        rand(0.12, 0.35), choice(['#ffe6a6', '#ffbd61', '#f7f0d0']),
+        Math.cos(a) * rand(12, w.key === 'sniper' ? 95 : 70),
+        Math.sin(a) * rand(12, w.key === 'sniper' ? 95 : 70) - 4,
+        rand(0.12, w.key === 'sniper' ? 0.5 : 0.35),
+        choice(sparkColors),
         Math.random() < 0.3 ? 2 : 1, 20, 0.92
       );
     }
-    for (let i = 0; i < 3; i++) {
-      addParticle(m.x, m.y, Math.cos(base) * rand(5, 14), Math.sin(base) * rand(5, 14) - 10, rand(0.5, 0.9), '#8f8f85', 2, -8, 0.96);
+    const smokeCount = w.key === 'rpg' ? 3 : w.key === 'shotgun' ? 3 : w.key === 'sniper' ? 6 : 1;
+    for (let i = 0; i < smokeCount; i++) {
+      addParticle(m.x, m.y, Math.cos(base) * rand(5, 16), Math.sin(base) * rand(5, 16) - 10,
+        rand(0.5, w.key === 'sniper' ? 1.2 : 0.9), '#8f8f85', 2, -8, 0.96);
     }
-    // 弹壳
-    addParticle(gunPivot().x, gunPivot().y, rand(-20, -8), rand(-35, -18), 0.7, '#d8aa52', 1, 150, 0.99);
+    // 弹壳 / 火箭尾焰
+    if (w.key === 'rpg') {
+      for (let i = 0; i < 5; i++) {
+        addParticle(gunPivot().x - Math.cos(base) * 4 + rand(-2, 2),
+          gunPivot().y - Math.sin(base) * 4 + rand(-2, 2),
+          -Math.cos(base) * rand(18, 42) + rand(-8, 8),
+          -Math.sin(base) * rand(18, 42) + rand(-8, 8),
+          rand(0.2, 0.5), choice(['#ffd27a', '#ff9e3f', '#8f8f85']), Math.random() < 0.4 ? 2 : 1, -10, 0.95);
+      }
+    } else {
+      addParticle(gunPivot().x, gunPivot().y, rand(-24, -8), rand(-40, -20),
+        w.key === 'sniper' ? 0.9 : 0.7, '#d8aa52', w.key === 'sniper' ? 2 : 1, 150, 0.99);
+    }
     game.hitMark = 0;
-    Sound.shot();
+    game.hitMarkHead = 0;
+    if (Sound[w.sound]) Sound[w.sound]();
   }
 
   function tryReload() {
     if (mode !== 'playing' || !game) return;
-    if (game.reloading || game.ammo >= game.maxAmmo) return;
+    const w = currentWeaponCfg();
+    if (w.kind === 'melee') return;
+    if (game.reloading) return;
+    if (currentAmmo() >= w.mag) return;
     game.reloadDelay = 0;
     startReload();
   }
 
   function startReload() {
-    if (!game || game.reloading || game.ammo >= game.maxAmmo) return;
+    if (!game || game.reloading) return;
+    const w = currentWeaponCfg();
+    if (w.kind === 'melee' || w.reloadType === 'none') return;
+    if (currentAmmo() >= w.mag) return;
     game.reloading = true;
-    game.reloadTimer = 0.78;
+    game.reloadTimer = w.reload;
+    game.reloadTotal = w.reload;
     Sound.reloadStart();
+  }
+
+  function cancelReload() {
+    if (!game) return;
+    game.reloading = false;
+    game.reloadTimer = 0;
+    game.reloadPose = 0;
+  }
+
+  function switchWeapon(key, silent) {
+    if (!game || !WEAPONS[key] || mode !== 'playing') return false;
+    if (!game.unlocked[key]) {
+      if (!silent) showToast('尚未解锁 · 需要 ' + formatComma(WEAPONS[key].unlock) + ' 分', 1100);
+      return false;
+    }
+    if (game.weapon === key) return true;
+    cancelReload();
+    game.reloadPose = 0;
+    game.weapon = key;
+    game.switchPose = 1;
+    game.reloadDelay = 0.3;
+    game.fireCd = Math.max(game.fireCd, 0.06);
+    Sound.switchWeapon();
+    return true;
+  }
+
+  function cycleWeapon(dir) {
+    if (mode !== 'playing' || !game) return;
+    const unlocked = ALL_WEAPON_ORDER.filter(k => game.unlocked[k]);
+    if (unlocked.length < 2) return;
+    let idx = unlocked.indexOf(game.weapon);
+    if (idx < 0) idx = 0;
+    const next = unlocked[(idx + dir + unlocked.length) % unlocked.length];
+    switchWeapon(next);
+  }
+
+  function checkUnlocks() {
+    if (!game || mode !== 'playing') return;
+    const score = totalScore();
+    const newly = [];
+    for (const key of WEAPON_ORDER) {
+      const w = WEAPONS[key];
+      if (!game.unlocked[key] && score >= w.unlock) {
+        game.unlocked[key] = true;
+        game.weaponAmmo[key] = w.mag;
+        game.unlockFlash[key] = 1.8;
+        newly.push(key);
+      }
+    }
+    if (!newly.length) return;
+    const best = newly[newly.length - 1];
+    switchWeapon(best, true);
+    // 每解锁一种新鲨鱼层级，立刻且只刷新一只，作为威胁亮相
+    const tierShark = { pistol: 'galano', shotgun: 'white', rifle: 'mega' };
+    let spawned = 0;
+    for (const key of newly) {
+      if (tierShark[key]) {
+        const s = spawnShark(tierShark[key]);
+        if (s) spawned++;
+      }
+    }
+    if (spawned > 0) {
+      game.spawnTimer = Math.max(game.spawnTimer, 4.2);
+      game.shake = Math.max(game.shake, 2.5);
+      Sound.threat();
+    }
+    const names = newly.map(k => WEAPONS[k].name).join(' / ');
+    showToast('武器解锁：' + names + ' · 已装备 ' + WEAPONS[best].name, 3000, true);
+    Sound.unlock();
   }
 
   function updatePlayerTimers(dt) {
     if (!game) return;
+    const w = currentWeaponCfg();
     if (game.fireCd > 0) game.fireCd = Math.max(0, game.fireCd - dt);
+    game.switchPose = Math.max(0, game.switchPose - dt * 5.5);
+    game.meleeT = Math.max(0, game.meleeT - dt);
+    for (const k in game.unlockFlash) {
+      if (game.unlockFlash[k] > 0) game.unlockFlash[k] = Math.max(0, game.unlockFlash[k] - dt);
+    }
     if (game.reloading) {
       game.reloadPose = Math.min(1, game.reloadPose + dt * 7);
       game.reloadTimer -= dt;
       if (game.reloadTimer <= 0) {
-        game.ammo = Math.min(game.maxAmmo, game.ammo + 1);
-        game.reloading = false;
-        game.reloadDelay = 0.34;
-        game.reloadPose = 0;
+        if (w.reloadType === 'shell') {
+          setCurrentAmmo(Math.min(w.mag, currentAmmo() + 1));
+          game.reloading = false;
+          game.reloadPose = 0;
+          game.reloadDelay = currentAmmo() < w.mag ? 0.32 : 0.4;
+        } else {
+          setCurrentAmmo(w.mag);
+          game.reloading = false;
+          game.reloadPose = 0;
+          game.reloadDelay = 0.4;
+        }
         Sound.reloadDone();
       }
     } else {
       game.reloadPose = Math.max(0, game.reloadPose - dt * 7);
-      if (game.ammo < game.maxAmmo) {
-        game.reloadDelay -= dt;
-        if (game.reloadDelay <= 0) startReload();
+      if (w.kind === 'gun') {
+        if (w.reloadType === 'shell') {
+          if (currentAmmo() < w.mag) {
+            game.reloadDelay -= dt;
+            if (game.reloadDelay <= 0) startReload();
+          }
+        } else if (currentAmmo() <= 0) {
+          game.reloadDelay -= dt;
+          if (game.reloadDelay <= 0) startReload();
+        }
       }
     }
     if (game.combo > 0) {
@@ -2204,6 +3066,45 @@ kbd {
       if (game.comboTimer <= 0) game.combo = 0;
     }
     game.aimAngle = Math.atan2(pointer.y - gunPivot().y, pointer.x - gunPivot().x);
+    if (game.trigger && w.auto && !game.reloading && game.fireCd <= 0 && currentAmmo() > 0) tryFire();
+  }
+
+  function explodeRPG(x, y) {
+    if (!game) return;
+    const radius = 96;
+    game.blasts.push({ x, y, t: 0.55, max: 0.55, radius });
+    game.shake = Math.max(game.shake, 9);
+    // 火焰、金属与海水蒸汽
+    for (let i = 0; i < 42; i++) {
+      const a = rand(0, TAU);
+      const sp = rand(20, 150);
+      addParticle(x, y, Math.cos(a) * sp, Math.sin(a) * sp - rand(0, 20),
+        rand(0.2, 0.7), choice(['#fff3c9', '#ffd27a', '#ff9e3f', '#d95a2e']),
+        Math.random() < 0.35 ? 3 : 2, 40, 0.93);
+    }
+    for (let i = 0; i < 22; i++) {
+      const a = rand(0, TAU);
+      const sp = rand(8, 65);
+      addParticle(x, y, Math.cos(a) * sp, Math.sin(a) * sp - rand(0, 15),
+        rand(0.5, 1.3), choice(['#8f8f85', '#626b68', '#b9c2b8']),
+        Math.random() < 0.3 ? 3 : 2, -12, 0.96);
+    }
+    for (let i = 0; i < 16; i++) {
+      addParticle(x + rand(-10, 10), y + rand(-10, 10), rand(-60, 60), rand(-90, -20),
+        rand(0.25, 0.7), choice(['#bfe9ff', '#dff7ff', '#8ed8ef']), 2, 80, 0.96);
+    }
+    // 范围内所有鲨鱼一起吃伤害
+    for (const s of game.sharks.slice()) {
+      if (s.dead) continue;
+      const d = Math.hypot(s.x - x, s.y - y);
+      if (d > radius + s.cfg.hitR * 0.35) continue;
+      const dir = normalize(s.x - x, s.y - y);
+      hitShark(s, s.x, s.y, dir.x, dir.y, {
+        damage: 9999, headshot: false, weapon: 'rpg', knockback: 70, stagger: 0.5
+      });
+    }
+    addText(x, y - 26, 'BOOM!', '#ffd27a', 2);
+    Sound.explosion();
   }
 
   function updatePellets(dt) {
@@ -2214,7 +3115,12 @@ kbd {
       p.x += p.vx * dt;
       p.y += p.vy * dt;
       p.life -= dt;
-      // 穿过水面时溅起小水花
+      if (p.rpg && Math.random() < 0.9) {
+        addParticle(p.x + rand(-2, 2), p.y + rand(-2, 2),
+          -p.vx * 0.035 + rand(-8, 8), -p.vy * 0.035 + rand(-8, 8),
+          rand(0.2, 0.5), choice(['#ffd27a', '#ff9e3f', '#8f8f85']),
+          Math.random() < 0.3 ? 2 : 1, -8, 0.95);
+      }
       if (p.py < SEA_Y && p.y >= SEA_Y) {
         for (let k = 0; k < 2; k++) {
           addParticle(p.x + rand(-2, 2), SEA_Y, rand(-12, 12), rand(-24, -8), rand(0.2, 0.45), '#d8e7dc', 1, 120, 0.97);
@@ -2223,18 +3129,38 @@ kbd {
       if (p.y > SEA_Y && Math.random() < 0.12) {
         addParticle(p.x, p.y, rand(-3, 3), rand(-8, -2), rand(0.2, 0.45), '#b6e1dd', 1, -8, 0.98);
       }
-      let hit = false;
+      let removed = false;
+      const dir = normalize(p.vx, p.vy);
       for (const s of game.sharks) {
         if (s.dead) continue;
-        const r = s.cfg.hitR;
-        if (segPointDist(s.x, s.y, p.px, p.py, p.x, p.y) < r) {
-          hitShark(s, p.x, p.y, p.vx / 605, p.vy / 605);
-          hit = true;
+        if (p.hitSet.indexOf(s) >= 0) continue;
+        const hp = sharkHeadPoint(s);
+        const headHit = segPointDist(hp.x, hp.y, p.px, p.py, p.x, p.y) < hp.r;
+        const bodyHit = !headHit && segPointDist(s.x, s.y, p.px, p.py, p.x, p.y) < s.cfg.hitR;
+        if (!headHit && !bodyHit) continue;
+        const ix = headHit ? hp.x : s.x;
+        const iy = headHit ? hp.y : s.y;
+        if (p.rpg) {
+          explodeRPG(ix, iy);
+          removed = true;
           break;
         }
+        hitShark(s, ix, iy, dir.x, dir.y, {
+          damage: headHit ? p.headDamage : p.damage,
+          headshot: headHit,
+          weapon: p.weapon,
+          knockback: headHit ? 34 : 24
+        });
+        p.hitSet.push(s);
+        if (p.penetration <= 0) { removed = true; break; }
+        p.penetration--;
       }
-      if (hit || p.life <= 0 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) {
-        if (!hit) burstBubbles(p.x, p.y, 1, 4);
+      if (removed || p.life <= 0 || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) {
+        if (p.rpg && !removed) {
+          explodeRPG(clamp(p.x, 4, W - 4), clamp(p.y, 4, H - 4));
+        } else if (!removed) {
+          burstBubbles(p.x, p.y, 1, 4);
+        }
         game.pellets.splice(i, 1);
       }
     }
@@ -2254,6 +3180,7 @@ kbd {
       }
     });
     wrap.classList.remove('playing');
+    game.trigger = false;
     Sound.gameover();
     showToast('马林鱼只剩下一副骨架……', 2100);
     pointer.inside = false;
@@ -2276,6 +3203,8 @@ kbd {
       game.t += dt;
       game.timeAlive = game.t;
       updatePlayerTimers(dt);
+      // 先检查解锁：新层级的亮相鲨会先刷新并把常规刷新计时推后
+      checkUnlocks();
       applyDifficultySpawn(dt);
     } else if (mode === 'ending') {
       game.endT -= dt;
@@ -2340,6 +3269,14 @@ kbd {
   const shellsEl = $('shells');
   shellsEl.innerHTML = '<span class="shell"></span><span class="shell"></span>';
   const shellEls = Array.from(shellsEl.children);
+  const wSlots = {
+    harpoon: $('wslot-harpoon'),
+    pistol: $('wslot-pistol'),
+    shotgun: $('wslot-shotgun'),
+    rifle: $('wslot-rifle'),
+    sniper: $('wslot-sniper'),
+    rpg: $('wslot-rpg')
+  };
   const uiCache = {};
   function setText(el, value) {
     if (!el) return;
@@ -2363,11 +3300,64 @@ kbd {
     fill.classList.toggle('low', pct <= 28);
     const mp = $('meat-panel');
     mp.classList.toggle('danger', pct <= 28);
+    mp.classList.toggle('frozen', !!game.frozenFish);
     wrap.classList.toggle('low-meat', pct <= 28 && (mode === 'playing' || mode === 'ending'));
     if (mode === 'menu' || mode === 'over') wrap.classList.remove('low-meat');
 
     setText($('time'), formatTime(game.timeAlive));
     setText($('threat'), String(aliveSharks().length));
+
+    const wcfg = currentWeaponCfg();
+    const ammo = currentAmmo();
+    setText($('weapon-name'), wcfg.name);
+    const ammoText = $('ammo-text');
+    const shellsBox = $('shells');
+    if (wcfg.kind === 'melee') {
+      ammoText.style.display = '';
+      shellsBox.style.display = 'none';
+      setText(ammoText, '近战');
+      ammoText.classList.remove('low');
+    } else if (wcfg.key === 'shotgun') {
+      ammoText.style.display = 'none';
+      shellsBox.style.display = 'inline-flex';
+      setText(ammoText, String(ammo));
+      ammoText.classList.remove('low');
+    } else {
+      ammoText.style.display = '';
+      shellsBox.style.display = 'none';
+      setText(ammoText, ammo + ' / ' + wcfg.mag);
+      ammoText.classList.toggle('low', ammo <= 0);
+    }
+    for (let i = 0; i < shellEls.length; i++) {
+      shellEls[i].classList.toggle('empty', i >= ammo);
+    }
+    for (const key of ALL_WEAPON_ORDER) {
+      const slot = wSlots[key];
+      if (!slot) continue;
+      const unlocked = !!game.unlocked[key];
+      slot.style.display = unlocked ? '' : 'none';
+      slot.classList.toggle('current', game.weapon === key);
+      slot.classList.toggle('new', unlocked && (game.unlockFlash[key] || 0) > 0);
+    }
+    let nextKey = null;
+    for (const key of WEAPON_ORDER) {
+      if (!game.unlocked[key]) { nextKey = key; break; }
+    }
+    const nextBox = $('next-weapon');
+    if (nextBox) {
+      if (nextKey) {
+        nextBox.style.display = 'flex';
+        setText($('next-weapon-score'), formatComma(WEAPONS[nextKey].unlock) + ' 分');
+        const nextIdx = WEAPON_ORDER.indexOf(nextKey);
+        const prevKey = nextIdx > 0 ? WEAPON_ORDER[nextIdx - 1] : null;
+        const prevThreshold = prevKey ? WEAPONS[prevKey].unlock : 0;
+        const span = Math.max(1, WEAPONS[nextKey].unlock - prevThreshold);
+        const pctNext = clamp((totalScore() - prevThreshold) / span * 100, 0, 100);
+        $('next-fill').style.width = pctNext.toFixed(1) + '%';
+      } else {
+        nextBox.style.display = 'none';
+      }
+    }
 
     const comboOn = game.combo >= 2;
     $('combo').classList.toggle('off', !comboOn);
@@ -2375,12 +3365,9 @@ kbd {
     setText($('combo-mult'), '×' + comboMultiplier(game.combo));
     $('combo-fill').style.width = (comboOn ? clamp(game.comboTimer / 3.4, 0, 1) * 100 : 0) + '%';
 
-    for (let i = 0; i < shellEls.length; i++) {
-      shellEls[i].classList.toggle('empty', i >= game.ammo);
-    }
     const rt = $('reload-fill');
-    if (game.reloading) {
-      rt.style.width = clamp((1 - game.reloadTimer / 0.78) * 100, 0, 100) + '%';
+    if (game.reloading && game.reloadTotal > 0) {
+      rt.style.width = clamp((1 - game.reloadTimer / game.reloadTotal) * 100, 0, 100) + '%';
       rt.parentElement.classList.add('on');
     } else {
       rt.style.width = '0%';
@@ -2392,6 +3379,7 @@ kbd {
 
   /* ---------------- 模式切换 ---------------- */
   function startGame() {
+    debugSeq = [];
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     for (const k in uiCache) delete uiCache[k];
     wrap.classList.remove('low-meat');
@@ -2407,24 +3395,28 @@ kbd {
     hideScreens();
     wrap.classList.add('playing');
     showToast('血腥味把鲨鱼引来了', 1800);
+    applyDebugStart();
     updateSoundButtons();
   }
 
   function goMenu() {
+    debugSeq = [];
     mode = 'menu';
     spawnDemoWorld();
     overAnim = 0;
     hideScreens();
     showScreen('start');
     wrap.classList.remove('playing', 'low-meat');
-    $('meat-panel').classList.remove('danger');
+    $('meat-panel').classList.remove('danger', 'frozen');
     setText($('start-best'), formatComma(bestScore));
+    refreshDebugButton();
     updateSoundButtons();
   }
 
   function togglePause() {
     if (mode === 'playing') {
       mode = 'paused';
+      if (game) game.trigger = false;
       showScreen('pause');
       wrap.classList.remove('playing');
     } else if (mode === 'paused') {
@@ -2452,7 +3444,8 @@ kbd {
     setText($('r-kills'), String(game.kills));
     setText($('r-time'), formatTime(game.timeAlive));
     setText($('r-bestcombo'), String(game.bestCombo));
-    const isNew = total > bestScore;
+    setText($('r-weapon'), currentWeaponCfg().name);
+    const isNew = !game.debugRun && total > bestScore;
     if (isNew) {
       bestScore = total;
       saveBest(bestScore);
@@ -2487,21 +3480,54 @@ kbd {
     if (mode === 'playing') {
       Sound.init();
       Sound.resume();
+      if (game) game.trigger = true;
       tryFire();
     }
   });
-  canvas.addEventListener('pointerleave', () => { pointer.inside = false; });
+  canvas.addEventListener('pointerleave', () => {
+    pointer.inside = false;
+    if (game) game.trigger = false;
+  });
+  window.addEventListener('pointerup', () => { if (game) game.trigger = false; });
+  window.addEventListener('pointercancel', () => { if (game) game.trigger = false; });
+  window.addEventListener('blur', () => { if (game) game.trigger = false; });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
   window.addEventListener('keydown', (e) => {
     if (e.repeat) return;
     const key = e.key;
+    if (mode === 'debug') {
+      if (key === 'Escape') { e.preventDefault(); closeDebug(); }
+      return;
+    }
+    // 主页秘密指令：d-e-b-u-g（大小写不敏感）
+    if (mode === 'menu' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const ch = (key && key.length === 1) ? key.toLowerCase() : '';
+      if (ch >= 'a' && ch <= 'z') {
+        debugSeq.push(ch);
+        if (debugSeq.length > 5) debugSeq.shift();
+        if (debugSeq.join('') === 'debug') {
+          debugSeq = [];
+          unlockDebug();
+          return;
+        }
+      }
+    }
     if (key === ' ' || key === 'Spacebar') {
       e.preventDefault();
-      if (mode === 'playing') tryFire();
-      else if (mode === 'menu') startGame();
+      if (mode === 'playing') {
+        if (game) game.trigger = true;
+        tryFire();
+      } else if (mode === 'menu') startGame();
       else if (mode === 'over') startGame();
       else if (mode === 'paused') togglePause();
+      return;
+    }
+    if (key >= '1' && key <= '6') {
+      if (mode === 'playing') {
+        const wkey = ALL_WEAPON_ORDER[Number(key) - 1];
+        if (wkey && (wkey !== 'rpg' || game.unlocked.rpg)) switchWeapon(wkey);
+      }
       return;
     }
     if (key === 'r' || key === 'R') {
@@ -2524,6 +3550,24 @@ kbd {
     }
   });
 
+  window.addEventListener('keyup', (e) => {
+    if ((e.key === ' ' || e.key === 'Spacebar') && game) game.trigger = false;
+  });
+  window.addEventListener('wheel', (e) => {
+    if (mode !== 'playing' || !game) return;
+    e.preventDefault();
+    if (e.deltaY === 0) return;
+    cycleWeapon(e.deltaY > 0 ? 1 : -1);
+  }, { passive: false });
+
+  $('debug-btn').addEventListener('click', () => { openDebug(); });
+  $('debug-sixgod').addEventListener('click', () => { toggleDebugFlag('sixGod'); });
+  $('debug-frozen').addEventListener('click', () => { toggleDebugFlag('frozenFish'); });
+  $('debug-abyss').addEventListener('click', () => { toggleDebugFlag('abyss'); });
+  $('debug-jump').addEventListener('input', (e) => { setDebugJump(e.target.value); });
+  $('debug-jump').addEventListener('change', (e) => { setDebugJump(e.target.value); });
+  $('debug-start-btn').addEventListener('click', () => { startGame(); });
+  $('debug-close-btn').addEventListener('click', () => { goMenu(); });
   $('start-btn').addEventListener('click', () => { startGame(); });
   $('retry-btn').addEventListener('click', () => { startGame(); });
   $('menu-btn').addEventListener('click', () => { goMenu(); });
@@ -2531,6 +3575,14 @@ kbd {
   $('quit-btn').addEventListener('click', () => { goMenu(); });
   $('mute').addEventListener('click', (e) => { e.stopPropagation(); toggleMute(); });
   $('sound-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleMute(); });
+  for (const key of ALL_WEAPON_ORDER) {
+    if (wSlots[key]) {
+      wSlots[key].addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (mode === 'playing') switchWeapon(key);
+      });
+    }
+  }
 
 
   /* =========================================================
@@ -2989,6 +4041,56 @@ kbd {
       ctx.fillRect(245, 143, 3, 2);
       ctx.fillRect(287, 154, 3, 2);
     }
+
+    /* ---- 冰冻覆盖：健康贴图不变化，只叠加冰层 ---- */
+    if (game.frozenFish) {
+      // 帆、尾鳍、胸鳍也覆上一层冰蓝
+      ctx.globalAlpha = 0.13;
+      ctx.fillStyle = '#bdeeff';
+      fillPoly(ctx, sail, '#bdeeff');
+      fillPoly(ctx, [[151, 171 + sway], [119, 144 + sway], [131, 166 + sway], [144, 171 + sway]], '#bdeeff');
+      fillPoly(ctx, [[151, 174 - sway], [122, 201 - sway], [133, 177 - sway], [144, 175 - sway]], '#bdeeff');
+      fillPoly(ctx, [[309, 156], [287, 174], [298, 164], [312, 160]], '#bdeeff');
+      ctx.globalAlpha = 0.16;
+      ctx.fillStyle = '#bdeeff';
+      for (let x = Math.floor(FISH_X0); x <= Math.ceil(FISH_X1); x++) {
+        const prof = fishProfile(x);
+        const top = Math.round(prof.cy - prof.hh);
+        const bot = Math.round(prof.cy + prof.hh);
+        if (bot > top) ctx.fillRect(x, top, 1, bot - top);
+      }
+      ctx.globalAlpha = 0.7;
+      for (let x = Math.floor(FISH_X0) + 2; x < FISH_X1 - 2; x += 4) {
+        const prof = fishProfile(x);
+        ctx.fillStyle = (x % 8 === 0) ? '#e9fcff' : '#a9e6fa';
+        ctx.fillRect(x, Math.round(prof.cy - prof.hh), 1, 1);
+        ctx.fillRect(x + 1, Math.round(prof.cy + prof.hh) - 1, 1, 1);
+      }
+      // 固定的冰晶簇
+      for (let i = 0; i < 16; i++) {
+        const x = 160 + ((i * 43) % 168);
+        const prof = fishProfile(x);
+        const y = Math.round(prof.cy + Math.sin(i * 1.7) * prof.hh * 0.45);
+        ctx.globalAlpha = 0.55 + (i % 3) * 0.12;
+        ctx.fillStyle = '#effeff';
+        ctx.fillRect(x, y, 1, 1);
+        ctx.fillRect(x - 1, y - 1, 1, 1);
+        ctx.fillRect(x + 1, y + 1, 1, 1);
+        ctx.fillRect(x + 1, y - 1, 1, 1);
+        ctx.fillRect(x - 1, y + 1, 1, 1);
+      }
+      // 帆上的冰晶
+      for (const [ix, iy] of [[298, 116], [306, 132], [286, 136], [315, 124], [276, 142], [322, 143]]) {
+        ctx.globalAlpha = 0.8;
+        ctx.fillStyle = '#effeff';
+        ctx.fillRect(ix, iy, 1, 1);
+        ctx.fillRect(ix - 1, iy, 1, 1);
+        ctx.fillRect(ix + 1, iy, 1, 1);
+        ctx.fillRect(ix, iy - 1, 1, 1);
+        ctx.fillRect(ix, iy + 1, 1, 1);
+      }
+      ctx.globalAlpha = 1;
+    }
     ctx.restore();
   }
 
@@ -3119,7 +4221,7 @@ kbd {
   function drawOldMan() {
     if (!game) return;
     const bob = boatBob();
-    const aim = game.aimAngle + game.reloadPose * 0.32;
+    const aim = game.aimAngle + game.reloadPose * 0.32 + game.switchPose * 0.28;
     const dx = Math.cos(aim), dy = Math.sin(aim);
     const nx = -dy, ny = dx;
     const recoil = game.recoil;
@@ -3184,10 +4286,18 @@ kbd {
     ctx.fillStyle = '#9a743f'; ctx.fillRect(-7, -44, 14, 1);
     ctx.fillStyle = '#8e6a39'; ctx.fillRect(5, -48, 1, 3);
 
-    // 握枪的双手位置
+    // 双手位置随武器变化
+    const w = currentWeaponCfg();
     const pivot = { x: 1, y: -21 };
-    const backHand = { x: pivot.x - dx * 3 + nx * 2, y: pivot.y - dy * 3 + ny * 2 };
-    const frontHand = { x: pivot.x + dx * 10 + nx * 2.4, y: pivot.y + dy * 10 + ny * 2.4 };
+    const handKick = game.recoil * (w.recoilKick || 2) * 0.35;
+    const backHand = {
+      x: pivot.x - dx * w.gripBack + nx * 2 - dx * handKick,
+      y: pivot.y - dy * w.gripBack + ny * 2 - dy * handKick
+    };
+    const frontHand = {
+      x: pivot.x + dx * w.gripFront + nx * 2.4 - dx * handKick,
+      y: pivot.y + dy * w.gripFront + ny * 2.4 - dy * handKick
+    };
     const shoulderL = { x: -7, y: -27 };
     const shoulderR = { x: 7, y: -27 };
 
@@ -3204,101 +4314,366 @@ kbd {
     drawArm(shoulderL, backHand, 4.5);
     drawArm(shoulderR, frontHand, 5.5);
 
-    // 猎枪
-    const gunPivot = { x: pivot.x - dx * recoil * 2.2, y: pivot.y - dy * recoil * 2.2 };
-    const stockEnd = { x: gunPivot.x - dx * 8, y: gunPivot.y - dy * 8 };
-    const barrelStart = { x: gunPivot.x + dx * 3, y: gunPivot.y + dy * 3 };
-    const muzzle = { x: gunPivot.x + dx * 24.5, y: gunPivot.y + dy * 24.5 };
-    const receiver = { x: gunPivot.x + dx * 2.5, y: gunPivot.y + dy * 2.5 };
-    // 枪托
-    pxLine(ctx, stockEnd.x, stockEnd.y, gunPivot.x, gunPivot.y, '#100b08', 5);
-    pxLine(ctx, stockEnd.x, stockEnd.y, gunPivot.x, gunPivot.y, '#704226', 3);
-    pxLine(ctx, stockEnd.x + nx, stockEnd.y + ny, gunPivot.x + nx, gunPivot.y + ny, '#a96c3c', 1);
-    // 枪托底板
-    ctx.fillStyle = '#120c08';
-    ctx.fillRect(Math.round(stockEnd.x - nx * 2), Math.round(stockEnd.y - ny * 2), 2, 2);
-    ctx.fillStyle = '#b07a49';
-    ctx.fillRect(Math.round(stockEnd.x - nx), Math.round(stockEnd.y - ny), 1, 1);
-    // 机匣
-    pxLine(ctx, gunPivot.x, gunPivot.y, receiver.x, receiver.y, '#0b1012', 4);
-    pxLine(ctx, gunPivot.x + dx, gunPivot.y + dy, receiver.x, receiver.y, '#414d50', 2);
-    // 扳机护圈
-    ctx.fillStyle = '#0b1012';
-    ctx.fillRect(Math.round(gunPivot.x + nx * 3), Math.round(gunPivot.y + ny * 3), 2, 2);
-    ctx.fillRect(Math.round(gunPivot.x + dx * 2 + nx * 3), Math.round(gunPivot.y + dy * 2 + ny * 3), 1, 2);
-    // 枪管：先画粗黑轮廓，再画双管的钢色
-    pxLine(ctx, barrelStart.x, barrelStart.y, muzzle.x, muzzle.y, '#090e11', 5);
-    pxLine(ctx, barrelStart.x, barrelStart.y, muzzle.x, muzzle.y, '#6e7d80', 3);
-    pxLine(ctx, barrelStart.x + nx * 1.4, barrelStart.y + ny * 1.4, muzzle.x + nx * 1.4, muzzle.y + ny * 1.4, '#c8d3cf', 1);
-    pxLine(ctx, barrelStart.x - nx * 1.4, barrelStart.y - ny * 1.4, muzzle.x - nx * 1.4, muzzle.y - ny * 1.4, '#8a999a', 1);
-    pxLine(ctx, barrelStart.x, barrelStart.y, muzzle.x, muzzle.y, '#161d20', 1);
-    // 护木
-    pxLine(ctx, gunPivot.x + dx * 5 + nx * 1.5, gunPivot.y + dy * 5 + ny * 1.5,
-      gunPivot.x + dx * 12 + nx * 1.5, gunPivot.y + dy * 12 + ny * 1.5, '#2a1a10', 4);
-    pxLine(ctx, gunPivot.x + dx * 5 + nx * 1.5, gunPivot.y + dy * 5 + ny * 1.5,
-      gunPivot.x + dx * 12 + nx * 1.5, gunPivot.y + dy * 12 + ny * 1.5, '#8a532e', 2);
-    // 枪口环与准星
-    ctx.fillStyle = '#0a0e10';
-    ctx.fillRect(Math.round(muzzle.x - nx * 2), Math.round(muzzle.y - ny * 2), 2, 2);
-    ctx.fillStyle = '#d7b36b';
-    ctx.fillRect(Math.round(muzzle.x - nx * 2.5), Math.round(muzzle.y - ny * 2.5), 1, 1);
-    // 手
-    ctx.fillStyle = '#2a1a10';
-    ctx.fillRect(Math.round(backHand.x) - 2, Math.round(backHand.y) - 2, 5, 5);
-    ctx.fillStyle = '#c99063';
-    ctx.fillRect(Math.round(backHand.x) - 1, Math.round(backHand.y) - 1, 3, 3);
-    ctx.fillStyle = '#9f6a45';
-    ctx.fillRect(Math.round(backHand.x) + 1, Math.round(backHand.y) + 1, 1, 1);
-    ctx.fillStyle = '#2a1a10';
-    ctx.fillRect(Math.round(frontHand.x) - 2, Math.round(frontHand.y) - 1, 5, 4);
-    ctx.fillStyle = '#c99063';
-    ctx.fillRect(Math.round(frontHand.x) - 1, Math.round(frontHand.y), 3, 2);
-    ctx.fillStyle = '#9f6a45';
-    ctx.fillRect(Math.round(frontHand.x) + 1, Math.round(frontHand.y), 1, 1);
+    // 武器
+    drawWeaponArt(pivot, aim, game.recoil, w);
 
-    // 装填中的红色弹壳
-    if (game.reloading) {
+    // 手
+    const drawHand = (h, wide) => {
+      ctx.fillStyle = '#2a1a10';
+      ctx.fillRect(Math.round(h.x) - 2, Math.round(h.y) - 2, wide ? 5 : 4, wide ? 5 : 4);
+      ctx.fillStyle = '#c99063';
+      ctx.fillRect(Math.round(h.x) - 1, Math.round(h.y) - 1, wide ? 3 : 2, wide ? 3 : 2);
+      ctx.fillStyle = '#9f6a45';
+      ctx.fillRect(Math.round(h.x) + 1, Math.round(h.y) + 1, 1, 1);
+    };
+    drawHand(backHand, w.key === 'shotgun' || w.key === 'sniper');
+    drawHand(frontHand, true);
+
+    // 装填中的弹壳 / 弹匣
+    if (game.reloading && w.kind === 'gun') {
       const hx = frontHand.x + nx * 4 - dx * 3;
       const hy = frontHand.y + ny * 4 - dy * 3;
-      ctx.fillStyle = '#7f2018'; ctx.fillRect(Math.round(hx), Math.round(hy), 2, 4);
-      ctx.fillStyle = '#d6a54e'; ctx.fillRect(Math.round(hx), Math.round(hy), 2, 1);
-    }
-
-    // 枪口火光
-    if (recoil > 0.48) {
-      const k = clamp((recoil - 0.48) / 0.52, 0, 1);
-      const mx = Math.round(muzzle.x), my = Math.round(muzzle.y);
-      ctx.globalAlpha = k;
-      fillCircle(ctx, mx, my, 6 + k * 4, '#ffb24e', 0.30);
-      ctx.fillStyle = '#ff9e3f';
-      ctx.fillRect(mx - 7, my - 1, 15, 2);
-      ctx.fillRect(mx - 1, my - 7, 2, 15);
-      ctx.fillStyle = '#ffd27a';
-      ctx.fillRect(mx - 5, my - 1, 11, 2);
-      ctx.fillRect(mx - 1, my - 5, 2, 11);
-      ctx.fillStyle = '#fff3c9';
-      ctx.fillRect(mx - 2, my - 2, 5, 5);
-      ctx.fillStyle = '#ffbb55';
-      ctx.fillRect(mx - 4, my - 4, 2, 2);
-      ctx.fillRect(mx + 3, my - 4, 2, 2);
-      ctx.fillRect(mx - 4, my + 3, 2, 2);
-      ctx.fillRect(mx + 3, my + 3, 2, 2);
-      ctx.globalAlpha = 1;
+      if (w.key === 'shotgun') {
+        ctx.fillStyle = '#7f2018'; ctx.fillRect(Math.round(hx), Math.round(hy), 2, 4);
+        ctx.fillStyle = '#d6a54e'; ctx.fillRect(Math.round(hx), Math.round(hy), 2, 1);
+      } else {
+        ctx.fillStyle = '#0e1316'; ctx.fillRect(Math.round(hx) - 1, Math.round(hy), 4, 6);
+        ctx.fillStyle = '#46565a'; ctx.fillRect(Math.round(hx), Math.round(hy) + 1, 2, 4);
+        ctx.fillStyle = '#d6a54e'; ctx.fillRect(Math.round(hx), Math.round(hy) - 1, 2, 1);
+      }
     }
 
     ctx.restore();
+  }
+
+  function drawWeaponArt(pivot, angle, recoil, w) {
+    const dx = Math.cos(angle), dy = Math.sin(angle);
+    const nx = -dy, ny = dx;
+    const kick = recoil * (w.recoilKick || 2);
+    const g = { x: pivot.x - dx * kick, y: pivot.y - dy * kick };
+    const muzzle = { x: g.x + dx * w.muzzleLen, y: g.y + dy * w.muzzleLen };
+
+    if (w.key === 'harpoon') {
+      const ext = (game.meleeT / 0.22) * 79;
+      const shaftEnd = { x: g.x + dx * (62 + ext), y: g.y + dy * (62 + ext) };
+      // 木杆
+      pxLine(ctx, g.x - dx * 5, g.y - dy * 5, shaftEnd.x, shaftEnd.y, '#1a120c', 4);
+      pxLine(ctx, g.x - dx * 5, g.y - dy * 5, shaftEnd.x, shaftEnd.y, '#8e5a31', 2);
+      pxLine(ctx, g.x - dx * 2 + nx, g.y - dy * 2 + ny, shaftEnd.x + nx, shaftEnd.y + ny, '#c18a55', 1);
+      // 绳圈
+      pxLine(ctx, g.x - dx * 4 + nx * 2, g.y - dy * 4 + ny * 2,
+        g.x - dx * 8 + nx * 5, g.y - dy * 8 + ny * 5, '#8b6b45', 1, 2);
+      // 枪头：菱形矛尖 + 倒钩
+      const base = { x: g.x + dx * (61 + ext), y: g.y + dy * (61 + ext) };
+      const tip = { x: g.x + dx * (70 + ext), y: g.y + dy * (70 + ext) };
+      fillPoly(ctx, [
+        [tip.x, tip.y], [base.x + nx * 4.5, base.y + ny * 4.5],
+        [base.x + dx * 2, base.y + dy * 2], [base.x - nx * 4.5, base.y - ny * 4.5]
+      ], '#1a2327');
+      fillPoly(ctx, [
+        [tip.x, tip.y], [base.x + nx * 3, base.y + ny * 3],
+        [base.x + dx * 2, base.y + dy * 2], [base.x - nx * 3, base.y - ny * 3]
+      ], '#dbe5dc');
+      // 倒钩
+      fillPoly(ctx, [
+        [base.x + nx * 3, base.y + ny * 3], [base.x - nx * 7, base.y - ny * 7],
+        [base.x - nx * 2, base.y - ny * 2]
+      ], '#eef4e9');
+      fillPoly(ctx, [
+        [base.x - nx * 3, base.y - ny * 3], [base.x + nx * 7, base.y + ny * 7],
+        [base.x + nx * 2, base.y + ny * 2]
+      ], '#eef4e9');
+      // 金属箍
+      pxLine(ctx, g.x + dx * 57 + nx * 2, g.y + dy * 57 + ny * 2,
+        g.x + dx * 57 - nx * 2, g.y + dy * 57 - ny * 2, '#c8d4cf', 2);
+      // 刺出时的白色划痕
+      if (game.meleeT > 0) {
+        const k = clamp(game.meleeT / 0.22, 0, 1);
+        ctx.globalAlpha = k * 0.85;
+        pxLine(ctx, tip.x - nx * 9, tip.y - ny * 9, tip.x + nx * 9, tip.y + ny * 9, '#f4efd6', 2, 2);
+        ctx.globalAlpha = 1;
+      }
+      return;
+    }
+
+    if (w.key === 'pistol') {
+      // 握把
+      pxLine(ctx, g.x + dx * 1 + nx * 3, g.y + dy * 1 + ny * 3,
+        g.x + dx * 4 + nx * 9, g.y + dy * 4 + ny * 9, '#0a0f11', 5);
+      pxLine(ctx, g.x + dx * 1 + nx * 3, g.y + dy * 1 + ny * 3,
+        g.x + dx * 4 + nx * 9, g.y + dy * 4 + ny * 9, '#52392a', 3);
+      pxLine(ctx, g.x + dx * 2 + nx * 4, g.y + dy * 2 + ny * 4,
+        g.x + dx * 4 + nx * 8, g.y + dy * 4 + ny * 8, '#8a6847', 1);
+      // 套筒
+      pxLine(ctx, g.x + dx * 1, g.y + dy * 1, g.x + dx * 12, g.y + dy * 12, '#090e11', 5);
+      pxLine(ctx, g.x + dx * 1.5, g.y + dy * 1.5, g.x + dx * 11.5, g.y + dy * 11.5, '#637477', 3);
+      pxLine(ctx, g.x + dx * 2.5 - nx, g.y + dy * 2.5 - ny, g.x + dx * 11.5 - nx, g.y + dy * 11.5 - ny, '#c6d2ce', 1);
+      pxLine(ctx, g.x + dx * 3, g.y + dy * 3, g.x + dx * 11, g.y + dy * 11, '#1a2326', 1);
+      // 扳机护圈
+      ctx.fillStyle = '#0a0f11';
+      ctx.fillRect(Math.round(g.x + dx * 3 + nx * 4), Math.round(g.y + dy * 3 + ny * 4), 2, 2);
+      ctx.fillRect(Math.round(g.x + dx * 5 + nx * 4), Math.round(g.y + dy * 5 + ny * 4), 1, 2);
+      // 枪口
+      ctx.fillStyle = '#d7b36b';
+      ctx.fillRect(Math.round(muzzle.x - nx * 1), Math.round(muzzle.y - ny * 1), 1, 1);
+      drawMuzzleFlash(muzzle, recoil, w);
+      return;
+    }
+
+    if (w.key === 'shotgun') {
+      const stockEnd = { x: g.x - dx * 8, y: g.y - dy * 8 };
+      const barrelStart = { x: g.x + dx * 3, y: g.y + dy * 3 };
+      // 枪托
+      pxLine(ctx, stockEnd.x, stockEnd.y, g.x, g.y, '#100b08', 5);
+      pxLine(ctx, stockEnd.x, stockEnd.y, g.x, g.y, '#704226', 3);
+      pxLine(ctx, stockEnd.x + nx, stockEnd.y + ny, g.x + nx, g.y + ny, '#a96c3c', 1);
+      ctx.fillStyle = '#120c08';
+      ctx.fillRect(Math.round(stockEnd.x - nx * 2), Math.round(stockEnd.y - ny * 2), 2, 2);
+      // 机匣
+      pxLine(ctx, g.x, g.y, g.x + dx * 3, g.y + dy * 3, '#0b1012', 4);
+      pxLine(ctx, g.x + dx, g.y + dy, g.x + dx * 3, g.y + dy * 3, '#414d50', 2);
+      // 双管
+      for (const side of [-1, 1]) {
+        const ox = nx * side * 1.3, oy = ny * side * 1.3;
+        pxLine(ctx, barrelStart.x + ox, barrelStart.y + oy, muzzle.x + ox, muzzle.y + oy, '#090e11', 2, 1);
+        pxLine(ctx, barrelStart.x + ox, barrelStart.y + oy, muzzle.x + ox, muzzle.y + oy, side < 0 ? '#c2cfcb' : '#7f9092', 1);
+      }
+      pxLine(ctx, barrelStart.x, barrelStart.y, muzzle.x, muzzle.y, '#11181b', 1);
+      // 护木
+      pxLine(ctx, g.x + dx * 5 + nx * 1.5, g.y + dy * 5 + ny * 1.5,
+        g.x + dx * 12 + nx * 1.5, g.y + dy * 12 + ny * 1.5, '#2a1a10', 4);
+      pxLine(ctx, g.x + dx * 5 + nx * 1.5, g.y + dy * 5 + ny * 1.5,
+        g.x + dx * 12 + nx * 1.5, g.y + dy * 12 + ny * 1.5, '#8a532e', 2);
+      // 准星
+      ctx.fillStyle = '#d7b36b';
+      ctx.fillRect(Math.round(muzzle.x - nx * 2), Math.round(muzzle.y - ny * 2), 1, 1);
+      drawMuzzleFlash(muzzle, recoil, w);
+      return;
+    }
+
+    if (w.key === 'rifle') {
+      const stockEnd = { x: g.x - dx * 8, y: g.y - dy * 8 };
+      const barrelStart = { x: g.x + dx * 6, y: g.y + dy * 6 };
+      // 木托
+      pxLine(ctx, stockEnd.x, stockEnd.y, g.x - dx * 1, g.y - dy * 1, '#100b08', 5);
+      pxLine(ctx, stockEnd.x, stockEnd.y, g.x - dx * 1, g.y - dy * 1, '#7a4828', 3);
+      pxLine(ctx, stockEnd.x + nx, stockEnd.y + ny, g.x + nx, g.y + ny, '#a96c3c', 1);
+      // 机匣
+      pxLine(ctx, g.x, g.y, g.x + dx * 5, g.y + dy * 5, '#0a0f11', 5);
+      pxLine(ctx, g.x + dx, g.y + dy, g.x + dx * 4.5, g.y + dy * 4.5, '#454f51', 2);
+      // 枪管
+      pxLine(ctx, barrelStart.x, barrelStart.y, muzzle.x, muzzle.y, '#090e11', 4);
+      pxLine(ctx, barrelStart.x, barrelStart.y, muzzle.x, muzzle.y, '#78898b', 2);
+      pxLine(ctx, barrelStart.x - nx, barrelStart.y - ny, muzzle.x - nx, muzzle.y - ny, '#c6d2ce', 1);
+      // 木护木
+      pxLine(ctx, g.x + dx * 7 + nx * 1.4, g.y + dy * 7 + ny * 1.4,
+        g.x + dx * 16 + nx * 1.4, g.y + dy * 16 + ny * 1.4, '#22150c', 4);
+      pxLine(ctx, g.x + dx * 7 + nx * 1.4, g.y + dy * 7 + ny * 1.4,
+        g.x + dx * 16 + nx * 1.4, g.y + dy * 16 + ny * 1.4, '#92562f', 2);
+      // 弹匣：两段弯折
+      const magA = { x: g.x + dx * 5 + nx * 3, y: g.y + dy * 5 + ny * 3 };
+      const magB = { x: g.x + dx * 9 + nx * 9, y: g.y + dy * 9 + ny * 9 };
+      const magC = { x: g.x + dx * 5 + nx * 13, y: g.y + dy * 5 + ny * 13 };
+      pxLine(ctx, magA.x, magA.y, magB.x, magB.y, '#0d1112', 5);
+      pxLine(ctx, magA.x, magA.y, magB.x, magB.y, '#4d3522', 3);
+      pxLine(ctx, magB.x, magB.y, magC.x, magC.y, '#0d1112', 4);
+      pxLine(ctx, magB.x, magB.y, magC.x, magC.y, '#3f2c1e', 2);
+      // 准星
+      ctx.fillStyle = '#d7b36b';
+      ctx.fillRect(Math.round(muzzle.x - nx * 2), Math.round(muzzle.y - ny * 2), 1, 1);
+      drawMuzzleFlash(muzzle, recoil, w);
+      return;
+    }
+
+    if (w.key === 'sniper') {
+      const stockEnd = { x: g.x - dx * 9, y: g.y - dy * 9 };
+      const barrelStart = { x: g.x + dx * 6, y: g.y + dy * 6 };
+      // 沉重的枪托
+      pxLine(ctx, stockEnd.x, stockEnd.y, g.x - dx * 1, g.y - dy * 1, '#080c0d', 6);
+      pxLine(ctx, stockEnd.x, stockEnd.y, g.x - dx * 1, g.y - dy * 1, '#2c3b3d', 4);
+      pxLine(ctx, stockEnd.x + nx, stockEnd.y + ny, g.x + nx, g.y + ny, '#5e7778', 1);
+      // 机匣
+      pxLine(ctx, g.x, g.y, g.x + dx * 6, g.y + dy * 6, '#080c0d', 5);
+      pxLine(ctx, g.x + dx, g.y + dy, g.x + dx * 5, g.y + dy * 5, '#3d4e51', 2);
+      // 长枪管
+      pxLine(ctx, barrelStart.x, barrelStart.y, muzzle.x, muzzle.y, '#080c0d', 4);
+      pxLine(ctx, barrelStart.x, barrelStart.y, muzzle.x, muzzle.y, '#667d80', 2);
+      pxLine(ctx, barrelStart.x - nx, barrelStart.y - ny, muzzle.x - nx, muzzle.y - ny, '#a8b9b8', 1);
+      // 巨大的枪口制退器
+      const brake = { x: muzzle.x - dx * 3, y: muzzle.y - dy * 3 };
+      pxLine(ctx, brake.x + nx * 2, brake.y + ny * 2, muzzle.x + nx * 2, muzzle.y + ny * 2, '#080c0d', 3);
+      pxLine(ctx, brake.x - nx * 2, brake.y - ny * 2, muzzle.x - nx * 2, muzzle.y - ny * 2, '#080c0d', 3);
+      ctx.fillStyle = '#9aacab';
+      ctx.fillRect(Math.round(muzzle.x - nx * 2), Math.round(muzzle.y - ny * 2), 2, 2);
+      // 瞄准镜
+      const scopeA = { x: g.x + dx * 2 - nx * 3.5, y: g.y + dy * 2 - ny * 3.5 };
+      const scopeB = { x: g.x + dx * 11 - nx * 3.5, y: g.y + dy * 11 - ny * 3.5 };
+      pxLine(ctx, scopeA.x, scopeA.y, scopeB.x, scopeB.y, '#080c0d', 4);
+      pxLine(ctx, scopeA.x, scopeA.y, scopeB.x, scopeB.y, '#526568', 2);
+      pxLine(ctx, scopeA.x, scopeA.y, scopeA.x - nx, scopeA.y - ny, '#080c0d', 2);
+      pxLine(ctx, g.x + dx * 4 - nx * 1.5, g.y + dy * 4 - ny * 1.5, g.x + dx * 4 - nx * 2.5, g.y + dy * 4 - ny * 2.5, '#080c0d', 2);
+      pxLine(ctx, g.x + dx * 9 - nx * 1.5, g.y + dy * 9 - ny * 1.5, g.x + dx * 9 - nx * 2.5, g.y + dy * 9 - ny * 2.5, '#080c0d', 2);
+      ctx.fillStyle = '#d8b86a';
+      ctx.fillRect(Math.round(scopeB.x - nx * 0.5), Math.round(scopeB.y - ny * 0.5), 2, 2);
+      drawMuzzleFlash(muzzle, recoil, w);
+      return;
+    }
+
+    if (w.key === 'rpg') {
+      const back = { x: g.x - dx * 9, y: g.y - dy * 9 };
+      // 粗发射筒
+      pxLine(ctx, back.x, back.y, muzzle.x - dx * 2, muzzle.y - dy * 2, '#07100c', 9);
+      pxLine(ctx, back.x, back.y, muzzle.x - dx * 2, muzzle.y - dy * 2, '#5c6d59', 7);
+      pxLine(ctx, back.x - nx * 2, back.y - ny * 2, muzzle.x - dx * 2 - nx * 2, muzzle.y - dy * 2 - ny * 2, '#9aab91', 1);
+      // 前后加固箍
+      for (const at of [2, 12, 22]) {
+        pxLine(ctx, g.x + dx * at + nx * 4, g.y + dy * at + ny * 4,
+          g.x + dx * at - nx * 4, g.y + dy * at - ny * 4, '#26352b', 2);
+      }
+      // 简易机械瞄具
+      ctx.fillStyle = '#d7b36b';
+      ctx.fillRect(Math.round(g.x + dx * 8 - nx * 5), Math.round(g.y + dy * 8 - ny * 5), 3, 2);
+      ctx.fillStyle = '#0a0f0d';
+      ctx.fillRect(Math.round(g.x + dx * 8 - nx * 6), Math.round(g.y + dy * 8 - ny * 6), 1, 1);
+      // 握把与扳机
+      pxLine(ctx, g.x + dx * 7 + nx * 3, g.y + dy * 7 + ny * 3,
+        g.x + dx * 10 + nx * 8, g.y + dy * 10 + ny * 8, '#080e0b', 4);
+      pxLine(ctx, g.x + dx * 7 + nx * 3, g.y + dy * 7 + ny * 3,
+        g.x + dx * 10 + nx * 8, g.y + dy * 10 + ny * 8, '#4a3a28', 2);
+      // 前端战斗部
+      ctx.save();
+      ctx.translate(muzzle.x, muzzle.y);
+      ctx.rotate(angle);
+      ctx.fillStyle = '#0a0f0d';
+      ctx.fillRect(-7, -5, 16, 10);
+      ctx.fillStyle = '#637461';
+      ctx.fillRect(-6, -4, 14, 8);
+      ctx.fillStyle = '#a5b69b';
+      ctx.fillRect(-4, -3, 9, 1);
+      ctx.fillStyle = '#c24b36';
+      ctx.fillRect(8, -4, 3, 8);
+      fillPoly(ctx, [[11, -4], [17, 0], [11, 4]], '#e7b268');
+      ctx.fillStyle = '#8b3a2a';
+      ctx.fillRect(8, -1, 3, 2);
+      ctx.fillStyle = '#1a2320';
+      ctx.fillRect(-7, -3, 2, 6);
+      ctx.restore();
+      drawMuzzleFlash(muzzle, recoil, w);
+      return;
+    }
+  }
+
+  function drawMuzzleFlash(muzzle, recoil, w) {
+    if (w.muzzleSize <= 0 || recoil <= 0.14) return;
+    const k = clamp((recoil - 0.14) / 0.86, 0, 1);
+    const size = w.muzzleSize;
+    const mx = Math.round(muzzle.x), my = Math.round(muzzle.y);
+    ctx.globalAlpha = k;
+    const glowColor = w.key === 'sniper' ? '#bfeaff' : '#ffb24e';
+    fillCircle(ctx, mx, my, 4 + size * 4 + k * 2, glowColor, 0.28);
+    if (w.key === 'sniper') {
+      ctx.fillStyle = '#dff7ff';
+      ctx.fillRect(mx - 11, my - 1, 23, 2);
+      ctx.fillRect(mx - 1, my - 11, 2, 23);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(mx - 4, my - 2, 9, 5);
+      ctx.fillStyle = '#9edcff';
+      ctx.fillRect(mx - 7, my - 4, 2, 2);
+      ctx.fillRect(mx + 6, my + 3, 2, 2);
+    } else {
+      const h = Math.round(3 + size * 4);
+      ctx.fillStyle = '#ff9e3f';
+      ctx.fillRect(mx - h, my - 1, h * 2 + 1, 2);
+      ctx.fillRect(mx - 1, my - h, 2, h * 2 + 1);
+      ctx.fillStyle = '#ffd27a';
+      ctx.fillRect(mx - Math.round(h * 0.65), my - 1, Math.round(h * 1.3) + 1, 2);
+      ctx.fillRect(mx - 1, my - Math.round(h * 0.65), 2, Math.round(h * 1.3) + 1);
+      ctx.fillStyle = '#fff3c9';
+      ctx.fillRect(mx - 2, my - 2, 5, 5);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawBlasts() {
+    if (!game) return;
+    for (const b of game.blasts) {
+      const k = 1 - clamp(b.t / b.max, 0, 1);
+      const a = 1 - k;
+      const r = b.radius * (0.35 + 0.65 * k);
+      ctx.save();
+      ctx.globalAlpha = 0.25 * a;
+      ctx.fillStyle = '#ff9e3f';
+      ctx.beginPath(); ctx.arc(b.x, b.y, r, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 0.7 * a;
+      ctx.strokeStyle = '#ffe4a0';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(b.x, b.y, r, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = 0.55 * a;
+      ctx.fillStyle = '#fff3c9';
+      ctx.beginPath(); ctx.arc(b.x, b.y, r * 0.48, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 0.9 * a;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath(); ctx.arc(b.x, b.y, Math.max(3, r * 0.16), 0, TAU); ctx.fill();
+      ctx.restore();
+    }
   }
 
   function drawPellets() {
     if (!game) return;
     for (const p of game.pellets) {
       const t = p.life / p.max;
-      ctx.globalAlpha = clamp(0.35 + t * 1.6, 0, 1);
+      const w = WEAPONS[p.weapon] || WEAPONS.shotgun;
       const underwater = p.y > SEA_Y;
-      ctx.fillStyle = underwater ? '#b9e8df' : '#ffe6a2';
-      pxLine(ctx, p.px, p.py, p.x, p.y, underwater ? '#7fc8c9' : '#ffc66d', 1);
-      ctx.fillStyle = underwater ? '#f0fff5' : '#fff4c8';
-      ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
+      ctx.globalAlpha = clamp(0.35 + t * 1.6, 0, 1);
+      if (p.rpg) {
+        const a = Math.atan2(p.vy, p.vx);
+        ctx.save();
+        ctx.translate(Math.round(p.x), Math.round(p.y));
+        ctx.rotate(a);
+        ctx.globalAlpha = 1;
+        // 尾焰
+        ctx.fillStyle = '#ffb347';
+        ctx.fillRect(-10, -1, 6, 2);
+        ctx.fillStyle = '#fff3c9';
+        ctx.fillRect(-7, -1, 4, 1);
+        // 弹体
+        ctx.fillStyle = '#111a18';
+        ctx.fillRect(-5, -2, 9, 4);
+        ctx.fillStyle = '#667a6d';
+        ctx.fillRect(-4, -1, 8, 2);
+        ctx.fillStyle = '#a9b99f';
+        ctx.fillRect(-3, -1, 5, 1);
+        // 战斗部
+        ctx.fillStyle = '#c24b36';
+        ctx.fillRect(4, -2, 3, 4);
+        ctx.fillStyle = '#e7b268';
+        ctx.fillRect(7, -1, 2, 2);
+        // 尾翼
+        ctx.fillStyle = '#c6b489';
+        ctx.fillRect(-5, -3, 2, 2);
+        ctx.fillRect(-5, 1, 2, 2);
+        ctx.restore();
+        continue;
+      }
+      if (w.key === 'sniper') {
+        pxLine(ctx, p.px, p.py, p.x, p.y, underwater ? '#9bdfe4' : '#c7f0ff', 3);
+        pxLine(ctx, p.px, p.py, p.x, p.y, '#ffffff', 1);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 2);
+      } else if (w.key === 'rifle') {
+        pxLine(ctx, p.px, p.py, p.x, p.y, underwater ? '#e6b06b' : '#ffb45a', 2);
+        ctx.fillStyle = '#ffe2a0';
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
+      } else if (w.key === 'pistol') {
+        pxLine(ctx, p.px, p.py, p.x, p.y, underwater ? '#d9e8cf' : '#ffe3a0', 1);
+        ctx.fillStyle = '#fff4ca';
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
+      } else {
+        ctx.fillStyle = underwater ? '#b9e8df' : '#ffe6a2';
+        pxLine(ctx, p.px, p.py, p.x, p.y, underwater ? '#7fc8c9' : '#ffc66d', 1);
+        ctx.fillStyle = underwater ? '#f0fff5' : '#fff4c8';
+        ctx.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
+      }
     }
     ctx.globalAlpha = 1;
   }
@@ -3337,16 +4712,30 @@ kbd {
     if (!game || mode !== 'playing' || !pointer.inside) return;
     const x = Math.round(pointer.x);
     const y = Math.round(pointer.y);
-    let hot = false;
-    for (const s of game.sharks) {
-      if (!s.dead && dist(x, y, s.x, s.y) < s.cfg.hitR + 5) { hot = true; break; }
+    const w = currentWeaponCfg();
+    let hot = false, head = false, outRange = false;
+    if (w.kind === 'melee') {
+      hot = !!findMeleeTarget();
+    } else {
+      const pivot = gunPivot();
+      outRange = Math.hypot(x - pivot.x, y - pivot.y) > w.range + 10;
+      for (const s of game.sharks) {
+        if (s.dead) continue;
+        const hp = sharkHeadPoint(s);
+        if (w.key !== 'rpg' && Math.hypot(x - hp.x, y - hp.y) < hp.r + 3) head = true;
+        if (Math.hypot(x - s.x, y - s.y) < s.cfg.hitR + 5) hot = true;
+      }
     }
-    const col = hot ? '#ff8b64' : '#ffe7b4';
+    let col = '#ffe7b4';
+    if (outRange) col = '#a89a82';
+    else if (head || hot) col = head ? '#ffd166' : '#ff8b64';
     const dark = '#0c0906';
-    // 四角准星：向外张开，便于在深色水面上看清
+    const off = w.key === 'sniper' ? 11 : w.key === 'pistol' ? 7 : w.key === 'rpg' ? 12 : 9;
+    const spread = w.key === 'shotgun' ? 14 : w.key === 'sniper' ? 4 : w.key === 'harpoon' ? 5 : w.key === 'rifle' ? 9 : w.key === 'rpg' ? 18 : 7;
+    // 四角准星
     const corners = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
     for (const [sx, sy] of corners) {
-      const bx = x + sx * 9, by = y + sy * 9;
+      const bx = x + sx * off, by = y + sy * off;
       const hx = sx < 0 ? bx : bx - 5;
       const vy = sy < 0 ? by : by - 5;
       ctx.fillStyle = dark;
@@ -3362,30 +4751,59 @@ kbd {
     // 扩散刻度
     ctx.globalAlpha = 0.62;
     ctx.fillStyle = col;
-    ctx.fillRect(x - 14, y, 3, 1);
-    ctx.fillRect(x + 12, y, 3, 1);
-    ctx.fillRect(x, y - 14, 1, 3);
-    ctx.fillRect(x, y + 12, 1, 3);
+    ctx.fillRect(x - spread - 1, y, 3, 1);
+    ctx.fillRect(x + spread - 1, y, 3, 1);
+    ctx.fillRect(x, y - spread - 1, 1, 3);
+    ctx.fillRect(x, y + spread - 1, 1, 3);
     ctx.globalAlpha = 1;
+    // RPG 爆炸范围提示（虚线圈，仅作方向参考）
+    if (w.key === 'rpg') {
+      ctx.globalAlpha = 0.3;
+      ctx.fillStyle = '#ffb36b';
+      const rr = 38;
+      for (let i = 0; i < 28; i++) {
+        const a = i / 28 * Math.PI * 2;
+        ctx.fillRect(Math.round(x + Math.cos(a) * rr), Math.round(y + Math.sin(a) * rr), 1, 1);
+      }
+      ctx.globalAlpha = 1;
+    }
+    // 狙击镜的虚线圈
+    if (w.key === 'sniper') {
+      ctx.globalAlpha = 0.42;
+      ctx.fillStyle = col;
+      for (let i = 0; i < 10; i++) {
+        const a = i / 10 * Math.PI * 2;
+        ctx.fillRect(Math.round(x + Math.cos(a) * 17), Math.round(y + Math.sin(a) * 17), 1, 1);
+      }
+      ctx.globalAlpha = 1;
+    }
+    // 爆头提示
+    if (head && !outRange) {
+      ctx.fillStyle = '#ffd166';
+      ctx.fillRect(x - 1, y - off - 7, 3, 1);
+      ctx.fillRect(x, y - off - 8, 1, 1);
+    }
     // 装填条
-    if (game.reloading) {
-      const w = 24;
+    if (game.reloading && game.reloadTotal > 0) {
+      const barW = 26;
       ctx.fillStyle = 'rgba(10, 7, 5, 0.78)';
-      ctx.fillRect(x - w / 2 - 1, y + 15, w + 2, 5);
+      ctx.fillRect(x - barW / 2 - 1, y + 15, barW + 2, 5);
       ctx.fillStyle = '#3c2a16';
-      ctx.fillRect(x - w / 2, y + 16, w, 3);
+      ctx.fillRect(x - barW / 2, y + 16, barW, 3);
       ctx.fillStyle = '#e0b365';
-      ctx.fillRect(x - w / 2, y + 16, Math.max(0, Math.round(w * (1 - game.reloadTimer / 0.78))), 3);
-    } else if (game.ammo <= 0) {
+      ctx.fillRect(x - barW / 2, y + 16, Math.max(0, Math.round(barW * (1 - game.reloadTimer / game.reloadTotal))), 3);
+    } else if (w.kind === 'gun' && currentAmmo() <= 0) {
       drawPixelText(ctx, 'R', x, y + 15, 1, '#ffcf86', { align: 'center' });
     }
     // 命中标记
     if (game.hitMark > 0) {
       const a = clamp(game.hitMark / 0.13, 0, 1);
+      const hm = game.hitMarkHead > 0 ? '#ffd166' : '#fff2c8';
       ctx.globalAlpha = a;
-      ctx.fillStyle = '#fff2c8';
+      ctx.fillStyle = hm;
       const hx = Math.round(game.hitMarkX), hy = Math.round(game.hitMarkY);
-      for (let i = 1; i <= 3; i++) {
+      const extra = game.hitMarkHead > 0 ? 1 : 0;
+      for (let i = 1; i <= 3 + extra; i++) {
         ctx.fillRect(hx - 3 - i, hy - 3 - i, 1, 1);
         ctx.fillRect(hx + 3 + i, hy - 3 - i, 1, 1);
         ctx.fillRect(hx - 3 - i, hy + 3 + i, 1, 1);
@@ -3434,6 +4852,7 @@ kbd {
     drawSharks();
     drawSurface();
     drawPellets();
+    drawBlasts();
     drawParticles();
     drawLanternGlow();
     drawOldMan();
@@ -3455,6 +4874,8 @@ kbd {
   let lastTime = performance.now();
   fitViewport();
   goMenu();
+  refreshDebugButton();
+  syncDebugUI();
   updateSoundButtons();
   requestAnimationFrame(loop);
 
@@ -3467,6 +4888,10 @@ kbd {
     spawnShark, tryFire, tryReload, update, render,
     newShark, setSharkTarget, biteFish,
     SHARK_TYPES, FISH_SEGS, FISH_SEG_MEAT, FISH_SEG_N, totalScore, updateHUD,
+    WEAPONS, WEAPON_ORDER, ALL_WEAPON_ORDER, switchWeapon, cycleWeapon, checkUnlocks, startReload,
+    debugState, openDebug, closeDebug, applyDebugStart, applyDebugJump, unlockDebugArsenal, explodeRPG,
+    toggleDebugFlag, setDebugJump, syncDebugUI,
+    findMeleeTarget, currentWeaponCfg, currentAmmo, gunPivot, sharkHeadPoint, pickSharkType,
     setAim(x, y) { pointer.x = x; pointer.y = y; pointer.inside = true; }
   };
 })();

@@ -1,0 +1,10 @@
+{
+  "id": "classmate",
+  "name": "同学利维坦",
+  "desc": "被同学头像覆盖的死神利维坦。",
+  "entry": "./boss/classmate/boss.js",
+  "music": "./boss/classmate/boss-theme.ogg",
+  "maxHp": 2600,
+  "interfaceVersion": 1,
+  "face": true
+}

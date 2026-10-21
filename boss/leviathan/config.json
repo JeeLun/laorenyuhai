@@ -1,0 +1,10 @@
+{
+  "id": "leviathan",
+  "name": "死神利维坦",
+  "desc": "来自深渊的红白海蛇。AK 输出，巴雷特击退。",
+  "entry": "./boss/leviathan/boss.js",
+  "music": "./boss/leviathan/boss-theme.ogg",
+  "maxHp": 2600,
+  "interfaceVersion": 1,
+  "face": false
+}

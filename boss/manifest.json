@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "bosses": [
+    {
+      "id": "leviathan",
+      "name": "死神利维坦",
+      "entry": "leviathan/boss.js",
+      "config": "leviathan/config.json"
+    },
+    {
+      "id": "classmate",
+      "name": "同学利维坦",
+      "entry": "classmate/boss.js",
+      "config": "classmate/config.json"
+    }
+  ]
+}

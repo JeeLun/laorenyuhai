@@ -1,0 +1,29 @@
+{
+  "file": "2026_10_21_18_40.json",
+  "version": "Alpha1.0.2",
+  "date": "2026.10.21 18:40",
+  "sections": [
+    {
+      "title": "修改",
+      "items": [
+        "主界面新增 BOSS 模式入口和 BOSS 选择列表。",
+        "死神利维坦、同学利维坦拆分为两个独立 BOSS 目录，各自拥有模块、配置和 BGM。",
+        "同学利维坦的头像贴图移入 boss/classmate/textures/face.webp。",
+        "移除 DEBUG 界面的「来自深渊」和「彩蛋模式」选项。",
+        "版本号更新为 Alpha1.0.2。"
+      ]
+    },
+    {
+      "title": "平衡性",
+      "items": [
+        "BOSS 模式不参与普通无尽模式的最高分。"
+      ]
+    },
+    {
+      "title": "bug修复",
+      "items": [
+        "切换 BOSS 时 BOSS 名称和专属 BGM 会同步更新。"
+      ]
+    }
+  ]
+}

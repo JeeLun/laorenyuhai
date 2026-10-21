@@ -1300,7 +1300,7 @@ kbd {
         </div>
       </div>
       <button id="changelog-btn" class="changelog-btn" type="button">更新日志</button>
-      <div class="version-label">Alpha1.0.4</div>
+      <div class="version-label">Alpha1.0.5</div>
       <button id="debug-btn" class="debug-btn hidden" type="button">debug</button>
     </section>
 
@@ -1392,6 +1392,7 @@ kbd {
 <script type="module">
 import { createBossModule as createLeviathan, meta as leviathanMeta } from './boss/leviathan/boss.js';
 import { createBossModule as createClassmate, meta as classmateMeta } from './boss/classmate/boss.js';
+import { createBossModule as createCarrion, meta as carrionMeta } from './boss/carrion/boss.js';
 
 /* =========================================================
    老人与海 · 鲨口余生
@@ -2344,7 +2345,8 @@ import { createBossModule as createClassmate, meta as classmateMeta } from './bo
   let bossWindowView = false;
   const BOSSES = [
     { id: 'leviathan', factory: createLeviathan, meta: leviathanMeta },
-    { id: 'classmate', factory: createClassmate, meta: classmateMeta }
+    { id: 'classmate', factory: createClassmate, meta: classmateMeta },
+    { id: 'carrion', factory: createCarrion, meta: carrionMeta }
   ];
   let activeBoss = null;
   let activeBossModule = null;
@@ -2354,9 +2356,10 @@ import { createBossModule as createClassmate, meta as classmateMeta } from './bo
     if (!bossApi) {
       bossApi = {
         ctx, W, H, clamp, lerp, rand, choice, TAU,
-        fillPoly, pxLine, fillCircle, angleLerp, addParticle,
-        BOSS_FISH, BOSS_GUN, BOSS_CONTACT, endBoss,
-        now: () => clock
+        fillPoly, pxLine, fillCircle, angleLerp, addParticle, addText, segPointDist,
+        Sound, BOSS_FISH, BOSS_GUN, BOSS_CONTACT, endBoss, damageMarlin,
+        now: () => clock,
+        get game() { return game; }
       };
     }
     return bossApi;
@@ -2652,7 +2655,7 @@ import { createBossModule as createClassmate, meta as classmateMeta } from './bo
     const bossNameEl = $('boss-name');
     if (bossNameEl) bossNameEl.textContent = activeBoss.meta.name;
     startBossBgm();
-    getBossModule().initSpine(game.boss);
+    if (boss.initSpine) boss.initSpine(game.boss);
   }
 
   function totalScore() {
@@ -3389,6 +3392,25 @@ import { createBossModule as createClassmate, meta as classmateMeta } from './bo
     if (game.meat <= 0) endGame();
   }
 
+  function damageMarlin(fraction) {
+    if (!game) return;
+    const loss = game.maxMeat * clamp(fraction, 0, 1);
+    let left = loss;
+    for (let i = FISH_SEG_N - 1; i >= 0 && left > 0; i--) {
+      const take = Math.min(game.segMeat[i], left);
+      game.segMeat[i] -= take;
+      left -= take;
+    }
+    game.meat = Math.max(0, game.segMeat.reduce((a, b) => a + b, 0));
+    game.hurtFlash = Math.max(game.hurtFlash, 1.1);
+    game.shake = Math.max(game.shake, 11);
+    if (game.meat <= 0.01) {
+      game.meat = 0;
+      if (game.bossMode) endBoss(false);
+      else endGame();
+    }
+  }
+
   function killShark(s, wasBiting, headshot) {
     if (s.dead) return;
     s.dead = true;
@@ -4009,6 +4031,8 @@ import { createBossModule as createClassmate, meta as classmateMeta } from './bo
 
   function updateBossShots(dt) {
     if (!game || !game.boss) return;
+    const bm = getBossModule();
+    if (bm && bm.updateShots) { bm.updateShots(dt); return; }
     const b = game.boss;
     for (let i = game.bossShots.length - 1; i >= 0; i--) {
       const p = game.bossShots[i];
@@ -4090,14 +4114,14 @@ import { createBossModule as createClassmate, meta as classmateMeta } from './bo
       game.kills++;
       game.shake = 12;
       Sound.bossDeath();
-      showToast('死神利维坦沉入深渊', 2100);
+      showToast((activeBoss ? activeBoss.meta.name : '利维坦') + '沉入深渊', 2100);
     } else {
       game.boss.state = 'kill';
       game.boss.deathT = 0;
       game.boss.mouth = 1;
       game.shake = 14;
       Sound.bossRoar();
-      showToast('利维坦吞没了马林鱼……', 2200);
+      showToast((activeBoss ? activeBoss.meta.name : '利维坦') + '吞没了马林鱼……', 2200);
     }
   }
 
@@ -4523,13 +4547,15 @@ import { createBossModule as createClassmate, meta as classmateMeta } from './bo
       if (outcome === 'win') {
         eyebrowEl.textContent = 'THE ABYSS RECEDES';
         eyebrowEl.classList.remove('bad');
-        setText($('over-title'), '利维坦沉入深渊');
-        $('over-lore').innerHTML = '死神利维坦的血染红了深海。<br>海面重新安静下来——归航继续。';
+        const bossName = activeBoss && activeBoss.meta ? activeBoss.meta.name : '利维坦';
+        setText($('over-title'), bossName + '沉入深渊');
+        $('over-lore').innerHTML = bossName + '的血肉沉入深海。<br>海面重新安静下来——归航继续。';
       } else if (outcome === 'lose') {
         eyebrowEl.textContent = 'THE ABYSS CLAIMS ALL';
         eyebrowEl.classList.add('bad');
         setText($('over-title'), '深渊吞没了归航');
-        $('over-lore').innerHTML = '利维坦的颚骨合拢。<br>马林鱼、船、老人，都沉入黑暗。';
+        const bossName = activeBoss && activeBoss.meta ? activeBoss.meta.name : '利维坦';
+        $('over-lore').innerHTML = bossName + '的巨口合拢。<br>马林鱼、船、老人，都沉入黑暗。';
       } else {
         eyebrowEl.textContent = 'THE SEA HAS TAKEN IT';
         eyebrowEl.classList.add('bad');
@@ -6137,6 +6163,8 @@ import { createBossModule as createClassmate, meta as classmateMeta } from './bo
 
   function bossPointHit(x, y) {
     if (!game || !game.boss) return false;
+    const bm = getBossModule();
+    if (bm && bm.pointHit) return bm.pointHit(x, y);
     for (const s of game.boss.spine) {
       if (Math.hypot(x - s.x, y - s.y) < s.r + 5) return true;
     }

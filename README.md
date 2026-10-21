@@ -29,3 +29,4 @@ GitHub Pages 本身通过 HTTP 提供文件，可以直接运行。
 
 - 死神利维坦：`boss/leviathan/`
 - 同学利维坦：`boss/classmate/`（同一个利维坦逻辑，头部由同学头像覆盖）
+- CARRION：`boss/carrion/`（多头颅、多触手血肉 BOSS）

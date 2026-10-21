@@ -13,3 +13,4 @@
 
 - `leviathan/`：死神利维坦
 - `classmate/`：同学利维坦（头像覆盖版）
+- `carrion/`：CARRION（多头颅血肉 BOSS）

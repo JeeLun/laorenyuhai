@@ -12,6 +12,12 @@
       "name": "同学利维坦",
       "entry": "classmate/boss.js",
       "config": "classmate/config.json"
+    },
+    {
+      "id": "carrion",
+      "name": "CARRION",
+      "entry": "carrion/boss.js",
+      "config": "carrion/config.json"
     }
   ]
 }

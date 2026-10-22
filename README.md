@@ -4,6 +4,9 @@
 
 - `index.html`：主游戏入口
 - `style.css`、`game.js`：可编辑源码，最终会内联进 `index.html`
+- `boss-gallery.html`：CARRION 像素造型实验页（36 种画法，独立 Review 页）
+- `boss-gallery-v2.html`：根据反馈收敛的 10 头像素候选（8 个）
+- `boss-gallery-v3.html`：R01/R02/R08 猩红动态像素候选（3 个，10 头）
 - `boss/manifest.json`：BOSS 清单
 - `changelogs/`：更新日志，按分钟保存，manifest.json 列出所有版本
 
@@ -30,4 +33,3 @@ GitHub Pages 本身通过 HTTP 提供文件，可以直接运行。
 - 死神利维坦：`boss/leviathan/`
 - 同学利维坦：`boss/classmate/`（同一个利维坦逻辑，头部由同学头像覆盖）
 - CARRION：`boss/carrion/`（多头颅、多触手血肉 BOSS）
-傻福加速器害人

@@ -1,10 +1,10 @@
 {
   "id": "carrion",
   "name": "CARRION",
-  "desc": "一团由头颅与触手组成的血肉。AK 撕碎头颅，狙击枪打断触手根部。",
+  "desc": "R02 猩红像素形态：10 颗头（4 直接 + 6 触手），中心巨眼，2000 HP。",
   "entry": "./boss/carrion/boss.js",
   "music": "./boss/carrion/boss-theme.ogg",
-  "maxHp": 650,
+  "maxHp": 2000,
   "interfaceVersion": 1,
   "face": false
 }

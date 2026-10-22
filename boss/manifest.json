@@ -18,6 +18,12 @@
       "name": "CARRION",
       "entry": "carrion/boss.js",
       "config": "carrion/config.json"
+    },
+    {
+      "id": "shoehorn",
+      "name": "巨型鞋拔子",
+      "entry": "shoehorn/boss.js",
+      "config": "shoehorn/config.json"
     }
   ]
 }

@@ -1,0 +1,10 @@
+{
+  "id": "shoehorn",
+  "name": "巨型鞋拔子",
+  "desc": "CARRION 形态的巨型鞋拔子：十张人脸头颅 + 中央巨眼，2000 HP。名字只是玩梗。",
+  "entry": "./boss/shoehorn/boss.js",
+  "music": "./boss/shoehorn/boss-theme.ogg",
+  "maxHp": 2000,
+  "interfaceVersion": 1,
+  "face": false
+}

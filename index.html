@@ -730,6 +730,31 @@ kbd {
 }
 .new-best.hidden { display: none; }
 @keyframes newBest { 50% { opacity: .48; } }
+.panel-close {
+  position: absolute;
+  top: calc(var(--u) * 4.2);
+  left: calc(var(--u) * 4.2);
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 14);
+  height: calc(var(--u) * 14);
+  padding: 0;
+  color: #e8d4b3;
+  background: rgba(6, 11, 15, .86);
+  border: calc(var(--u) * .8) solid rgba(192, 145, 93, .48);
+  box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 6) rgba(0, 0, 0, .45);
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 10);
+  line-height: 1;
+  cursor: pointer;
+}
+.panel-close:hover, .panel-close:focus-visible {
+  color: #fff0cf;
+  border-color: rgba(236, 181, 111, .9);
+  outline: none;
+}
+
 .btn-row {
   display: flex;
   align-items: center;
@@ -1300,30 +1325,26 @@ kbd {
         </div>
       </div>
       <button id="changelog-btn" class="changelog-btn" type="button">更新日志</button>
-      <div class="version-label">Alpha1.0.5</div>
+      <div class="version-label">Alpha1.4.1</div>
       <button id="debug-btn" class="debug-btn hidden" type="button">debug</button>
     </section>
 
     <section class="screen hidden" id="boss-select-screen">
       <div class="panel-screen boss-select-panel">
+        <button id="boss-close-btn" class="panel-close" type="button" aria-label="关闭">×</button>
         <div class="eyebrow">THE ABYSS ROSTER</div>
         <h2>BOSS 模式</h2>
         <p class="lore">选择你要面对的东西。</p>
         <div id="boss-list" class="boss-list"></div>
-        <div class="btn-row">
-          <button id="boss-back-btn" class="btn ghost" type="button">返回主菜单</button>
-        </div>
       </div>
     </section>
 
     <section class="screen hidden" id="changelog-screen">
       <div class="panel-screen changelog-panel">
+        <button id="changelog-close-btn" class="panel-close" type="button" aria-label="关闭">×</button>
         <div class="eyebrow">VOYAGE LOG</div>
         <h2>更新日志</h2>
         <div id="changelog-list" class="changelog-list"></div>
-        <div class="btn-row">
-          <button id="changelog-back-btn" class="btn ghost" type="button">返回主菜单</button>
-        </div>
       </div>
     </section>
 
@@ -1393,6 +1414,7 @@ kbd {
 import { createBossModule as createLeviathan, meta as leviathanMeta } from './boss/leviathan/boss.js';
 import { createBossModule as createClassmate, meta as classmateMeta } from './boss/classmate/boss.js';
 import { createBossModule as createCarrion, meta as carrionMeta } from './boss/carrion/boss.js';
+import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss/shoehorn/boss.js';
 
 /* =========================================================
    老人与海 · 鲨口余生
@@ -2346,7 +2368,8 @@ import { createBossModule as createCarrion, meta as carrionMeta } from './boss/c
   const BOSSES = [
     { id: 'leviathan', factory: createLeviathan, meta: leviathanMeta },
     { id: 'classmate', factory: createClassmate, meta: classmateMeta },
-    { id: 'carrion', factory: createCarrion, meta: carrionMeta }
+    { id: 'carrion', factory: createCarrion, meta: carrionMeta },
+    { id: 'shoehorn', factory: createShoehorn, meta: shoehornMeta }
   ];
   let activeBoss = null;
   let activeBossModule = null;
@@ -4724,9 +4747,9 @@ import { createBossModule as createCarrion, meta as carrionMeta } from './boss/c
   $('debug-close-btn').addEventListener('click', () => { goMenu(); });
   $('start-btn').addEventListener('click', () => { startGame(); });
   $('boss-mode-btn').addEventListener('click', () => { openBossSelect(); });
-  $('boss-back-btn').addEventListener('click', () => { goMenu(); });
+  $('boss-close-btn').addEventListener('click', () => { goMenu(); });
   $('changelog-btn').addEventListener('click', () => { openChangelog(); });
-  $('changelog-back-btn').addEventListener('click', () => { goMenu(); });
+  $('changelog-close-btn').addEventListener('click', () => { goMenu(); });
   $('mobile-pause').addEventListener('click', (e) => { e.stopPropagation(); if (mode === 'playing') togglePause(); });
   $('mobile-reload').addEventListener('click', (e) => { e.stopPropagation(); if (mode === 'playing') tryReload(); });
   $('retry-btn').addEventListener('click', () => { startGame(game && game.bossRun ? game.bossId : undefined); });
@@ -5394,7 +5417,8 @@ import { createBossModule as createCarrion, meta as carrionMeta } from './boss/c
     const bob = boatBob();
     const aim = game.aimAngle + game.reloadPose * 0.32 + game.switchPose * 0.28;
     const dx = Math.cos(aim), dy = Math.sin(aim);
-    const nx = -dy, ny = dx;
+    const side = dx >= 0 ? 1 : -1;
+    const nx = -dy * side, ny = dx * side;
     const recoil = game.recoil;
 
     ctx.save();
@@ -5519,7 +5543,8 @@ import { createBossModule as createCarrion, meta as carrionMeta } from './boss/c
 
   function drawWeaponArt(pivot, angle, recoil, w) {
     const dx = Math.cos(angle), dy = Math.sin(angle);
-    const nx = -dy, ny = dx;
+    const side = dx >= 0 ? 1 : -1;
+    const nx = -dy * side, ny = dx * side;
     const kick = recoil * (w.recoilKick || 2);
     const g = { x: pivot.x - dx * kick, y: pivot.y - dy * kick };
     const muzzle = { x: g.x + dx * w.muzzleLen, y: g.y + dy * w.muzzleLen };

@@ -1417,7 +1417,7 @@ kbd {
         </div>
       </div>
       <button id="changelog-btn" class="changelog-btn" type="button">更新日志</button>
-      <div class="version-label">Alpha1.5.9</div>
+      <div class="version-label">Alpha1.5.10</div>
       <button id="debug-btn" class="debug-btn hidden" type="button">debug</button>
     </section>
 
@@ -3755,7 +3755,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         game.gatlingHeat = 100;
         game.gatlingLock = 3;
         game.gatlingOverheated = true;
-        game.fireCd = 3;
+        game.fireCd = 0;
         Sound.hot();
         showToast('加特林过热 · 强制冷却 3 秒', 1300);
       }
@@ -3926,7 +3926,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     game.weapon = key;
     game.switchPose = 1;
     game.reloadDelay = 0.3;
-    game.fireCd = Math.max(game.fireCd, 0.06);
+    game.fireCd = key === 'gatling' ? Math.max(game.fireCd, 0.06) : 0.06;
     Sound.switchWeapon();
     return true;
   }
@@ -4633,7 +4633,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       const seg = FISH_SEGS[i];
       if (game.segFreeze[i] > 0) {
         const a = clamp(game.segFreeze[i] / 2.5, 0, 1);
-        const fy = seg.cy - FISH_DY;
+        const fy = seg.cy;
         const x0 = seg.x0 + 1, x1 = seg.x1 - 1;
         const top = fy - seg.hh - 2, bot = fy + seg.hh + 2;
         ctx.save();
@@ -4664,7 +4664,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         ctx.save();
         ctx.globalAlpha = clamp(game.segHeal[i] / .9, 0, 1) * .34;
         ctx.fillStyle = '#8bffb0';
-        ctx.fillRect(seg.x0, seg.cy - FISH_DY - seg.hh, seg.x1 - seg.x0, seg.hh * 2);
+        ctx.fillRect(seg.x0, seg.cy - seg.hh, seg.x1 - seg.x0, seg.hh * 2);
         ctx.restore();
       }
     }

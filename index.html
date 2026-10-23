@@ -70,6 +70,9 @@ button { font: inherit; }
   transition: opacity .28s ease;
 }
 #wrap.playing #hud { opacity: 1; }
+.hud-top, .hud-bottom { transition: opacity .18s ease; }
+#wrap.bird-alert .hud-top { opacity: .16; }
+#wrap.bird-alert .hud-bottom { opacity: .22; }
 
 .hud-top {
   position: absolute;
@@ -269,6 +272,29 @@ button { font: inherit; }
   box-shadow: inset 0 0 calc(var(--u) * 2) rgba(0, 0, 0, .7);
   opacity: .75;
 }
+.heat-track {
+  display: none;
+  position: relative;
+  height: calc(var(--u) * 3.4);
+  margin-top: calc(var(--u) * 1.5);
+  background: #140b08;
+  border: calc(var(--u) * .6) solid rgba(205, 122, 73, .42);
+  box-shadow: inset 0 calc(var(--u) * 1) calc(var(--u) * 1) rgba(0, 0, 0, .55);
+}
+.heat-track i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #7a3b1e, #e08a3e, #ffd27a);
+  transition: width .08s linear;
+}
+.heat-track.overheated {
+  border-color: rgba(255, 92, 68, .9);
+}
+.heat-track.overheated i {
+  background: linear-gradient(90deg, #d33a2c, #ff8a4a, #fff0c0);
+}
+
 .reload-track {
   height: calc(var(--u) * 2);
   margin: calc(var(--u) * .5) 0 calc(var(--u) * 1.5);
@@ -314,13 +340,14 @@ button { font: inherit; }
 }
 .weapon-slots {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: calc(var(--u) * 1.5);
   width: 100%;
 }
 .wslot {
-  pointer-events: auto;
-  cursor: pointer;
+  pointer-events: none;
+  cursor: default;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1231,6 +1258,45 @@ kbd {
 }
 .touch-mode #game { touch-action: none; }
 
+/* 移动端侧边武器栏 */
+.mobile-weapon-bar {
+  position: absolute;
+  right: calc(var(--u) * 4);
+  top: 36%;
+  z-index: 9;
+  display: none;
+  flex-direction: column;
+  gap: calc(var(--u) * 1.4);
+  pointer-events: none;
+}
+#wrap.touch-mode.playing .mobile-weapon-bar { display: flex; }
+.mobile-weapon-bar button {
+  pointer-events: auto;
+  width: calc(var(--u) * 32);
+  min-height: calc(var(--u) * 10);
+  padding: calc(var(--u) * 1.2) calc(var(--u) * 1.5);
+  color: #d9c7aa;
+  background: rgba(6, 13, 17, .82);
+  border: calc(var(--u) * .7) solid rgba(190, 143, 92, .38);
+  font-family: inherit;
+  font-size: calc(var(--u) * 4.8);
+  text-align: left;
+  box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 5) rgba(0, 0, 0, .35);
+}
+.mobile-weapon-bar button.current {
+  color: #ffe1a6;
+  background: rgba(68, 42, 24, .9);
+  border-color: rgba(238, 179, 105, .9);
+}
+.mobile-weapon-bar button .mnum {
+  display: inline-block;
+  width: calc(var(--u) * 5);
+  color: #b56f4c;
+  font-family: "Courier New", monospace;
+  font-size: calc(var(--u) * 4.2);
+}
+#wrap.bird-alert .mobile-weapon-bar { opacity: .3; transition: opacity .18s ease; }
+
 </style>
 </head>
 <body>
@@ -1268,6 +1334,7 @@ kbd {
           <div class="stat-row"><span class="label">存活</span><b id="time">00:00</b></div>
           <div class="stat-row ammo-row"><span class="label">弹药</span><span class="ammo-box"><b id="ammo-text">近战</b><span class="shells" id="shells"></span></span></div>
           <div class="reload-track"><i id="reload-fill"></i></div>
+          <div class="heat-track" id="heat-track"><i id="heat-fill"></i></div>
           <div class="stat-row threat-row"><span class="label">威胁</span><b><span id="threat">0</span> 条</b><button id="mute" class="sound-toggle" title="静音 (M)" aria-label="静音">♪</button></div>
           <div class="weapon-bar" id="weapon-bar">
             <div class="weapon-slots">
@@ -1276,7 +1343,8 @@ kbd {
               <div class="wslot" id="wslot-shotgun" style="display:none"><span class="wnum">3</span><span class="wname">猎枪</span></div>
               <div class="wslot" id="wslot-rifle" style="display:none"><span class="wnum">4</span><span class="wname">AK</span></div>
               <div class="wslot" id="wslot-sniper" style="display:none"><span class="wnum">5</span><span class="wname">巴雷特</span></div>
-              <div class="wslot" id="wslot-rpg" style="display:none"><span class="wnum">6</span><span class="wname">RPG</span></div>
+              <div class="wslot" id="wslot-gatling" style="display:none"><span class="wnum">6</span><span class="wname">加特林</span></div>
+              <div class="wslot" id="wslot-rpg" style="display:none"><span class="wnum">7</span><span class="wname">RPG</span></div>
             </div>
             <div class="next-weapon" id="next-weapon">
               <div class="next-top"><span>下一把武器</span><em id="next-weapon-score">1,000 分</em></div>
@@ -1285,7 +1353,17 @@ kbd {
           </div>
         </section>
       </div>
-      <div class="hud-bottom"><span id="hud-hint">鼠标瞄准 · 左键/空格开火 · 1-5/滚轮切枪 · R 装填 · P 暂停</span></div>
+      <div class="hud-bottom"><span id="hud-hint">鼠标瞄准 · 左键/空格开火 · 1-7/滚轮切枪 · R 装填 · P 暂停</span></div>
+    </div>
+
+    <div id="mobile-weapon-bar" class="mobile-weapon-bar" aria-label="移动端武器栏">
+      <button id="mws-harpoon" type="button"><span class="mnum">1</span>鱼叉</button>
+      <button id="mws-pistol" type="button" style="display:none"><span class="mnum">2</span>手枪</button>
+      <button id="mws-shotgun" type="button" style="display:none"><span class="mnum">3</span>猎枪</button>
+      <button id="mws-rifle" type="button" style="display:none"><span class="mnum">4</span>AK</button>
+      <button id="mws-sniper" type="button" style="display:none"><span class="mnum">5</span>巴雷特</button>
+      <button id="mws-gatling" type="button" style="display:none"><span class="mnum">6</span>加特林</button>
+      <button id="mws-rpg" type="button" style="display:none"><span class="mnum">7</span>RPG</button>
     </div>
 
     <div class="boss-ui hidden" id="boss-ui">
@@ -1307,7 +1385,7 @@ kbd {
         <div class="subtitle">鲨 口 余 生</div>
         <div class="ornament"><i></i><b>◆</b><i></i></div>
         <p class="lore">第八十五天，大鱼终于上钩。<br>归航途中，血腥味惊动了整片海。<br>船已无法再动——举起武器，守住你的马林鱼。</p>
-        <div class="unlock-note">得分会解锁新武器，并自动装备 · 1-5 / 滚轮切枪 · 触屏点槽</div>
+        <div class="unlock-note">得分会解锁新武器，并自动装备 · 1-7 / 滚轮切枪 · 触屏点右侧武器栏</div>
         <div class="keys">
           <div><kbd>鼠标</kbd><span>瞄准</span></div>
           <div><kbd>左键</kbd><span>开火</span></div>
@@ -1325,7 +1403,7 @@ kbd {
         </div>
       </div>
       <button id="changelog-btn" class="changelog-btn" type="button">更新日志</button>
-      <div class="version-label">Alpha1.4.1</div>
+      <div class="version-label">Alpha1.5.4</div>
       <button id="debug-btn" class="debug-btn hidden" type="button">debug</button>
     </section>
 
@@ -1355,7 +1433,7 @@ kbd {
         <p class="debug-sub">这些开关只影响下一局，不写入正常存档。</p>
         <div class="debug-list">
           <div class="debug-row">
-            <div><b>开局六神装</b><span>开局解锁全部武器与隐藏 6 号武器 RPG。RPG 备弹 1 发，1 秒装填，范围爆炸伤害。</span></div>
+            <div><b>开局六神装</b><span>开局解锁全部武器与隐藏 7 号武器 RPG。RPG 备弹 1 发，1 秒装填，范围爆炸伤害。</span></div>
             <button id="debug-sixgod" class="debug-toggle" type="button" data-on="false">否</button>
           </div>
           <div class="debug-row">
@@ -2061,7 +2139,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       tracerColor: '#ffd98a', tracerSize: 1, sound: 'shotgun', muzzleSize: 1
     },
     rifle: {
-      key: 'rifle', name: 'AK-47', short: 'AK', slot: 4, unlock: 10000, kind: 'gun',
+      key: 'rifle', name: 'AK-47', short: 'AK', slot: 4, unlock: 20000, kind: 'gun',
       mag: 30, reload: 1.55, reloadType: 'mag', fireCd: 0.105,
       speed: 860, range: 320, damage: 3, headDamage: 12, penetration: 2,
       pellets: 1, spread: 0.012, auto: true,
@@ -2069,15 +2147,24 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       tracerColor: '#ffb45a', tracerSize: 2, sound: 'rifle', muzzleSize: 0.85
     },
     sniper: {
-      key: 'sniper', name: '巴雷特', short: '巴雷特', slot: 5, unlock: 40000, kind: 'gun',
-      mag: 5, reload: 2.1, reloadType: 'mag', fireCd: 0.85,
+      key: 'sniper', name: '巴雷特', short: '巴雷特', slot: 5, unlock: 50000, kind: 'gun',
+      mag: 5, reload: 1.4, reloadType: 'mag', fireCd: 0.55,
       speed: 1800, range: 620, damage: 9999, headDamage: 9999, penetration: 99,
       pellets: 1, spread: 0.0005, auto: false,
       gripBack: 3, gripFront: 15, muzzleLen: 36, recoilKick: 4, recoil: 1.2,
       tracerColor: '#dff7ff', tracerSize: 2, sound: 'sniper', muzzleSize: 1.5
     },
+    gatling: {
+      key: 'gatling', name: '加特林', short: '加特林', slot: 6, unlock: 100000, kind: 'gun',
+      mag: 0, reload: 0, reloadType: 'none', fireCd: 0.085,
+      speed: 820, range: 310, damage: 4, headDamage: 14, penetration: 2,
+      pellets: 1, spread: 0.022, auto: true,
+      gripBack: 3, gripFront: 14, muzzleLen: 30, recoilKick: 1.3, recoil: 0.35,
+      tracerColor: '#ffd27a', tracerSize: 2, sound: 'rifle', muzzleSize: 1,
+      heatMax: 100, heatPerShot: .7, heatCoolFast: 36, heatCoolSlow: 9
+    },
     rpg: {
-      key: 'rpg', name: 'RPG', short: 'RPG', slot: 6, unlock: Infinity, hidden: true, kind: 'gun',
+      key: 'rpg', name: 'RPG', short: 'RPG', slot: 7, unlock: Infinity, hidden: true, kind: 'gun',
       mag: 1, reload: 1.0, reloadType: 'mag', fireCd: 0.85,
       speed: 430, range: 620, damage: 9999, headDamage: 9999, penetration: 0,
       pellets: 1, spread: 0.002, auto: false,
@@ -2086,7 +2173,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       blastRadius: 96
     }
   };
-  const WEAPON_ORDER = ['harpoon', 'pistol', 'shotgun', 'rifle', 'sniper'];
+  const WEAPON_ORDER = ['harpoon', 'pistol', 'shotgun', 'rifle', 'sniper', 'gatling'];
   const ALL_WEAPON_ORDER = WEAPON_ORDER.concat(['rpg']);
 
   function freshAmmoState() {
@@ -2486,7 +2573,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
 
   if (IS_TOUCH) {
     const hudHint = $('hud-hint');
-    if (hudHint) hudHint.textContent = '轻触瞄准并开火 · 点武器槽切枪 · 左上暂停 / 装填';
+    if (hudHint) hudHint.textContent = '轻触瞄准并开火 · 右侧武器栏切枪 · 左上暂停 / 装填';
   }
 
   const screens = {
@@ -2573,6 +2660,15 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       blasts: [],
       weapon: 'harpoon',
       weaponAmmo: freshAmmoState(),
+      gatlingHeat: 0,
+      gatlingIdle: 0,
+      gatlingLock: 0,
+      gatlingOverheated: false,
+      segFreeze: new Array(FISH_SEG_N).fill(0),
+      segHeal: new Array(FISH_SEG_N).fill(0),
+      birds: [],
+      birdTimer: 0,
+      birdFx: [],
       unlocked: freshUnlockState(),
       fireCd: 0,
       reloading: false,
@@ -3194,7 +3290,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     if (!game || mode !== 'playing') return null;
     const type = forcedType || pickSharkType();
     if (!SHARK_TYPES[type]) return null;
-    if (!forcedType && aliveSharks().length >= Math.min(7, 3 + Math.floor(game.t / 30))) return null;
+    if (!forcedType && aliveSharks().length >= Math.min(9, 4 + Math.floor(game.t / 28))) return null;
     const target = pickTargetSeg();
     if (target < 0) return null;
     const edge = randi(0, 2);
@@ -3386,17 +3482,20 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     if (!game || game.meat <= 0) return;
     const seg = s.targetSeg;
     if (seg < 0 || game.segMeat[seg] <= 0) return;
-    if (game.frozenFish) {
+    if (game.frozenFish || (game.segFreeze && game.segFreeze[seg] > 0)) {
       const bp = FISH_SEGS[seg];
       const dir = normalize(bp.biteX - s.x, bp.biteY - s.y);
       game.shake = Math.max(game.shake, 3.2);
       burstIce(bp.biteX, bp.biteY, 12, dir.x, dir.y);
       game.segFlash[seg] = 0.25;
+      if (game.segFreeze && game.segFreeze[seg] > 0) game.segFreeze[seg] = Math.max(.4, game.segFreeze[seg] - .15);
       Sound.iceHit();
       return;
     }
     const cfg = s.cfg;
-    const amount = cfg.dmg * (1 + Math.min(0.35, game.t / 220));
+    // 大鱼咬得更狠：体型越大，单次咬击伤害越高
+    const sizeFactor = 1 + Math.max(0, cfg.len - 52) / 220;
+    const amount = cfg.dmg * sizeFactor * (1 + Math.min(0.35, game.t / 220));
     game.segMeat[seg] = Math.max(0, game.segMeat[seg] - amount);
     // 最后一点肉眼看不见的碎肉直接归零，确保能吃到骨架
     for (let i = 0; i < FISH_SEG_N; i++) {
@@ -3608,18 +3707,37 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       meleeAttack();
       return;
     }
-    if (currentAmmo() <= 0) {
+    const gatling = w.key === 'gatling';
+    if (gatling) {
+      if (game.gatlingLock > 0 || game.gatlingOverheated || game.gatlingHeat >= 100) {
+        Sound.dry();
+        return;
+      }
+    } else if (currentAmmo() <= 0) {
       Sound.dry();
       game.reloadDelay = 0.02;
       startReload();
       return;
     }
-    setCurrentAmmo(currentAmmo() - 1);
-    game.fireCd = w.fireCd;
+    if (!gatling) setCurrentAmmo(currentAmmo() - 1);
+    game.fireCd = gatling
+      ? w.fireCd * (1 - 0.35 * clamp(game.gatlingHeat / 100, 0, 1))
+      : w.fireCd;
     game.recoil = w.recoil;
     game.shake = Math.max(game.shake, w.key === 'sniper' ? 4.2 : w.key === 'rpg' ? 2.6 : w.key === 'shotgun' ? 1.7 : 1.1);
     // 旧式猎枪保持逐发自动装填；弹匣武器只打空后自动装填
-    if (w.reloadType === 'shell') {
+    if (gatling) {
+      game.gatlingIdle = 0;
+      game.gatlingHeat = Math.min(100, game.gatlingHeat + w.heatPerShot);
+      if (game.gatlingHeat >= 100) {
+        game.gatlingHeat = 100;
+        game.gatlingLock = 3;
+        game.gatlingOverheated = true;
+        game.fireCd = 3;
+        Sound.hot();
+        showToast('加特林过热 · 强制冷却 3 秒', 1300);
+      }
+    } else if (w.reloadType === 'shell') {
       game.reloadDelay = currentAmmo() <= 0 ? 0.35 : 0.48;
     } else {
       game.reloadDelay = currentAmmo() <= 0 ? 0.22 : 0.45;
@@ -3659,6 +3777,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     // 枪口烟火
     const sparkColors = w.key === 'sniper'
       ? ['#ffffff', '#dff7ff', '#ffb45a']
+      : w.key === 'gatling'
+        ? ['#fff3c9', '#ffd27a', '#ff9e3f']
       : w.key === 'rpg'
         ? ['#ffffff', '#ffd27a', '#ff7a3f', '#8f8f85']
         : w.key === 'pistol'
@@ -3824,6 +3944,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         if (s) spawned++;
       }
     }
+    if (newly.includes('sniper')) game.birdTimer = 5;
     if (spawned > 0) {
       game.spawnTimer = Math.max(game.spawnTimer, 4.2);
       game.shake = Math.max(game.shake, 2.5);
@@ -3834,9 +3955,38 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     Sound.unlock();
   }
 
+  function updateGatlingHeat(dt) {
+    if (!game) return;
+    const w = currentWeaponCfg();
+    const fast = game.weapon === 'gatling';
+    if (game.gatlingLock > 0) {
+      game.gatlingLock = Math.max(0, game.gatlingLock - dt);
+      if (game.gatlingLock <= 0) game.gatlingIdle = 1.05;
+      return;
+    }
+    if (game.gatlingOverheated && game.gatlingHeat >= 99.9) {
+      const rate = fast ? (w.heatCoolFast || 36) : (w.heatCoolSlow || 9);
+      game.gatlingHeat = Math.max(0, game.gatlingHeat - rate * dt);
+      if (game.gatlingHeat < 100) game.gatlingOverheated = false;
+      return;
+    }
+    if (fast) {
+      if (game.trigger) {
+        game.gatlingIdle = 0;
+        return;
+      }
+      game.gatlingIdle += dt;
+      if (game.gatlingIdle > 1) game.gatlingHeat = Math.max(0, game.gatlingHeat - (w.heatCoolFast || 36) * dt);
+    } else {
+      game.gatlingHeat = Math.max(0, game.gatlingHeat - (w.heatCoolSlow || 9) * dt);
+    }
+    if (game.gatlingHeat < 100) game.gatlingOverheated = false;
+  }
+
   function updatePlayerTimers(dt) {
     if (!game) return;
     const w = currentWeaponCfg();
+    updateGatlingHeat(dt);
     if (game.fireCd > 0) game.fireCd = Math.max(0, game.fireCd - dt);
     game.switchPose = Math.max(0, game.switchPose - dt * 5.5);
     game.meleeT = Math.max(0, game.meleeT - dt);
@@ -3879,7 +4029,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       if (game.comboTimer <= 0) game.combo = 0;
     }
     game.aimAngle = Math.atan2(pointer.y - gunPivot().y, pointer.x - gunPivot().x);
-    if (game.trigger && w.auto && !game.reloading && game.fireCd <= 0 && currentAmmo() > 0) tryFire();
+    const canFireGatling = w.key === 'gatling' ? (!game.gatlingOverheated && game.gatlingLock <= 0) : currentAmmo() > 0;
+    if (game.trigger && w.auto && !game.reloading && game.fireCd <= 0 && canFireGatling) tryFire();
   }
 
   function explodeRPG(x, y) {
@@ -3943,6 +4094,18 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         addParticle(p.x, p.y, rand(-3, 3), rand(-8, -2), rand(0.2, 0.45), '#b6e1dd', 1, -8, 0.98);
       }
       let removed = false;
+      if (p.weapon === 'sniper') {
+        for (let bi = game.birds.length - 1; bi >= 0; bi--) {
+          const bird = game.birds[bi];
+          if (bird.dead) continue;
+          if (segPointDist(bird.x, bird.y, p.px, p.py, p.x, p.y) < bird.r) {
+            hitBird(bird);
+            removed = true;
+            break;
+          }
+        }
+      }
+      if (removed) { game.pellets.splice(i, 1); continue; }
       const dir = normalize(p.vx, p.vy);
       for (const s of game.sharks) {
         if (s.dead) continue;
@@ -4004,7 +4167,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     game.spawnTimer -= dt;
     if (game.spawnTimer <= 0) {
       spawnShark();
-      const base = Math.max(0.82, 3.2 - game.t * 0.0115);
+      const base = Math.max(0.72, 3.0 - game.t * 0.0125);
       game.spawnTimer = base * rand(0.8, 1.22);
     }
   }
@@ -4154,18 +4317,351 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     getBossModule().updateEnding(b, dt, game.bossOutcome);
   }
 
+  /* ---------------- 天空鸟 ---------------- */
+  const BIRD_INFO = {
+    bomb:  { body: '#c9382f', light: '#ff7a5a', dark: '#2a0908', icon: 'bomb' },
+    medic: { body: '#2f9b59', light: '#9bf0b4', dark: '#092016', icon: 'medic' },
+    freeze:{ body: '#8fd7ef', light: '#e3fbff', dark: '#12313d', icon: 'freeze' },
+    ammo:  { body: '#e0b13e', light: '#ffe9a0', dark: '#2b1d06', icon: 'ammo' }
+  };
+
+  function spawnBird() {
+    if (!game || mode !== 'playing' || !game.unlocked.sniper) return null;
+    if (game.birds.length >= 3) return null;
+    const r = Math.random();
+    const type = r < .20 ? 'bomb' : r < .48 ? 'medic' : r < .74 ? 'freeze' : 'ammo';
+    const fromLeft = Math.random() < .5;
+    const b = {
+      type,
+      x: fromLeft ? -28 : W + 28,
+      y: 40 + rand(0, 38),
+      baseY: 0,
+      vx: fromLeft ? (type === 'bomb' ? 16 : 54) : (type === 'bomb' ? -16 : -54),
+      vy: 0,
+      state: 'approach',
+      t: 0,
+      wing: rand(0, TAU),
+      r: 15,
+      dead: false,
+      effect: false,
+      effectApplied: false,
+      targetY: 176,
+      spin: 0,
+      flash: 0
+    };
+    b.baseY = b.y;
+    game.birds.push(b);
+    return b;
+  }
+
+  function hitBird(b) {
+    if (!b || b.dead) return;
+    b.dead = true;
+    b.state = 'fall';
+    b.vy = 38;
+    b.vx = rand(-26, 26);
+    b.spin = rand(-2.4, 2.4);
+    const center = b.x > W / 3 && b.x < W * 2 / 3;
+    b.effect = center;
+    if (b.type !== 'bomb') {
+      const seg = segIndexAtX(clamp(b.x, FISH_X0, FISH_X1));
+      b.targetY = FISH_SEGS[seg].cy;
+    }
+    addText(b.x, b.y - 18, '击落', '#f4e0b4', 2);
+    addParticle(b.x, b.y, 0, -18, .4, '#ffe6b0', 2, 0, .95);
+    Sound.hit();
+  }
+
+  function explodeBombBird(x, y, hurtFish) {
+    if (!game) return;
+    game.blasts.push({ x, y, t: .7, max: .7, radius: 68 });
+    game.shake = Math.max(game.shake, hurtFish ? 13 : 8);
+    for (const s of game.sharks) {
+      if (!s.dead && Math.hypot(s.x - x, s.y - y) < 68) killShark(s, false, false);
+    }
+    for (let i = 0; i < 26; i++) {
+      const a = rand(0, TAU), sp = rand(20, 95);
+      addParticle(x, y, Math.cos(a) * sp, Math.sin(a) * sp - rand(0, 15),
+        rand(.25, .8), choice(['#fff3c9', '#ffd27a', '#ff7a3f', '#b53630']), Math.random() < .3 ? 3 : 2, 25, .94);
+    }
+    if (hurtFish) {
+      damageMarlin(.1);
+      addText(BOSS_FISH ? BOSS_FISH.x : W / 2, (BOSS_FISH ? BOSS_FISH.y : 160) - 20, '10%', '#ff8b6a', 2);
+    }
+    Sound.kill();
+  }
+
+  function addBirdFx(type, x, y) {
+    if (!game) return;
+    game.birdFx.push({ type, x, y, t: 0, max: 1.3 });
+  }
+
+  function healFishAt(x, amount) {
+    if (!game) return;
+    const seg = segIndexAtX(clamp(x, FISH_X0, FISH_X1));
+    const order = [seg, seg - 1, seg + 1, seg - 2, seg + 2, seg - 3, seg + 3];
+    let left = amount;
+    for (const i of order) {
+      if (i < 0 || i >= FISH_SEG_N || left <= 0) continue;
+      const room = FISH_SEG_MEAT - game.segMeat[i];
+      if (room <= 0) continue;
+      const take = Math.min(room, left);
+      game.segMeat[i] += take;
+      left -= take;
+      game.segHeal[i] = .9;
+      const p = FISH_SEGS[i];
+      for (let k = 0; k < 7; k++) {
+        addParticle(p.cx + rand(-12, 12), p.cy + rand(-10, 10), rand(-12, 12), rand(-22, -4),
+          rand(.35, .8), choice(['#b6ffcf', '#62d58a', '#eaffd9']), 1, -10, .97);
+      }
+    }
+    game.meat = game.segMeat.reduce((a, b) => a + b, 0);
+    addText(FISH_SEGS[seg].cx, FISH_SEGS[seg].cy - 16, 'HEAL', '#9bffb7', 2);
+    addBirdFx('medic', FISH_SEGS[seg].cx, FISH_SEGS[seg].cy);
+    showToast('急救鸟：马林鱼恢复了 ' + Math.round(amount) + ' 点血肉', 1800, true);
+  }
+
+  function freezeFishAt(x) {
+    if (!game) return;
+    const seg = segIndexAtX(clamp(x, FISH_X0, FISH_X1));
+    for (let i = seg - 1; i <= seg + 1; i++) {
+      if (i >= 0 && i < FISH_SEG_N) {
+        game.segFreeze[i] = 5;
+        game.segFlash[i] = .4;
+      }
+    }
+    game.gatlingHeat = 0;
+    game.gatlingLock = 0;
+    game.gatlingOverheated = false;
+    game.gatlingIdle = 0;
+    addText(FISH_SEGS[seg].cx, FISH_SEGS[seg].cy - 18, 'FREEZE 5s', '#bff3ff', 2);
+    burstIce(FISH_SEGS[seg].cx, FISH_SEGS[seg].cy, 24, 0, -1);
+    addBirdFx('freeze', FISH_SEGS[seg].cx, FISH_SEGS[seg].cy);
+    showToast('急冻鸟：对应部位冻结 5 秒 · 加特林过热清零', 2200, true);
+    Sound.iceHit();
+  }
+
+  function refillBirdAmmo() {
+    if (!game) return;
+    for (const key of ALL_WEAPON_ORDER) {
+      if (key === 'gatling' || !game.unlocked[key]) continue;
+      game.weaponAmmo[key] = WEAPONS[key].mag;
+    }
+    addBirdFx('ammo', W / 2, SEA_Y + 20);
+    showToast('补给鸟：所有武器弹药已补满', 2000, true);
+    Sound.reloadDone();
+  }
+
+  function applyBirdEffect(b) {
+    if (!b || b.effectApplied) return;
+    b.effectApplied = true;
+    if (!b.effect) return;
+    if (b.type === 'medic') healFishAt(b.x, 40);
+    else if (b.type === 'freeze') freezeFishAt(b.x);
+    else if (b.type === 'ammo') refillBirdAmmo();
+  }
+
+  function updateBirds(dt) {
+    if (!game) return;
+    if (!game.unlocked.sniper) return;
+    game.birdTimer -= dt;
+    if (game.birdTimer <= 0) {
+      spawnBird();
+      game.birdTimer = rand(11, 19);
+    }
+    const centerX = W / 2;
+    for (let i = game.birds.length - 1; i >= 0; i--) {
+      const b = game.birds[i];
+      b.t += dt;
+      b.wing += dt * 13;
+      if (b.state === 'approach') {
+        b.x += b.vx * dt;
+        b.y = b.baseY + Math.sin(b.t * 2.2 + b.wing) * 3;
+        if (b.type !== 'bomb' && (b.x < -50 || b.x > W + 50)) {
+          game.birds.splice(i, 1);
+          continue;
+        }
+        if (b.type === 'bomb' && Math.abs(b.x - centerX) < 9) {
+          b.x = centerX;
+          b.state = 'dive';
+          b.t = 0;
+        }
+      } else if (b.state === 'dive') {
+        b.y += 92 * dt;
+        b.x = centerX + Math.sin(b.t * 4) * 3;
+        if (b.y >= FISH_SEGS[4].cy) {
+          explodeBombBird(b.x, b.y, true);
+          game.birds.splice(i, 1);
+          continue;
+        }
+      } else if (b.state === 'fall') {
+        b.vy += 190 * dt;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+        b.spin += dt * 3;
+        if (b.type === 'bomb') {
+          if (b.y >= SEA_Y + 12) {
+            explodeBombBird(b.x, SEA_Y + 4, false);
+            game.birds.splice(i, 1);
+            continue;
+          }
+        } else {
+          if (!b.effectApplied && b.y >= b.targetY) applyBirdEffect(b);
+          if (b.y >= H + 34) {
+            game.birds.splice(i, 1);
+            continue;
+          }
+        }
+      }
+    }
+  }
+
+  function updateFishStatus(dt) {
+    if (!game) return;
+    for (let i = 0; i < FISH_SEG_N; i++) {
+      if (game.segFreeze[i] > 0) game.segFreeze[i] = Math.max(0, game.segFreeze[i] - dt);
+      if (game.segHeal[i] > 0) game.segHeal[i] = Math.max(0, game.segHeal[i] - dt);
+    }
+    for (let i = game.birdFx.length - 1; i >= 0; i--) {
+      const fx = game.birdFx[i];
+      fx.t += dt;
+      if (fx.t >= fx.max) game.birdFx.splice(i, 1);
+    }
+  }
+
+  function drawBirds() {
+    if (!game) return;
+    for (const b of game.birds) {
+      const info = BIRD_INFO[b.type] || BIRD_INFO.bomb;
+      ctx.save();
+      ctx.translate(Math.round(b.x), Math.round(b.y));
+      if (b.state === 'dive') ctx.rotate(.55);
+      else if (b.state === 'fall') ctx.rotate(b.spin);
+      else if (b.vx < 0) ctx.scale(-1, 1);
+      const flap = Math.sin(b.wing) * 5;
+
+      // 尾羽
+      fillPoly(ctx, [[-15, -2], [-8, -7], [-7, -1], [-10, 3]], info.dark);
+      fillPoly(ctx, [[-15, 2], [-8, 6], [-7, 1], [-10, -2]], info.body);
+      // 远侧翅膀
+      fillPoly(ctx, [[-4, -2], [-15, -11 - flap], [-11, -3], [-4, 1]], info.dark);
+      // 身体
+      fillPoly(ctx, [[-9, -4], [-2, -7], [7, -5], [10, -1], [8, 5], [0, 7], [-8, 4]], info.dark);
+      fillPoly(ctx, [[-7, -3], [-1, -5], [6, -4], [8, -1], [6, 3], [-1, 5], [-7, 2]], info.body);
+      fillPoly(ctx, [[-6, 0], [2, 2], [6, 1], [3, 4], [-5, 3]], info.light);
+      // 头 + 喙（永远朝前）
+      fillPoly(ctx, [[7, -4], [12, -5], [15, -1], [12, 4], [7, 4]], info.body);
+      fillPoly(ctx, [[13, -2], [21, 0], [13, 3]], info.icon === 'bomb' ? '#ffd27a' : '#e8c875');
+      ctx.fillStyle = '#0a0605';
+      ctx.fillRect(10, -3, 2, 2);
+      // 近侧翅膀
+      fillPoly(ctx, [[-1, -2], [8, -12 - flap], [13, -4], [6, 1]], info.dark);
+      fillPoly(ctx, [[0, -1], [7, -9 - flap], [10, -3], [5, 1]], info.light);
+
+      // 图标
+      if (info.icon === 'bomb') {
+        ctx.fillStyle = '#2a0908';
+        ctx.beginPath(); ctx.arc(-2, 2, 3.5, 0, TAU); ctx.fill();
+        ctx.fillStyle = '#ffd27a';
+        ctx.fillRect(-3, 1, 2, 2);
+        pxLine(ctx, 0, 0, 3, -3, '#ffd27a', 1);
+      } else if (info.icon === 'medic') {
+        ctx.fillStyle = '#f4ffe9';
+        ctx.fillRect(-3, -2, 2, 7);
+        ctx.fillRect(-6, 1, 8, 2);
+      } else if (info.icon === 'freeze') {
+        for (let i = 0; i < 3; i++) {
+          ctx.save();
+          ctx.translate(-2, 2);
+          ctx.rotate(i / 3 * Math.PI);
+          pxLine(ctx, -4, 0, 4, 0, '#f2ffff', 1);
+          ctx.restore();
+        }
+      } else {
+        ctx.fillStyle = '#fff0b0';
+        ctx.fillRect(-5, 0, 3, 5);
+        ctx.fillRect(-1, 0, 3, 5);
+        ctx.fillStyle = '#8a5b16';
+        ctx.fillRect(-5, -1, 3, 1);
+        ctx.fillRect(-1, -1, 3, 1);
+      }
+      ctx.restore();
+    }
+  }
+
+  function drawFishStatus() {
+    if (!game) return;
+    for (let i = 0; i < FISH_SEG_N; i++) {
+      const seg = FISH_SEGS[i];
+      if (game.segFreeze[i] > 0) {
+        const a = clamp(game.segFreeze[i] / 5, 0, 1);
+        const x0 = seg.x0 + 1, x1 = seg.x1 - 1;
+        const top = seg.cy - seg.hh - 2, bot = seg.cy + seg.hh + 2;
+        ctx.save();
+        // 冻住整段鱼身：冰壳 + 白色断面 + 蓝色冰晶
+        ctx.globalAlpha = .58 + a * .18;
+        fillPoly(ctx, [
+          [x0, top + 3], [x0 + 4, top - 2], [x1 - 5, top - 1], [x1, top + 4],
+          [x1, bot - 4], [x1 - 4, bot + 1], [x0 + 3, bot], [x0, bot - 3]
+        ], '#9edff4');
+        ctx.globalAlpha = .45 + a * .2;
+        fillPoly(ctx, [
+          [x0 + 3, top + 3], [x0 + 8, top + 1], [x1 - 8, top + 2],
+          [x1 - 4, bot - 4], [x0 + 7, bot - 3]
+        ], '#d9fbff');
+        ctx.globalAlpha = .85;
+        pxLine(ctx, x0 + 2, top + 3, x1 - 2, top + 2, '#f2ffff', 1);
+        pxLine(ctx, x0 + 2, bot - 2, x1 - 2, bot - 4, '#b8edff', 1);
+        ctx.globalAlpha = .8;
+        for (let k = 0; k < 4; k++) {
+          const ix = x0 + 5 + ((i * 9 + k * 11) % Math.max(8, x1 - x0 - 10));
+          const iy = top + 4 + k * 4;
+          fillPoly(ctx, [[ix, iy], [ix + 3, iy + 2], [ix + 1, iy + 7], [ix - 2, iy + 4]], '#e8ffff');
+          fillPoly(ctx, [[ix - 2, iy + 4], [ix + 1, iy + 7], [ix - 1, iy + 10], [ix - 4, iy + 7]], '#7fcbe4');
+        }
+        ctx.restore();
+      }
+      if (game.segHeal[i] > 0) {
+        ctx.save();
+        ctx.globalAlpha = clamp(game.segHeal[i] / .9, 0, 1) * .34;
+        ctx.fillStyle = '#8bffb0';
+        ctx.fillRect(seg.x0, seg.cy - seg.hh, seg.x1 - seg.x0, seg.hh * 2);
+        ctx.restore();
+      }
+    }
+  }
+
+  function drawBirdFx() {
+    if (!game) return;
+    for (const fx of game.birdFx) {
+      const p = fx.t / fx.max;
+      const r = 10 + p * 34;
+      const col = fx.type === 'medic' ? '#8bffb0' : fx.type === 'freeze' ? '#a9f2ff' : '#ffe28a';
+      ctx.save();
+      ctx.globalAlpha = (1 - p) * .75;
+      ctx.strokeStyle = col;
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(fx.x, fx.y, r, 0, TAU); ctx.stroke();
+      ctx.globalAlpha = (1 - p) * .4;
+      ctx.beginPath(); ctx.arc(fx.x, fx.y, r * .62, 0, TAU); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
   function updateGame(dt) {
     if (!game) return;
     if (mode === 'playing') {
       game.t += dt;
       game.timeAlive = game.t;
       updatePlayerTimers(dt);
+      updateFishStatus(dt);
       if (game.bossMode) {
         updateBoss(dt);
       } else {
         // 先检查解锁：新层级的亮相鲨会先刷新并把常规刷新计时推后
         checkUnlocks();
         applyDifficultySpawn(dt);
+        updateBirds(dt);
       }
     } else if (mode === 'ending') {
       game.endT -= dt;
@@ -4238,7 +4734,17 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     shotgun: $('wslot-shotgun'),
     rifle: $('wslot-rifle'),
     sniper: $('wslot-sniper'),
+    gatling: $('wslot-gatling'),
     rpg: $('wslot-rpg')
+  };
+  const mSlots = {
+    harpoon: $('mws-harpoon'),
+    pistol: $('mws-pistol'),
+    shotgun: $('mws-shotgun'),
+    rifle: $('mws-rifle'),
+    sniper: $('mws-sniper'),
+    gatling: $('mws-gatling'),
+    rpg: $('mws-rpg')
   };
   const uiCache = {};
   function setText(el, value) {
@@ -4250,6 +4756,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
 
   function updateHUD() {
     if (!game) return;
+    const birdsActive = mode === 'playing' && !game.bossMode && game.birds && game.birds.length > 0;
+    wrap.classList.toggle('bird-alert', !!birdsActive);
     const scoreText = formatScore(totalScore());
     setText($('score'), scoreText);
     setText($('start-best'), formatComma(bestScore));
@@ -4275,7 +4783,22 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     setText($('weapon-name'), wcfg.name);
     const ammoText = $('ammo-text');
     const shellsBox = $('shells');
-    if (wcfg.kind === 'melee') {
+    const heatTrack = $('heat-track');
+    const heatFill = $('heat-fill');
+    const reloadTrack = $('reload-fill') ? $('reload-fill').parentElement : null;
+    const isGatling = wcfg.key === 'gatling';
+    if (heatTrack && heatFill) {
+      heatTrack.style.display = isGatling ? 'block' : 'none';
+      heatFill.style.width = clamp(game.gatlingHeat || 0, 0, 100).toFixed(1) + '%';
+      heatTrack.classList.toggle('overheated', !!game.gatlingOverheated || (game.gatlingLock || 0) > 0);
+    }
+    if (reloadTrack) reloadTrack.style.display = isGatling ? 'none' : '';
+    if (isGatling) {
+      ammoText.style.display = '';
+      shellsBox.style.display = 'none';
+      setText(ammoText, (game.gatlingLock || 0) > 0 ? '冷却 ' + Math.ceil(game.gatlingLock) + 's' : '过热 ' + Math.round(game.gatlingHeat || 0) + '%');
+      ammoText.classList.toggle('low', (game.gatlingHeat || 0) >= 80 || (game.gatlingLock || 0) > 0);
+    } else if (wcfg.kind === 'melee') {
       ammoText.style.display = '';
       shellsBox.style.display = 'none';
       setText(ammoText, '近战');
@@ -4301,6 +4824,11 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       slot.style.display = unlocked ? '' : 'none';
       slot.classList.toggle('current', game.weapon === key);
       slot.classList.toggle('new', unlocked && (game.unlockFlash[key] || 0) > 0);
+      const ms = mSlots[key];
+      if (ms) {
+        ms.style.display = unlocked ? '' : 'none';
+        ms.classList.toggle('current', game.weapon === key);
+      }
     }
     let nextKey = null;
     for (const key of WEAPON_ORDER) {
@@ -4701,7 +5229,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       else if (mode === 'paused') togglePause();
       return;
     }
-    if (key >= '1' && key <= '6') {
+    if (key >= '1' && key <= '7') {
       if (mode === 'playing') {
         const wkey = ALL_WEAPON_ORDER[Number(key) - 1];
         if (wkey && (wkey !== 'rpg' || game.unlocked.rpg)) switchWeapon(wkey);
@@ -4759,8 +5287,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   $('mute').addEventListener('click', (e) => { e.stopPropagation(); toggleMute(); });
   $('sound-btn').addEventListener('click', (e) => { e.stopPropagation(); toggleMute(); });
   for (const key of ALL_WEAPON_ORDER) {
-    if (wSlots[key]) {
-      wSlots[key].addEventListener('click', (e) => {
+    if (mSlots[key]) {
+      mSlots[key].addEventListener('click', (e) => {
         e.stopPropagation();
         if (mode === 'playing') switchWeapon(key);
       });
@@ -5549,6 +6077,37 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     const g = { x: pivot.x - dx * kick, y: pivot.y - dy * kick };
     const muzzle = { x: g.x + dx * w.muzzleLen, y: g.y + dy * w.muzzleLen };
 
+    if (w.key === 'gatling') {
+      const heat = clamp((game.gatlingHeat || 0) / 100, 0, 1);
+      const spin = (game.gatlingHeat || 0) * 0.06;
+      const barrelColors = ['#4d5d5b', '#7d918c', '#d9b36b'];
+      for (let i = 0; i < 3; i++) {
+        const off = (i - 1) * 3.2;
+        const bx = nx * off, by = ny * off;
+        pxLine(ctx, g.x + bx, g.y + by, muzzle.x + bx, muzzle.y + by, '#0b1112', 4);
+        pxLine(ctx, g.x + bx, g.y + by, muzzle.x + bx, muzzle.y + by, barrelColors[i], 2);
+      }
+      pxLine(ctx, g.x - dx * 8, g.y - dy * 8, g.x + dx * 18, g.y + dy * 18, '#11191a', 10);
+      pxLine(ctx, g.x - dx * 7, g.y - dy * 7, g.x + dx * 17, g.y + dy * 17, '#52615f', 6);
+      pxLine(ctx, g.x - dx * 5, g.y - dy * 5, g.x + dx * 14, g.y + dy * 14, '#9a7b4d', 2);
+      for (let i = 0; i < 6; i++) {
+        const a = spin + i / 6 * TAU;
+        pxLine(ctx, g.x + nx * Math.cos(a) * 5, g.y + ny * Math.cos(a) * 5,
+          g.x + nx * Math.cos(a) * 5 + dx * 2, g.y + ny * Math.cos(a) * 5 + dy * 2, '#d6b06c', 1);
+      }
+      ctx.fillStyle = '#1a2423';
+      ctx.beginPath(); ctx.arc(g.x - dx * 8 + nx * 3, g.y - dy * 8 + ny * 3, 7, 0, TAU); ctx.fill();
+      ctx.strokeStyle = '#d3a75f'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(g.x - dx * 8 + nx * 3, g.y - dy * 8 + ny * 3, 5, 0, TAU); ctx.stroke();
+      if (heat > .5) {
+        ctx.globalAlpha = (heat - .5) * 1.4;
+        pxLine(ctx, g.x, g.y, muzzle.x, muzzle.y, '#ff7a3f', 3);
+        pxLine(ctx, g.x, g.y, muzzle.x, muzzle.y, '#ffe0a0', 1);
+        ctx.globalAlpha = 1;
+      }
+      return;
+    }
+
     if (w.key === 'harpoon') {
       const ext = (game.meleeT / 0.22) * 79;
       const shaftEnd = { x: g.x + dx * (62 + ext), y: g.y + dy * (62 + ext) };
@@ -5935,8 +6494,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     if (outRange) col = '#a89a82';
     else if (head || hot) col = head ? '#ffd166' : '#ff8b64';
     const dark = '#0c0906';
-    const off = w.key === 'sniper' ? 11 : w.key === 'pistol' ? 7 : w.key === 'rpg' ? 12 : 9;
-    const spread = w.key === 'shotgun' ? 14 : w.key === 'sniper' ? 4 : w.key === 'harpoon' ? 5 : w.key === 'rifle' ? 9 : w.key === 'rpg' ? 18 : 7;
+    const off = w.key === 'sniper' ? 11 : w.key === 'pistol' ? 7 : w.key === 'rpg' ? 12 : w.key === 'gatling' ? 10 : 9;
+    const spread = w.key === 'shotgun' ? 14 : w.key === 'sniper' ? 4 : w.key === 'harpoon' ? 5 : w.key === 'rifle' ? 9 : w.key === 'gatling' ? 12 : w.key === 'rpg' ? 18 : 7;
     // 四角准星
     const corners = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
     for (const [sx, sy] of corners) {
@@ -6040,6 +6599,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     ctx.scale(s, s);
     drawBoat();
     drawMarlin();
+    drawFishStatus();
     drawRopes();
     drawLanternGlow();
     drawOldMan();
@@ -6290,7 +6850,9 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     drawRopes();
     drawUnderwaterTint();
     drawSharks();
+    drawBirds();
     drawSurface();
+    drawBirdFx();
     drawPellets();
     drawBlasts();
     drawParticles();

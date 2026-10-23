@@ -7,6 +7,7 @@
 - `boss-gallery.html`：CARRION 像素造型实验页（36 种画法，独立 Review 页）
 - `boss-gallery-v2.html`：根据反馈收敛的 10 头像素候选（8 个）
 - `boss-gallery-v3.html`：R01/R02/R08 猩红动态像素候选（3 个，10 头）
+- `bird-gallery.html`：40 个小鸟造型变体（10 鸟形 × 4 功能，动态振翅）
 - `boss/manifest.json`：BOSS 清单
 - `changelogs/`：更新日志，按分钟保存，manifest.json 列出所有版本
 

@@ -1515,8 +1515,6 @@ kbd {
 <main id="stage">
   <div id="wrap">
     <canvas id="game" width="480" height="270" aria-label="老人与海像素小游戏"></canvas>
-    <audio id="boss-bgm" src="./boss/leviathan/boss-theme.ogg" loop preload="auto" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none"></audio>
-    <img id="boss-face" alt="" aria-hidden="true" style="position:absolute;width:1px;height:1px;left:-9999px;top:0;opacity:0;pointer-events:none" src="./boss/classmate/textures/face.webp">
     <div id="hud" aria-hidden="true">
       <div class="hud-top">
         <section class="panel score-panel">
@@ -1615,7 +1613,7 @@ kbd {
         </div>
       </div>
       <button id="changelog-btn" class="changelog-btn" type="button">更新日志</button>
-      <div class="version-label">Alpha1.7.21</div>
+      <div class="version-label">Alpha1.7.23</div>
       <button id="debug-btn" class="debug-btn hidden" type="button">debug</button>
     </section>
 
@@ -1744,7 +1742,6 @@ kbd {
 </main>
 <script type="module">
 import { createBossModule as createLeviathan, meta as leviathanMeta } from './boss/leviathan/boss.js';
-import { createBossModule as createClassmate, meta as classmateMeta } from './boss/classmate/boss.js';
 import { createBossModule as createCarrion, meta as carrionMeta } from './boss/carrion/boss.js';
 import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss/shoehorn/boss.js';
 
@@ -3317,132 +3314,233 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   }
 
 
-  const friendsBgm = (function () {
-    try {
-      if (typeof Audio === 'undefined') return null;
-      const a = new Audio('./kkr.ogg');
-      a.loop = true;
-      a.volume = .58;
-      a.preload = 'auto';
-      return a;
-    } catch (e) { return null; }
-  })();
-  function syncFriendsBgmMute() {
-    if (friendsBgm) friendsBgm.muted = Sound.muted;
+  const bgmCache = new Map();
+  const bossBgmState = { src: null, volume: .42, gain: null, source: null, synthTimer: null, synthNodes: [], token: 0, paused: false, fallbackTimer: null };
+  const friendsBgmState = { src: './kkr.ogg', volume: .58, gain: null, source: null, synthTimer: null, synthNodes: [], token: 0, paused: false, fallbackTimer: null };
+
+  function bgmContext() {
+    Sound.init();
+    Sound.resume();
+    return Sound.ac;
   }
-  function startFriendsMusic(restart) {
-    if (!friendsBgm || !game || !game.friendsFish || mode !== 'playing') return;
-    syncFriendsBgmMute();
-    if (restart) {
-      try { friendsBgm.currentTime = 0; } catch (e) { /* ignore */ }
+
+  function ensureBgmGain(st) {
+    const ac = bgmContext();
+    if (!ac || !Sound.master) return null;
+    if (!st.gain) {
+      st.gain = ac.createGain();
+      st.gain.gain.value = 0;
+      st.gain.connect(Sound.master);
     }
-    const p = friendsBgm.play();
-    if (p && p.catch) {
-      p.catch(() => {
-        const retry = () => {
-          window.removeEventListener('pointerdown', retry);
-          if (friendsBgm && game && game.friendsFish && mode === 'playing' && friendsBgm.paused) {
-            friendsBgm.play().catch(() => {});
-          }
-        };
-        window.addEventListener('pointerdown', retry, { once: true });
+    return st.gain;
+  }
+
+  function clearSynth(st) {
+    if (st.synthTimer) clearInterval(st.synthTimer);
+    st.synthTimer = null;
+    if (st.fallbackTimer) clearTimeout(st.fallbackTimer);
+    st.fallbackTimer = null;
+    for (const node of st.synthNodes) {
+      try { node.stop(); } catch (e) { /* ignore */ }
+      try { node.disconnect(); } catch (e) { /* ignore */ }
+    }
+    st.synthNodes = [];
+  }
+
+  function stopBgm(st, immediate) {
+    st.token++;
+    clearSynth(st);
+    if (st.source) {
+      const src = st.source;
+      st.source = null;
+      try { src.stop(); } catch (e) { /* ignore */ }
+      try { src.disconnect(); } catch (e) { /* ignore */ }
+    }
+    if (st.gain && Sound.ac) {
+      const now = Sound.ac.currentTime;
+      try {
+        st.gain.gain.cancelScheduledValues(now);
+        if (immediate) st.gain.gain.setValueAtTime(0, now);
+        else {
+          st.gain.gain.setValueAtTime(st.gain.gain.value, now);
+          st.gain.gain.linearRampToValueAtTime(0, now + .35);
+        }
+      } catch (e) { /* ignore */ }
+    }
+  }
+
+  function decodeBgm(src) {
+    if (bgmCache.has(src)) return Promise.resolve(bgmCache.get(src));
+    const promise = fetch(src, { cache: 'force-cache' })
+      .then(res => {
+        if (!res.ok) throw new Error('BGM HTTP ' + res.status);
+        return res.arrayBuffer();
+      })
+      .then(buf => new Promise((resolve, reject) => {
+        const ac = bgmContext();
+        if (!ac) { reject(new Error('No AudioContext')); return; }
+        const ret = ac.decodeAudioData(buf, resolve, reject);
+        if (ret && ret.then) ret.then(resolve).catch(reject);
+      }))
+      .then(buffer => {
+        bgmCache.set(src, buffer);
+        return buffer;
+      })
+      .catch(err => {
+        bgmCache.delete(src);
+        throw err;
       });
-    }
+    bgmCache.set(src, promise);
+    return promise;
   }
-  function pauseFriendsMusic() {
-    if (friendsBgm && !friendsBgm.paused) {
-      try { friendsBgm.pause(); } catch (e) { /* ignore */ }
-    }
-  }
-  function stopFriendsMusic() {
-    if (!friendsBgm) return;
+
+  function synthBgm(st, kind) {
+    if (st.fallbackTimer) { clearTimeout(st.fallbackTimer); st.fallbackTimer = null; }
+    const ac = bgmContext();
+    const gain = st.gain;
+    if (!ac || !gain) return;
+    clearSynth(st);
     try {
-      friendsBgm.pause();
-      friendsBgm.currentTime = 0;
+      const now = ac.currentTime;
+      gain.gain.cancelScheduledValues(now);
+      gain.gain.setValueAtTime(gain.gain.value, now);
+      gain.gain.linearRampToValueAtTime(st.volume, now + .45);
+    } catch (e) { /* ignore */ }
+    const notes = kind === 'boss'
+      ? [55, 0, 82.41, 0, 65.41, 0, 49, 0]
+      : [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+    let idx = 0;
+    const token = st.token;
+    const tick = () => {
+      if (token !== st.token || !st.gain || st.paused) return;
+      const freq = notes[idx % notes.length];
+      idx++;
+      if (!freq) return;
+      try {
+        const osc = ac.createOscillator();
+        const env = ac.createGain();
+        osc.type = kind === 'boss' ? 'triangle' : 'sine';
+        osc.frequency.value = freq;
+        env.gain.value = 0;
+        osc.connect(env).connect(st.gain);
+        const now = ac.currentTime;
+        env.gain.setValueAtTime(0, now);
+        env.gain.linearRampToValueAtTime(kind === 'boss' ? .08 : .055, now + .015);
+        env.gain.exponentialRampToValueAtTime(.0001, now + .32);
+        osc.start(now);
+        osc.stop(now + .36);
+        osc.onended = () => { try { osc.disconnect(); env.disconnect(); } catch (e) { /* ignore */ } };
+      } catch (e) { /* ignore */ }
+    };
+    st.synthTimer = setInterval(tick, kind === 'boss' ? 420 : 300);
+    tick();
+    try {
+      const drone = ac.createOscillator();
+      const droneGain = ac.createGain();
+      drone.type = 'sine';
+      drone.frequency.value = kind === 'boss' ? 36.7 : 130.81;
+      droneGain.gain.value = kind === 'boss' ? .035 : .012;
+      drone.connect(droneGain).connect(gain);
+      drone.start();
+      st.synthNodes.push(drone, droneGain);
     } catch (e) { /* ignore */ }
   }
 
-  const bossBgm = $('boss-bgm');
-  let bossBgmFade = 0;
-  function syncBossBgmMute() {
-    if (bossBgm) bossBgm.muted = Sound.muted;
-  }
-  function setBossBgmSource(src) {
-    if (!bossBgm || !src) return;
-    if (bossBgm.getAttribute('src') !== src) {
-      bossBgm.src = src;
-      if (typeof bossBgm.load === 'function') bossBgm.load();
-    }
-  }
-  function startBossBgm() {
-    if (!bossBgm || typeof bossBgm.play !== 'function') return;
-    clearInterval(bossBgmFade);
+  function startBgm(st, src, volume, kind) {
+    const ac = bgmContext();
+    if (!ac) return;
+    stopBgm(st, true);
+    const token = ++st.token;
+    st.paused = false;
+    st.volume = volume;
+    const gain = ensureBgmGain(st);
+    if (!gain) return;
+    const now = ac.currentTime;
     try {
-      bossBgm.pause();
-      bossBgm.currentTime = 0;
+      gain.gain.cancelScheduledValues(now);
+      gain.gain.setValueAtTime(0, now);
     } catch (e) { /* ignore */ }
-    bossBgm.loop = true;
-    bossBgm.volume = 0;
-    bossBgm.muted = Sound.muted;
-    const p = bossBgm.play();
-    if (p && p.catch) {
-      p.catch(() => {
-        // 浏览器拦截自动播放时，等玩家下一次点击再补播
-        const retry = () => {
-          window.removeEventListener('pointerdown', retry);
-          if (game && game.bossMode && mode === 'playing' && bossBgm.paused) {
-            bossBgm.play().catch(() => {});
-          }
-        };
-        window.addEventListener('pointerdown', retry, { once: true });
-      });
-    }
-    let v = 0;
-    bossBgmFade = setInterval(() => {
-      v = Math.min(0.42, v + 0.025);
-      try { bossBgm.volume = v; } catch (e) { /* ignore */ }
-      if (v >= 0.42) clearInterval(bossBgmFade);
-    }, 40);
-  }
-  function stopBossBgm(immediate) {
-    if (!bossBgm || typeof bossBgm.pause !== 'function') return;
-    clearInterval(bossBgmFade);
-    if (immediate) {
+    if (!src) { synthBgm(st, kind); return; }
+    // 慢网时先给一个合成底噪，正式音频解码完成后再无缝切回
+    st.fallbackTimer = setTimeout(() => {
+      if (token === st.token && !st.source) synthBgm(st, kind);
+    }, 7000);
+    decodeBgm(src).then(buffer => {
+      if (token !== st.token || !Sound.ac || !st.gain) return;
+      if (st.fallbackTimer) { clearTimeout(st.fallbackTimer); st.fallbackTimer = null; }
+      clearSynth(st);
       try {
-        bossBgm.pause();
-        bossBgm.currentTime = 0;
-        bossBgm.volume = 0;
-      } catch (e) { /* ignore */ }
+        const node = Sound.ac.createBufferSource();
+        node.buffer = buffer;
+        node.loop = true;
+        node.connect(st.gain);
+        st.source = node;
+        node.start();
+        const t = Sound.ac.currentTime;
+        st.gain.gain.cancelScheduledValues(t);
+        st.gain.gain.setValueAtTime(0, t);
+        st.gain.gain.linearRampToValueAtTime(volume, t + .6);
+      } catch (e) {
+        synthBgm(st, kind);
+      }
+    }).catch(() => {
+      if (token === st.token) synthBgm(st, kind);
+    });
+  }
+
+  function pauseBgm(st, paused) {
+    st.paused = paused;
+    if (!st.gain || !Sound.ac) return;
+    const now = Sound.ac.currentTime;
+    try {
+      st.gain.gain.cancelScheduledValues(now);
+      st.gain.gain.setTargetAtTime(paused ? 0 : st.volume, now, .04);
+    } catch (e) { /* ignore */ }
+  }
+
+  function syncBossBgmMute() { /* 通过 Sound.master 统一静音 */ }
+  function syncFriendsBgmMute() { /* 通过 Sound.master 统一静音 */ }
+
+  function setBossBgmSource(src) {
+    bossBgmState.src = src || null;
+  }
+
+  function startBossBgm() {
+    startBgm(bossBgmState, bossBgmState.src, .42, 'boss');
+  }
+
+  function stopBossBgm(immediate) {
+    stopBgm(bossBgmState, !!immediate);
+  }
+
+  function pauseBossBgm(paused) {
+    pauseBgm(bossBgmState, !!paused);
+  }
+
+  function startFriendsMusic(restart) {
+    if (!game || !game.friendsFish || mode !== 'playing') return;
+    if (!restart && friendsBgmState.source && friendsBgmState.paused) {
+      pauseBgm(friendsBgmState, false);
       return;
     }
-    let v = bossBgm.volume;
-    bossBgmFade = setInterval(() => {
-      v = Math.max(0, v - 0.035);
-      try { bossBgm.volume = v; } catch (e) { /* ignore */ }
-      if (v <= 0) {
-        clearInterval(bossBgmFade);
-        try {
-          bossBgm.pause();
-          bossBgm.currentTime = 0;
-        } catch (e) { /* ignore */ }
-      }
-    }, 40);
+    startBgm(friendsBgmState, './kkr.ogg', .58, 'friends');
   }
-  function pauseBossBgm(paused) {
-    if (!bossBgm || typeof bossBgm.pause !== 'function') return;
-    if (paused) {
-      clearInterval(bossBgmFade);
-      try { bossBgm.pause(); } catch (e) { /* ignore */ }
-    } else if (game && game.bossMode && mode === 'playing' && bossBgm.paused) {
-      bossBgm.play().catch(() => {});
-    }
+
+  function pauseFriendsMusic() {
+    pauseBgm(friendsBgmState, true);
   }
+
+  function stopFriendsMusic() {
+    stopBgm(friendsBgmState, true);
+  }
+
   document.addEventListener('visibilitychange', () => {
-    if (!bossBgm || typeof bossBgm.pause !== 'function') return;
     if (document.hidden) {
-      if (!bossBgm.paused) bossBgm.pause();
-    } else if (game && game.bossMode && mode === 'playing' && bossBgm.paused) {
-      bossBgm.play().catch(() => {});
+      pauseBossBgm(true);
+      pauseFriendsMusic();
+    } else {
+      if (game && game.bossMode && mode === 'playing') pauseBossBgm(false);
+      if (game && game.friendsFish && mode === 'playing') pauseBgm(friendsBgmState, false);
     }
   });
 

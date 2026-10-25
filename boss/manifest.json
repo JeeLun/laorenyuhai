@@ -8,12 +8,6 @@
       "config": "leviathan/config.json"
     },
     {
-      "id": "classmate",
-      "name": "同学利维坦",
-      "entry": "classmate/boss.js",
-      "config": "classmate/config.json"
-    },
-    {
       "id": "carrion",
       "name": "CARRION",
       "entry": "carrion/boss.js",

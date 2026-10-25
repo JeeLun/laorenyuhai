@@ -26,7 +26,7 @@ export function createBossModule(api) {
   let headFlashCanvas = null, headFlashCtx = null;
   if (headImg) {
     headImg.onload = () => { headReady = true; };
-    headImg.src = './assets/leviathan-head-v2-128.png';
+    headImg.src = new URL('./assets/leviathan-head-v2-128.png', import.meta.url).href;
   }
 
   function createBoss() {

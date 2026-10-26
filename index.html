@@ -1509,6 +1509,32 @@ kbd {
 .boss-result-grid b.good { color: #a9dfb2; }
 .boss-result-grid b.bad { color: #d88670; }
 
+.loading-panel { text-align: center; }
+.loading-track {
+  width: min(100%, calc(var(--u) * 250));
+  height: calc(var(--u) * 4);
+  margin: calc(var(--u) * 6) auto 0;
+  overflow: hidden;
+  border: calc(var(--u) * .8) solid rgba(211, 161, 99, .3);
+  background: rgba(7, 13, 12, .7);
+}
+.loading-track i {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #8f3b32, #e0b477);
+  transition: width .18s linear;
+}
+.loading-meta {
+  display: flex;
+  justify-content: space-between;
+  width: min(100%, calc(var(--u) * 250));
+  margin: calc(var(--u) * 2.5) auto 0;
+  color: #8f8373;
+  font: calc(var(--u) * 5.2) "Courier New", monospace;
+}
+#loading-screen .btn { margin-top: calc(var(--u) * 5); }
+
 </style>
 </head>
 <body>
@@ -1613,8 +1639,19 @@ kbd {
         </div>
       </div>
       <button id="changelog-btn" class="changelog-btn" type="button">更新日志</button>
-      <div class="version-label">Alpha1.7.23</div>
+      <div class="version-label">Alpha1.7.24</div>
       <button id="debug-btn" class="debug-btn hidden" type="button">debug</button>
+    </section>
+
+    <section class="screen hidden" id="loading-screen">
+      <div class="panel-screen loading-panel">
+        <div class="eyebrow" id="loading-eyebrow">THE ABYSS IS LISTENING</div>
+        <h2 id="loading-title">正在潜入深渊</h2>
+        <p class="lore" id="loading-sub">正在载入利维坦的歌声……</p>
+        <div class="loading-track"><i id="loading-fill"></i></div>
+        <div class="loading-meta"><span id="loading-pct">0%</span><span id="loading-size">音频加载中</span></div>
+        <button id="loading-skip" class="btn ghost hidden" type="button">先进入战斗</button>
+      </div>
     </section>
 
     <section class="screen hidden" id="boss-select-screen">
@@ -1666,8 +1703,56 @@ kbd {
           </div>
           <div class="debug-row debug-slider-row">
             <div><b>出怪量调整</b><span id="debug-spawn-tip">标准出怪量。</span></div>
-            <input id="debug-spawn-rate" class="debug-slider" type="range" min="0" max="4" step="1" value="2" aria-label="出怪量调整">
+            <input id="debug-spawn-rate" class="debug-slider" type="range" min="0" max="6" step="1" value="2" aria-label="出怪量调整">
+            <div class="debug-slider-scale"><span>0.1x</span><span>0.5x</span><span>1x</span><span>2x</span><span>5x</span><span>10x</span><span>20x</span></div>
+          </div>
+          <div class="debug-row debug-slider-row">
+            <div><b>玩家伤害调整</b></div>
+            <input id="debug-damage" class="debug-slider" type="range" min="0" max="4" step="1" value="2" aria-label="伤害调整">
+            <div class="debug-slider-scale"><span>0.25x</span><span>0.5x</span><span>1x</span><span>1.5x</span><span>2x</span></div>
+          </div>
+          <div class="debug-row debug-slider-row">
+            <div><b>鱼群伤害调整</b></div>
+            <input id="debug-fish-damage" class="debug-slider" type="range" min="0" max="4" step="1" value="2" aria-label="鱼群伤害调整">
+            <div class="debug-slider-scale"><span>0.25x</span><span>0.5x</span><span>1x</span><span>1.5x</span><span>2x</span></div>
+          </div>
+          <div class="debug-row debug-slider-row">
+            <div><b>鱼群血量调整</b></div>
+            <input id="debug-fish-hp" class="debug-slider" type="range" min="0" max="4" step="1" value="2" aria-label="鱼群血量调整">
             <div class="debug-slider-scale"><span>0.1x</span><span>0.5x</span><span>1x</span><span>2x</span><span>5x</span></div>
+          </div>
+          <div class="debug-row debug-slider-row">
+            <div><b>鱼群速度调整</b></div>
+            <input id="debug-fish-speed" class="debug-slider" type="range" min="0" max="6" step="1" value="3" aria-label="鱼群速度调整">
+            <div class="debug-slider-scale"><span>0.1x</span><span>0.2x</span><span>0.5x</span><span>1x</span><span>1.5x</span><span>2.5x</span><span>5x</span></div>
+          </div>
+          <div class="debug-row">
+            <div><b>无限火力</b><span>当时，海恩·赛弗罗是一名普通的机枪手</span></div>
+            <button id="debug-infinite" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
+            <div><b>手速测试</b><span>取消攻击间隔，攻击速度由你的手速决定</span></div>
+            <button id="debug-handspeed" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
+            <div><b>水冷机枪</b><span>过热条不会增长</span></div>
+            <button id="debug-watercooled" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
+            <div><b>枪打出头鸟</b><span>所有武器都能一击打下鸟</span></div>
+            <button id="debug-birdhunter" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
+            <div><b>JAWS</b><span>只会刷新四级大白鲨</span></div>
+            <button id="debug-jaws" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
+            <div><b>禁飞令</b><span>我讨厌鸟类。</span></div>
+            <button id="debug-nobirds" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
+            <div><b>愤怒的小鸟</b><span>敌方已部署集束炸弹</span></div>
+            <button id="debug-angrybirds" class="debug-toggle" type="button" data-on="false">否</button>
           </div>
           <div class="debug-row">
             <div><b>跳跃时空</b><span>0 正常开局 · 1 手枪 · 2 猎枪 · 3 AK · 4 巴雷特 · 5 加特林</span></div>
@@ -2714,21 +2799,38 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     { rate: .5, tip: '平静的水面培养不出优秀的水手。' },
     { rate: 1, tip: '标准出怪量。' },
     { rate: 2, tip: '风暴将至。' },
-    { rate: 5, tip: '哦，上帝！' }
+    { rate: 5, tip: '痛苦之上，没有英雄。' },
+    { rate: 10, tip: '当你凝望深渊之时，深渊也凝望着你。' },
+    { rate: 20, tip: '神明在上，保佑您的孩子们。' }
   ];
-  const debugState = { unlocked: false, sixGod: false, frozenFish: false, friendsFish: false, strongMarlin: false, santiago: false, spawnLevel: 2, jump: 0 };
+  const DAMAGE_MULTIPLIERS = [.25, .5, 1, 1.5, 2];
+  const FISH_HP_MULTIPLIERS = [.1, .5, 1, 2, 5];
+  const FISH_SPEED_MULTIPLIERS = [.1, .2, .5, 1, 1.5, 2.5, 5];
+  const debugState = { unlocked: false, debugVisible: true, sixGod: false, frozenFish: false, friendsFish: false, strongMarlin: false, santiago: false, spawnLevel: 2, damageLevel: 2, fishDamageLevel: 2, fishHpLevel: 2, fishSpeedLevel: 3, infiniteAmmo: false, handSpeed: false, noBirds: false, angryBirds: false, waterCooled: false, birdHunter: false, jaws: false, jump: 0 };
   try {
     const raw = localStorage.getItem(DEBUG_KEY);
     if (raw) {
       const saved = JSON.parse(raw);
       if (saved && typeof saved === 'object') {
         debugState.unlocked = !!saved.unlocked;
+        debugState.debugVisible = saved.debugVisible !== false;
         debugState.sixGod = !!saved.sixGod;
         debugState.frozenFish = !!saved.frozenFish;
         debugState.friendsFish = !!saved.friendsFish;
         debugState.strongMarlin = !!saved.strongMarlin;
         debugState.santiago = !!saved.santiago;
-        debugState.spawnLevel = clamp(Math.round(Number(saved.spawnLevel) || 2), 0, 4);
+        debugState.spawnLevel = clamp(Math.round(Number(saved.spawnLevel) || 2), 0, 6);
+        debugState.damageLevel = clamp(Math.round(Number(saved.damageLevel) || 2), 0, 4);
+        debugState.fishDamageLevel = clamp(Math.round(Number(saved.fishDamageLevel) || 2), 0, 4);
+        debugState.fishHpLevel = clamp(Math.round(Number(saved.fishHpLevel) || 2), 0, 4);
+        debugState.fishSpeedLevel = clamp(Math.round(Number(saved.fishSpeedLevel) || 3), 0, 6);
+        debugState.infiniteAmmo = !!saved.infiniteAmmo;
+        debugState.handSpeed = !!saved.handSpeed;
+        debugState.noBirds = !!saved.noBirds;
+        debugState.angryBirds = !!saved.angryBirds;
+        debugState.waterCooled = !!saved.waterCooled;
+        debugState.birdHunter = !!saved.birdHunter;
+        debugState.jaws = !!saved.jaws;
         debugState.jump = clamp(Math.round(Number(saved.jump) || 0), 0, 5);
       }
     }
@@ -2864,6 +2966,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   }
 
   const screens = {
+    loading: $('loading-screen'),
     start: $('start-screen'),
     bossSelect: $('boss-select-screen'),
     changelog: $('changelog-screen'),
@@ -3156,7 +3259,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
 
   function refreshDebugButton() {
     const btn = $('debug-btn');
-    if (btn) btn.classList.toggle('hidden', !debugState.unlocked);
+    if (btn) btn.classList.toggle('hidden', !(debugState.unlocked && debugState.debugVisible));
   }
 
   function syncDebugUI() {
@@ -3166,6 +3269,13 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       ['debug-friends', 'friendsFish'],
       ['debug-strong', 'strongMarlin'],
       ['debug-santiago', 'santiago'],
+      ['debug-infinite', 'infiniteAmmo'],
+      ['debug-handspeed', 'handSpeed'],
+      ['debug-nobirds', 'noBirds'],
+      ['debug-angrybirds', 'angryBirds'],
+      ['debug-watercooled', 'waterCooled'],
+      ['debug-birdhunter', 'birdHunter'],
+      ['debug-jaws', 'jaws'],
     ];
     for (const [id, flag] of bind) {
       const btn = $(id);
@@ -3180,10 +3290,18 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     if (spawn) spawn.value = String(debugState.spawnLevel);
     const spawnTip = $('debug-spawn-tip');
     if (spawnTip) spawnTip.textContent = SPAWN_RATE_LEVELS[debugState.spawnLevel].tip;
+    const dmg = $('debug-damage');
+    if (dmg) dmg.value = String(debugState.damageLevel);
+    const fishDmg = $('debug-fish-damage');
+    if (fishDmg) fishDmg.value = String(debugState.fishDamageLevel);
+    const fishHp = $('debug-fish-hp');
+    if (fishHp) fishHp.value = String(debugState.fishHpLevel);
+    const fishSpeed = $('debug-fish-speed');
+    if (fishSpeed) fishSpeed.value = String(debugState.fishSpeedLevel);
   }
 
   function openDebug() {
-    if (!debugState.unlocked || mode === 'debug') return;
+    if (!debugState.unlocked || !debugState.debugVisible || mode === 'debug') return;
     if (mode !== 'menu') return;
     mode = 'debug';
     hideScreens();
@@ -3198,11 +3316,50 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     goMenu();
   }
 
-  function unlockDebug() {
-    debugState.unlocked = true;
-    saveDebugState();
-    refreshDebugButton();
-    openDebug();
+  function resetDebugOptions() {
+    debugState.sixGod = false;
+    debugState.frozenFish = false;
+    debugState.friendsFish = false;
+    debugState.strongMarlin = false;
+    debugState.santiago = false;
+    debugState.spawnLevel = 2;
+    debugState.damageLevel = 2;
+    debugState.fishDamageLevel = 2;
+    debugState.fishHpLevel = 2;
+    debugState.fishSpeedLevel = 3;
+    debugState.infiniteAmmo = false;
+    debugState.handSpeed = false;
+    debugState.noBirds = false;
+    debugState.angryBirds = false;
+    debugState.waterCooled = false;
+    debugState.birdHunter = false;
+    debugState.jaws = false;
+    debugState.jump = 0;
+  }
+
+  function toggleDebugAccess() {
+    if (!debugState.unlocked) {
+      debugState.unlocked = true;
+      debugState.debugVisible = true;
+      saveDebugState();
+      refreshDebugButton();
+      openDebug();
+      return;
+    }
+    if (debugState.debugVisible) {
+      debugState.debugVisible = false;
+      resetDebugOptions();
+      saveDebugState();
+      refreshDebugButton();
+      syncDebugUI();
+      if (mode === 'debug') goMenu();
+      Sound.ui();
+    } else {
+      debugState.debugVisible = true;
+      saveDebugState();
+      refreshDebugButton();
+      Sound.ui();
+    }
   }
 
   function toggleDebugFlag(flag) {
@@ -3266,7 +3423,18 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     game.strongMarlin = active && !!debugState.strongMarlin;
     game.santiago = active && !!debugState.santiago;
     game.spawnRate = active ? SPAWN_RATE_LEVELS[debugState.spawnLevel].rate : 1;
-    game.debugRun = active && (!!debugState.sixGod || !!debugState.frozenFish || !!debugState.friendsFish || !!debugState.strongMarlin || !!debugState.santiago || debugState.jump > 0 || debugState.spawnLevel !== 2);
+    game.damageMul = active ? DAMAGE_MULTIPLIERS[debugState.damageLevel] : 1;
+    game.fishDamageMul = active ? DAMAGE_MULTIPLIERS[debugState.fishDamageLevel] : 1;
+    game.fishHpMul = active ? FISH_HP_MULTIPLIERS[debugState.fishHpLevel] : 1;
+    game.fishSpeedMul = active ? FISH_SPEED_MULTIPLIERS[debugState.fishSpeedLevel] : 1;
+    game.infiniteAmmo = active && !!debugState.infiniteAmmo;
+    game.handSpeed = active && !!debugState.handSpeed;
+    game.noBirds = active && !!debugState.noBirds;
+    game.angryBirds = active && !!debugState.angryBirds;
+    game.waterCooled = active && !!debugState.waterCooled;
+    game.allWeaponsBirds = active && !!debugState.birdHunter;
+    game.jaws = active && !!debugState.jaws;
+    game.debugRun = active && (!!debugState.sixGod || !!debugState.frozenFish || !!debugState.friendsFish || !!debugState.strongMarlin || !!debugState.santiago || debugState.jump > 0 || debugState.spawnLevel !== 2 || debugState.damageLevel !== 2 || debugState.fishHpLevel !== 2 || debugState.fishSpeedLevel !== 3 || debugState.fishDamageLevel !== 2 || !!debugState.infiniteAmmo || !!debugState.handSpeed || !!debugState.noBirds || !!debugState.angryBirds || !!debugState.waterCooled || !!debugState.birdHunter || !!debugState.jaws);
     if (game.friendsFish) startFriendsMusic(true);
     if (game.strongMarlin) {
       game.extraMeat = 3435973675;
@@ -3705,6 +3873,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
 
   /* ---------------- 鲨鱼 ---------------- */
   function pickSharkType() {
+    if (game && game.jaws) return 'mega';
     const pool = [['mako', 10]];
     if (game && game.unlocked.pistol) pool.push(['galano', 5]);
     if (game && game.unlocked.shotgun) pool.push(['white', 3]);
@@ -3767,7 +3936,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     const s = {
       type, cfg, x, y, vx: 0, vy: 0,
       angle: Math.PI / 2,
-      hp: cfg.hp,
+      hp: cfg.hp * (game.fishHpMul || 1),
       targetSeg: -1,
       tx: x, ty: y,
       state: 'approach',
@@ -3795,9 +3964,9 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     if (!game || mode !== 'playing') return null;
     const type = forcedType || pickSharkType();
     if (!SHARK_TYPES[type]) return null;
-    const spawnRate = clamp(game.spawnRate || 1, 0.1, 5);
+    const spawnRate = clamp(game.spawnRate || 1, 0.1, 20);
     const baseCap = Math.min(11, 5 + Math.floor(game.t / 26));
-    const maxAlive = Math.max(1, Math.min(55, Math.round(baseCap * spawnRate)));
+    const maxAlive = Math.max(1, Math.min(220, Math.round(baseCap * spawnRate)));
     if (!forcedType && aliveSharks().length >= maxAlive) return null;
     const target = pickTargetSeg();
     if (target < 0) return null;
@@ -3932,7 +4101,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       // 16:9 画面下，把纵向距离按宽高比校正：纵向实际速度 = 水平速度 * 9/16
       const aspect = W / H;
       const d = Math.hypot(dx, dy * aspect) || 1;
-      const speed = cfg.speed * (1 + Math.min(0.28, game.t * 0.0022));
+      const speed = cfg.speed * (1 + Math.min(0.28, game.t * 0.0022)) * (game.fishSpeedMul || 1);
       const desiredX = (dx / d) * speed;
       const desiredY = (dy / d) * speed;
       const k = Math.min(1, dt * (1.8 + s.entrance * 2));
@@ -4039,7 +4208,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     // 大鱼咬得更狠：体型越大，单次咬击伤害越高
     const sizeFactor = 1 + Math.max(0, cfg.len - 52) / 220;
     const over = game.meat > game.maxMeat;
-    const amount = cfg.dmg * sizeFactor * (1 + Math.min(0.35, game.t / 220)) * (over ? 2 : 1);
+    const amount = cfg.dmg * sizeFactor * (1 + Math.min(0.35, game.t / 220)) * (over ? 2 : 1) * (game.fishDamageMul || 1);
     damageFishAt(amount, seg);
     // 最后一点肉眼看不见的碎肉直接归零，确保能吃到骨架
     for (let i = 0; i < FISH_SEG_N; i++) {
@@ -4225,13 +4394,29 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     const target = findMeleeTarget();
     if (!target) return;
     const w = WEAPONS.harpoon;
-    target.hp -= w.damage;
+    target.hp -= w.damage * (game.damageMul || 1);
     target.flash = .1;
     game.hitMark = .08;
     game.hitMarkX = target.x;
     game.hitMarkY = target.y;
     game.hitMarkHead = 0;
     if (target.hp <= 0) killShark(target, target.state === 'bite', false);
+  }
+
+  function findBirdMeleeTarget() {
+    const w = WEAPONS.harpoon;
+    const pivot = gunPivot();
+    const aim = game.aimAngle + game.reloadPose * 0.32 + game.switchPose * 0.28;
+    let best = null, bestD = Infinity;
+    for (const b of game.birds) {
+      if (b.dead) continue;
+      const d = Math.hypot(b.x - pivot.x, b.y - pivot.y);
+      if (d > w.range + (b.r || 15) * 0.2) continue;
+      const a = Math.atan2(b.y - pivot.y, b.x - pivot.x);
+      if (Math.abs(angleDiff(a, aim)) > w.arc + .12) continue;
+      if (d < bestD) { bestD = d; best = b; }
+    }
+    return best;
   }
 
   function meleeAttack() {
@@ -4244,11 +4429,22 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     game.shake = Math.max(game.shake, 1.5);
     Sound.harpoon();
 
+    if (game.allWeaponsBirds) {
+      const bird = findBirdMeleeTarget();
+      if (bird) {
+        hitBird(bird);
+        game.hitMark = .1;
+        game.hitMarkX = bird.x;
+        game.hitMarkY = bird.y;
+        return;
+      }
+    }
+
     const best = findMeleeTarget();
     if (best) {
       const dir = normalize(best.x - pivot.x, best.y - pivot.y);
       hitShark(best, best.x, best.y, dir.x, dir.y, {
-        damage: w.damage,
+        damage: w.damage * (game.damageMul || 1),
         headshot: false,
         weapon: 'harpoon',
         knockback: 96,
@@ -4279,11 +4475,12 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     if (mode !== 'playing' || !game) return;
     aimAtPointer();
     if (game.bossMode && game.bossPhase !== 'fight') return;
-    if (game.fireCd > 0 || game.reloading) return;
+    if ((!game.handSpeed && game.fireCd > 0) || game.reloading) return;
     const w = currentWeaponCfg();
     if (w.kind === 'melee') {
       if (game.santiago) return;
       meleeAttack();
+      if (game.handSpeed) game.fireCd = 0;
       return;
     }
     const gatling = w.key === 'gatling';
@@ -4292,29 +4489,35 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         Sound.dry();
         return;
       }
-    } else if (currentAmmo() <= 0) {
+    } else if (!game.infiniteAmmo && currentAmmo() <= 0) {
       Sound.dry();
       game.reloadDelay = 0.02;
       startReload();
       return;
     }
-    if (!gatling) setCurrentAmmo(currentAmmo() - 1);
-    game.fireCd = gatling
+    if (!gatling && !game.infiniteAmmo) setCurrentAmmo(currentAmmo() - 1);
+    game.fireCd = game.handSpeed ? 0 : (gatling
       ? w.fireCd * (1 - 0.35 * clamp(game.gatlingHeat / 100, 0, 1))
-      : w.fireCd;
+      : w.fireCd);
     game.recoil = w.recoil;
     game.shake = Math.max(game.shake, w.key === 'sniper' ? 4.2 : w.key === 'rpg' ? 2.6 : w.key === 'shotgun' ? 1.7 : 1.1);
     // 旧式猎枪保持逐发自动装填；弹匣武器只打空后自动装填
     if (gatling) {
       game.gatlingIdle = 0;
-      game.gatlingHeat = Math.min(100, game.gatlingHeat + w.heatPerShot);
-      if (game.gatlingHeat >= 100) {
-        game.gatlingHeat = 100;
-        game.gatlingLock = 3;
-        game.gatlingOverheated = true;
-        game.fireCd = 0;
-        Sound.hot();
-        showToast('加特林过热 · 强制冷却 3 秒', 1300);
+      if (game.waterCooled) {
+        game.gatlingHeat = 0;
+        game.gatlingLock = 0;
+        game.gatlingOverheated = false;
+      } else {
+        game.gatlingHeat = Math.min(100, game.gatlingHeat + w.heatPerShot);
+        if (game.gatlingHeat >= 100) {
+          game.gatlingHeat = 100;
+          game.gatlingLock = 3;
+          game.gatlingOverheated = true;
+          game.fireCd = 0;
+          Sound.hot();
+          showToast('加特林过热 · 强制冷却 3 秒', 1300);
+        }
       }
     } else if (w.reloadType === 'shell') {
       game.reloadDelay = currentAmmo() <= 0 ? 0.35 : 0.48;
@@ -4344,8 +4547,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         vy: Math.sin(a) * speed,
         life, max: life,
         weapon: w.key,
-        damage: w.damage,
-        headDamage: w.headDamage,
+        damage: w.damage * (game.damageMul || 1),
+        headDamage: w.headDamage * (game.damageMul || 1),
         penetration: w.penetration,
         rpg: !!w.blastRadius,
         blastRadius: w.blastRadius || 0,
@@ -4536,6 +4739,12 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
 
   function updateGatlingHeat(dt) {
     if (!game) return;
+    if (game.waterCooled) {
+      game.gatlingHeat = 0;
+      game.gatlingLock = 0;
+      game.gatlingOverheated = false;
+      return;
+    }
     const w = currentWeaponCfg();
     const fast = game.weapon === 'gatling';
     if (game.gatlingLock > 0) {
@@ -4680,7 +4889,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         addParticle(p.x, p.y, rand(-3, 3), rand(-8, -2), rand(0.2, 0.45), '#b6e1dd', 1, -8, 0.98);
       }
       let removed = false;
-      if (p.weapon === 'sniper') {
+      if (p.weapon === 'sniper' || game.allWeaponsBirds) {
         for (let bi = game.birds.length - 1; bi >= 0; bi--) {
           const bird = game.birds[bi];
           if (bird.dead) continue;
@@ -4754,7 +4963,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     if (game.spawnTimer <= 0) {
       spawnShark();
       const base = Math.max(0.62, 2.8 - game.t * 0.0135);
-      const rate = clamp(game.spawnRate || 1, 0.1, 5);
+      const rate = clamp(game.spawnRate || 1, 0.1, 20);
       game.spawnTimer = Math.max(0.08, base / rate) * rand(0.8, 1.22);
     }
   }
@@ -4853,11 +5062,11 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       // 狙击造成击退后，从被击退到撤退终点前，身体与头部同伤害
       const recoilWindow = b.state === 'recoil';
       const headDamage = !!head || recoilWindow;
-      const dmg = isAK ? (headDamage ? 7 : 1) : (headDamage ? 14 : 2);
+      const dmg = (isAK ? (headDamage ? 7 : 1) : (headDamage ? 14 : 2)) * (game.damageMul || 1);
       b.hp = Math.max(0, b.hp - dmg);
       getBossModule().onHit(b, p.weapon === 'sniper' ? 'sniper' : 'ak', { head: !!head });
       game.shake = Math.max(game.shake, isSniper ? 9 : 2.2);
-      addText(x, y - 12, '-' + dmg, headDamage ? '#ffe2a1' : '#b4a99a', headDamage ? 2 : 1);
+      addText(x, y - 12, '-' + (Math.round(dmg * 10) / 10), headDamage ? '#ffe2a1' : '#b4a99a', headDamage ? 2 : 1);
       if (isSniper) Sound.bossKnock(); else Sound.bossHit();
     } else {
       for (let i = 0; i < 5; i++) {
@@ -4919,16 +5128,21 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
 
   function spawnBird() {
     if (!game || mode !== 'playing' || !game.unlocked.sniper) return null;
-    if (game.birds.length >= 3) return null;
+    if (game.noBirds) return null;
+    const maxBirds = game.angryBirds ? 60 : 3;
+    if (game.birds.length >= maxBirds) return null;
     const r = Math.random();
-    const type = r < .30 ? 'bomb' : r < .50 ? 'medic' : r < .75 ? 'freeze' : 'ammo';
+    const type = game.angryBirds ? 'bomb' : (r < .30 ? 'bomb' : r < .50 ? 'medic' : r < .75 ? 'freeze' : 'ammo');
     const fromLeft = Math.random() < .5;
     const b = {
       type,
       x: fromLeft ? -28 : W + 28,
       y: 40 + rand(0, 38),
       baseY: 0,
-      vx: fromLeft ? (type === 'bomb' ? 30 : 54) : (type === 'bomb' ? -30 : -54),
+      vx: fromLeft
+        ? (game.angryBirds ? 108 : (type === 'bomb' ? 30 : 54))
+        : (game.angryBirds ? -108 : (type === 'bomb' ? -30 : -54)),
+      diveSpeed: game.angryBirds ? 210 : 105,
       vy: 0,
       state: 'approach',
       t: 0,
@@ -4977,8 +5191,9 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         rand(.25, .8), choice(['#fff3c9', '#ffd27a', '#ff7a3f', '#b53630']), Math.random() < .3 ? 3 : 2, 25, .94);
     }
     if (hurtFish) {
-      damageMarlin(.25);
-      addText(BOSS_FISH ? BOSS_FISH.x : W / 2, (BOSS_FISH ? BOSS_FISH.y : 160) - 20, '25%', '#ff8b6a', 2);
+      const pct = game.angryBirds ? .01 : .25;
+      damageMarlin(pct);
+      addText(BOSS_FISH ? BOSS_FISH.x : W / 2, (BOSS_FISH ? BOSS_FISH.y : 160) - 20, Math.round(pct * 100) + '%', '#ff8b6a', 2);
     }
     Sound.kill();
   }
@@ -5075,10 +5290,12 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   function updateBirds(dt) {
     if (!game) return;
     if (!game.unlocked.sniper) return;
-    game.birdTimer -= dt;
-    if (game.birdTimer <= 0) {
-      spawnBird();
-      game.birdTimer = rand(11, 19);
+    if (!game.noBirds) {
+      game.birdTimer -= dt;
+      if (game.birdTimer <= 0) {
+        spawnBird();
+        game.birdTimer = game.angryBirds ? rand(.11, .19) : rand(11, 19);
+      }
     }
     const centerX = W / 2;
     for (let i = game.birds.length - 1; i >= 0; i--) {
@@ -5105,7 +5322,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
           b.t = 0;
         }
       } else if (b.state === 'dive') {
-        b.y += 105 * dt;
+        b.y += (b.diveSpeed || 105) * dt;
         b.x = centerX;
         if (b.y >= FISH_SEGS[4].cy) {
           explodeBombBird(b.x, b.y, true);
@@ -5554,8 +5771,182 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     }
   }
 
-  /* ---------------- 模式切换 ---------------- */
+  /* ---------------- 大音频预载页 ---------------- */
+  let loadingToken = 0;
+  let loadingActive = false;
+  let loadingStarter = null;
+  let loadingTimers = [];
+
+  function clearLoadingTimers() {
+    for (const t of loadingTimers) clearTimeout(t);
+    loadingTimers = [];
+  }
+
+  function formatAudioSize(n) {
+    if (!n || n < 1024) return (n || 0) + ' B';
+    if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' KB';
+    return (n / 1024 / 1024).toFixed(1) + ' MB';
+  }
+
+  function setLoadingProgress(loaded, total) {
+    const fill = $('loading-fill');
+    const pct = $('loading-pct');
+    const size = $('loading-size');
+    if (!fill || !pct || !size) return;
+    const percent = total > 0 ? clamp(loaded / total * 100, 0, 100) : 0;
+    fill.style.width = percent.toFixed(1) + '%';
+    pct.textContent = total > 0 ? Math.round(percent) + '%' : '…';
+    size.textContent = total > 0
+      ? formatAudioSize(loaded) + ' / ' + formatAudioSize(total)
+      : formatAudioSize(loaded) + ' 已载入';
+  }
+
+  function preloadBgm(src, onProgress) {
+    if (bgmCache.has(src)) return Promise.resolve(bgmCache.get(src));
+    const task = (async () => {
+      const ac = bgmContext();
+      if (!ac) throw new Error('no audio context');
+      const res = await fetch(src, { cache: 'force-cache' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const total = Number(res.headers.get('content-length')) || 0;
+      let data;
+      if (!res.body || !res.body.getReader) {
+        data = await res.arrayBuffer();
+        onProgress(data.byteLength, data.byteLength);
+      } else {
+        const reader = res.body.getReader();
+        const chunks = [];
+        let loaded = 0;
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (value && value.length) {
+            chunks.push(value);
+            loaded += value.length;
+            onProgress(loaded, total);
+          }
+        }
+        const merged = new Uint8Array(loaded);
+        let offset = 0;
+        for (const chunk of chunks) {
+          merged.set(chunk, offset);
+          offset += chunk.length;
+        }
+        data = merged.buffer;
+      }
+      const buffer = await new Promise((resolve, reject) => {
+        const ret = ac.decodeAudioData(data, resolve, reject);
+        if (ret && ret.then) ret.then(resolve).catch(reject);
+      });
+      bgmCache.set(src, buffer);
+      return buffer;
+    })();
+    bgmCache.set(src, task);
+    task.catch(() => {
+      if (bgmCache.get(src) === task) bgmCache.delete(src);
+    });
+    return task;
+  }
+
+  function finishLoading() {
+    if (mode !== 'loading' || !loadingActive) return;
+    const starter = loadingStarter;
+    loadingToken++;
+    loadingActive = false;
+    loadingStarter = null;
+    clearLoadingTimers();
+    hideScreens();
+    if (starter) starter();
+  }
+
+  function beginRunLoading(opts) {
+    const token = ++loadingToken;
+    loadingActive = true;
+    loadingStarter = opts.starter;
+    clearLoadingTimers();
+    mode = 'loading';
+    hideScreens();
+    showScreen('loading');
+    wrap.classList.remove('playing', 'low-meat', 'boss-mode');
+    const eyebrow = $('loading-eyebrow');
+    const title = $('loading-title');
+    const sub = $('loading-sub');
+    const skip = $('loading-skip');
+    if (eyebrow) eyebrow.textContent = opts.eyebrow || 'THE ABYSS IS LISTENING';
+    if (title) title.textContent = opts.title || '正在潜入深渊';
+    if (sub) sub.textContent = opts.sub || '正在载入歌声……';
+    if (skip) skip.classList.add('hidden');
+    setLoadingProgress(0, 0);
+    Sound.init();
+    Sound.resume();
+    loadingTimers.push(setTimeout(() => {
+      if (token === loadingToken && skip) skip.classList.remove('hidden');
+    }, 4000));
+    loadingTimers.push(setTimeout(() => {
+      if (token === loadingToken) finishLoading();
+    }, 20000));
+    preloadBgm(opts.src, (loaded, total) => {
+      if (token === loadingToken) setLoadingProgress(loaded, total);
+    }).then(() => {
+      if (token !== loadingToken) return;
+      setLoadingProgress(1, 1);
+      if (sub) sub.textContent = '歌声已抵达。';
+      loadingTimers.push(setTimeout(() => {
+        if (token === loadingToken) finishLoading();
+      }, 180));
+    }).catch(() => {
+      if (token !== loadingToken) return;
+      if (sub) sub.textContent = '音频加载较慢，先进入战斗。';
+      loadingTimers.push(setTimeout(() => {
+        if (token === loadingToken) finishLoading();
+      }, 900));
+    });
+  }
+
+  function beginBossLoading(bossId, src) {
+    beginRunLoading({
+      src,
+      eyebrow: 'THE ABYSS IS LISTENING',
+      title: '正在潜入深渊',
+      sub: '正在载入利维坦的歌声……',
+      starter: () => startGameNow(bossId)
+    });
+  }
+
+  function beginFriendsLoading(src) {
+    beginRunLoading({
+      src,
+      eyebrow: 'THE FRIENDS ARE SINGING',
+      title: '正在唤醒朋友鱼',
+      sub: '正在载入朋友鱼的歌声……',
+      starter: () => startGameNow(null)
+    });
+  }
+
   function startGame(bossId) {
+    if (bossId) {
+      setActiveBoss(bossId);
+      const src = activeBoss && activeBoss.meta ? activeBoss.meta.music : null;
+      if (src) {
+        const cached = bgmCache.get(src);
+        if (!cached || typeof cached.then === 'function') {
+          beginBossLoading(bossId, src);
+          return;
+        }
+      }
+    } else if (debugState.unlocked && debugState.friendsFish) {
+      const src = './kkr.ogg';
+      const cached = bgmCache.get(src);
+      if (!cached || typeof cached.then === 'function') {
+        beginFriendsLoading(src);
+        return;
+      }
+    }
+    startGameNow(bossId);
+  }
+
+  /* ---------------- 模式切换 ---------------- */
+  function startGameNow(bossId) {
     stopBossBgm(true);
     stopFriendsMusic();
     debugSeq = [];
@@ -5926,7 +6317,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     touchDebugSeq.push(corner);
     if (touchDebugSeq.length === TOUCH_DEBUG_PATTERN.length) {
       touchDebugSeq = [];
-      unlockDebug();
+      toggleDebugAccess();
     }
   });
 
@@ -5949,7 +6340,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         if (debugSeq.length > 5) debugSeq.shift();
         if (debugSeq.join('') === 'debug') {
           debugSeq = [];
-          unlockDebug();
+          toggleDebugAccess();
           return;
         }
       }
@@ -6017,11 +6408,34 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   $('debug-jump').addEventListener('input', (e) => { setDebugJump(e.target.value); });
   $('debug-jump').addEventListener('change', (e) => { setDebugJump(e.target.value); });
   $('debug-spawn-rate').addEventListener('input', (e) => {
-    debugState.spawnLevel = clamp(Math.round(Number(e.target.value) || 0), 0, 4);
+    debugState.spawnLevel = clamp(Math.round(Number(e.target.value) || 0), 0, 6);
     saveDebugState();
     const tip = $('debug-spawn-tip');
     if (tip) tip.textContent = SPAWN_RATE_LEVELS[debugState.spawnLevel].tip;
   });
+  $('debug-damage').addEventListener('input', (e) => {
+    debugState.damageLevel = clamp(Math.round(Number(e.target.value) || 0), 0, 4);
+    saveDebugState();
+  });
+  $('debug-fish-damage').addEventListener('input', (e) => {
+    debugState.fishDamageLevel = clamp(Math.round(Number(e.target.value) || 0), 0, 4);
+    saveDebugState();
+  });
+  $('debug-fish-hp').addEventListener('input', (e) => {
+    debugState.fishHpLevel = clamp(Math.round(Number(e.target.value) || 0), 0, 4);
+    saveDebugState();
+  });
+  $('debug-fish-speed').addEventListener('input', (e) => {
+    debugState.fishSpeedLevel = clamp(Math.round(Number(e.target.value) || 0), 0, 6);
+    saveDebugState();
+  });
+  $('debug-watercooled').addEventListener('click', () => { toggleDebugFlag('waterCooled'); });
+  $('debug-birdhunter').addEventListener('click', () => { toggleDebugFlag('birdHunter'); });
+  $('debug-jaws').addEventListener('click', () => { toggleDebugFlag('jaws'); });
+  $('debug-infinite').addEventListener('click', () => { toggleDebugFlag('infiniteAmmo'); });
+  $('debug-handspeed').addEventListener('click', () => { toggleDebugFlag('handSpeed'); });
+  $('debug-nobirds').addEventListener('click', () => { toggleDebugFlag('noBirds'); });
+  $('debug-angrybirds').addEventListener('click', () => { toggleDebugFlag('angryBirds'); });
   $('debug-start-btn').addEventListener('click', () => { startGame(); });
   $('debug-close-btn').addEventListener('click', () => { goMenu(); });
   $('start-btn').addEventListener('click', () => { startGame(); });

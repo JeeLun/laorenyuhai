@@ -1731,6 +1731,10 @@ kbd {
             <button id="debug-infinite" class="debug-toggle" type="button" data-on="false">否</button>
           </div>
           <div class="debug-row">
+            <div><b>无限倍率</b><span>取消得分倍率上限</span></div>
+            <button id="debug-infmult" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
             <div><b>手速测试</b><span>取消攻击间隔，攻击速度由你的手速决定</span></div>
             <button id="debug-handspeed" class="debug-toggle" type="button" data-on="false">否</button>
           </div>
@@ -2810,7 +2814,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   const DAMAGE_MULTIPLIERS = [.25, .5, 1, 1.5, 2];
   const FISH_HP_MULTIPLIERS = [.1, .5, 1, 2, 5];
   const FISH_SPEED_MULTIPLIERS = [.1, .2, .5, 1, 1.5, 2.5, 5];
-  const debugState = { unlocked: false, debugVisible: true, sixGod: false, frozenFish: false, friendsFish: false, strongMarlin: false, santiago: false, spawnLevel: 2, damageLevel: 2, fishDamageLevel: 2, fishHpLevel: 2, fishSpeedLevel: 3, infiniteAmmo: false, handSpeed: false, noBirds: false, angryBirds: false, waterCooled: false, birdHunter: false, jaws: false, pickup: false, jump: 0 };
+  const debugState = { unlocked: false, debugVisible: true, sixGod: false, frozenFish: false, friendsFish: false, strongMarlin: false, santiago: false, spawnLevel: 2, damageLevel: 2, fishDamageLevel: 2, fishHpLevel: 2, fishSpeedLevel: 3, infiniteAmmo: false, handSpeed: false, noBirds: false, angryBirds: false, waterCooled: false, birdHunter: false, jaws: false, pickup: false, infiniteMultiplier: false, jump: 0 };
   try {
     const raw = localStorage.getItem(DEBUG_KEY);
     if (raw) {
@@ -2836,6 +2840,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         debugState.birdHunter = !!saved.birdHunter;
         debugState.jaws = !!saved.jaws;
         debugState.pickup = !!saved.pickup;
+        debugState.infiniteMultiplier = !!saved.infiniteMultiplier;
         debugState.jump = clamp(Math.round(Number(saved.jump) || 0), 0, 5);
       }
     }
@@ -3038,7 +3043,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   const BOSS_CONTACT = 42;
 
   function comboMultiplier(combo) {
-    return Math.min(5, 1 + Math.floor(Math.max(0, combo - 1) / 3));
+    const raw = 1 + Math.floor(Math.max(0, combo - 1) / 3);
+    return game && game.infiniteMultiplier ? raw : Math.min(5, raw);
   }
 
   function createGame() {
@@ -3287,6 +3293,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       ['debug-birdhunter', 'birdHunter'],
       ['debug-jaws', 'jaws'],
       ['debug-pickup', 'pickup'],
+      ['debug-infmult', 'infiniteMultiplier'],
     ];
     for (const [id, flag] of bind) {
       const btn = $(id);
@@ -3346,6 +3353,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     debugState.birdHunter = false;
     debugState.jaws = false;
     debugState.pickup = false;
+    debugState.infiniteMultiplier = false;
     debugState.jump = 0;
   }
 
@@ -3447,7 +3455,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     game.allWeaponsBirds = active && !!debugState.birdHunter;
     game.jaws = active && !!debugState.jaws;
     game.pickupMode = active && !!debugState.pickup;
-    game.debugRun = active && (!!debugState.sixGod || !!debugState.frozenFish || !!debugState.friendsFish || !!debugState.strongMarlin || !!debugState.santiago || debugState.jump > 0 || debugState.spawnLevel !== 2 || debugState.damageLevel !== 2 || debugState.fishHpLevel !== 2 || debugState.fishSpeedLevel !== 3 || debugState.fishDamageLevel !== 2 || !!debugState.infiniteAmmo || !!debugState.handSpeed || !!debugState.noBirds || !!debugState.angryBirds || !!debugState.waterCooled || !!debugState.birdHunter || !!debugState.jaws || !!debugState.pickup);
+    game.infiniteMultiplier = active && !!debugState.infiniteMultiplier;
+    game.debugRun = active && (!!debugState.sixGod || !!debugState.frozenFish || !!debugState.friendsFish || !!debugState.strongMarlin || !!debugState.santiago || debugState.jump > 0 || !!debugState.infiniteMultiplier || debugState.spawnLevel !== 2 || debugState.damageLevel !== 2 || debugState.fishHpLevel !== 2 || debugState.fishSpeedLevel !== 3 || debugState.fishDamageLevel !== 2 || !!debugState.infiniteAmmo || !!debugState.handSpeed || !!debugState.noBirds || !!debugState.angryBirds || !!debugState.waterCooled || !!debugState.birdHunter || !!debugState.jaws || !!debugState.pickup);
     if (game.friendsFish) startFriendsMusic(true);
     if (game.strongMarlin) {
       game.extraMeat = 3435973675;
@@ -6453,6 +6462,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   $('debug-birdhunter').addEventListener('click', () => { toggleDebugFlag('birdHunter'); });
   $('debug-jaws').addEventListener('click', () => { toggleDebugFlag('jaws'); });
   $('debug-pickup').addEventListener('click', () => { toggleDebugFlag('pickup'); });
+  $('debug-infmult').addEventListener('click', () => { toggleDebugFlag('infiniteMultiplier'); });
   $('debug-infinite').addEventListener('click', () => { toggleDebugFlag('infiniteAmmo'); });
   $('debug-handspeed').addEventListener('click', () => { toggleDebugFlag('handSpeed'); });
   $('debug-nobirds').addEventListener('click', () => { toggleDebugFlag('noBirds'); });

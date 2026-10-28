@@ -1747,6 +1747,10 @@ kbd {
             <button id="debug-jaws" class="debug-toggle" type="button" data-on="false">否</button>
           </div>
           <div class="debug-row">
+            <div><b>一键拾取</b><span>666自动拾取忘关了</span></div>
+            <button id="debug-pickup" class="debug-toggle" type="button" data-on="false">否</button>
+          </div>
+          <div class="debug-row">
             <div><b>禁飞令</b><span>我讨厌鸟类。</span></div>
             <button id="debug-nobirds" class="debug-toggle" type="button" data-on="false">否</button>
           </div>
@@ -2806,7 +2810,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   const DAMAGE_MULTIPLIERS = [.25, .5, 1, 1.5, 2];
   const FISH_HP_MULTIPLIERS = [.1, .5, 1, 2, 5];
   const FISH_SPEED_MULTIPLIERS = [.1, .2, .5, 1, 1.5, 2.5, 5];
-  const debugState = { unlocked: false, debugVisible: true, sixGod: false, frozenFish: false, friendsFish: false, strongMarlin: false, santiago: false, spawnLevel: 2, damageLevel: 2, fishDamageLevel: 2, fishHpLevel: 2, fishSpeedLevel: 3, infiniteAmmo: false, handSpeed: false, noBirds: false, angryBirds: false, waterCooled: false, birdHunter: false, jaws: false, jump: 0 };
+  const debugState = { unlocked: false, debugVisible: true, sixGod: false, frozenFish: false, friendsFish: false, strongMarlin: false, santiago: false, spawnLevel: 2, damageLevel: 2, fishDamageLevel: 2, fishHpLevel: 2, fishSpeedLevel: 3, infiniteAmmo: false, handSpeed: false, noBirds: false, angryBirds: false, waterCooled: false, birdHunter: false, jaws: false, pickup: false, jump: 0 };
   try {
     const raw = localStorage.getItem(DEBUG_KEY);
     if (raw) {
@@ -2831,6 +2835,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         debugState.waterCooled = !!saved.waterCooled;
         debugState.birdHunter = !!saved.birdHunter;
         debugState.jaws = !!saved.jaws;
+        debugState.pickup = !!saved.pickup;
         debugState.jump = clamp(Math.round(Number(saved.jump) || 0), 0, 5);
       }
     }
@@ -3077,6 +3082,11 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       spawnTimer: 2.2,
       spawnCount: 0,
       aimAngle: 0.52,
+      marlinAngle: Math.PI / 2,
+      marlinSwing: 0,
+      marlinStillT: 0,
+      marlinTipX: 241,
+      marlinTipY: 240,
       killBase: 0,
       comboBonus: 0,
       defenseBonus: 0,
@@ -3276,6 +3286,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
       ['debug-watercooled', 'waterCooled'],
       ['debug-birdhunter', 'birdHunter'],
       ['debug-jaws', 'jaws'],
+      ['debug-pickup', 'pickup'],
     ];
     for (const [id, flag] of bind) {
       const btn = $(id);
@@ -3334,6 +3345,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     debugState.waterCooled = false;
     debugState.birdHunter = false;
     debugState.jaws = false;
+    debugState.pickup = false;
     debugState.jump = 0;
   }
 
@@ -3434,7 +3446,8 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     game.waterCooled = active && !!debugState.waterCooled;
     game.allWeaponsBirds = active && !!debugState.birdHunter;
     game.jaws = active && !!debugState.jaws;
-    game.debugRun = active && (!!debugState.sixGod || !!debugState.frozenFish || !!debugState.friendsFish || !!debugState.strongMarlin || !!debugState.santiago || debugState.jump > 0 || debugState.spawnLevel !== 2 || debugState.damageLevel !== 2 || debugState.fishHpLevel !== 2 || debugState.fishSpeedLevel !== 3 || debugState.fishDamageLevel !== 2 || !!debugState.infiniteAmmo || !!debugState.handSpeed || !!debugState.noBirds || !!debugState.angryBirds || !!debugState.waterCooled || !!debugState.birdHunter || !!debugState.jaws);
+    game.pickupMode = active && !!debugState.pickup;
+    game.debugRun = active && (!!debugState.sixGod || !!debugState.frozenFish || !!debugState.friendsFish || !!debugState.strongMarlin || !!debugState.santiago || debugState.jump > 0 || debugState.spawnLevel !== 2 || debugState.damageLevel !== 2 || debugState.fishHpLevel !== 2 || debugState.fishSpeedLevel !== 3 || debugState.fishDamageLevel !== 2 || !!debugState.infiniteAmmo || !!debugState.handSpeed || !!debugState.noBirds || !!debugState.angryBirds || !!debugState.waterCooled || !!debugState.birdHunter || !!debugState.jaws || !!debugState.pickup);
     if (game.friendsFish) startFriendsMusic(true);
     if (game.strongMarlin) {
       game.extraMeat = 3435973675;
@@ -4194,6 +4207,12 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     if (!game || game.meat <= 0) return;
     const seg = s.targetSeg;
     if (seg < 0 || game.segMeat[seg] <= 0) return;
+    if (game.pickupMode && game.marlinSwing > .06) {
+      s.state = 'stagger';
+      s.stateT = Math.max(s.stateT || 0, .35);
+      s.chomp = 0;
+      return;
+    }
     if (game.frozenFish || (game.segFreeze && game.segFreeze[seg] > 0)) {
       const bp = FISH_SEGS[seg];
       const dir = normalize(bp.biteX - s.x, bp.biteY - s.y);
@@ -4472,7 +4491,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   }
 
   function tryFire() {
-    if (mode !== 'playing' || !game) return;
+    if (mode !== 'playing' || !game || game.pickupMode) return;
     aimAtPointer();
     if (game.bossMode && game.bossPhase !== 'fight') return;
     if ((!game.handSpeed && game.fireCd > 0) || game.reloading) return;
@@ -5440,7 +5459,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   }
 
   function drawFishStatus() {
-    if (!game) return;
+    if (!game || game.pickupMode) return;
     for (let i = 0; i < FISH_SEG_N; i++) {
       const seg = FISH_SEGS[i];
       if (game.segFreeze[i] > 0) {
@@ -5513,6 +5532,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
         checkUnlocks();
         applyDifficultySpawn(dt);
         updateBirds(dt);
+        if (game.pickupMode) updatePickupMode(dt);
       }
     } else if (mode === 'ending') {
       game.endT -= dt;
@@ -6432,6 +6452,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
   $('debug-watercooled').addEventListener('click', () => { toggleDebugFlag('waterCooled'); });
   $('debug-birdhunter').addEventListener('click', () => { toggleDebugFlag('birdHunter'); });
   $('debug-jaws').addEventListener('click', () => { toggleDebugFlag('jaws'); });
+  $('debug-pickup').addEventListener('click', () => { toggleDebugFlag('pickup'); });
   $('debug-infinite').addEventListener('click', () => { toggleDebugFlag('infiniteAmmo'); });
   $('debug-handspeed').addEventListener('click', () => { toggleDebugFlag('handSpeed'); });
   $('debug-nobirds').addEventListener('click', () => { toggleDebugFlag('noBirds'); });
@@ -6632,8 +6653,80 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     return clamp(Math.round(sb), top + 2, bot);
   }
 
+  function pickupPivot() {
+    return { x: 241, y: 119 + boatBob() };
+  }
+
+  function updatePickupMode(dt) {
+    if (!game || !game.pickupMode) return;
+    const pivot = pickupPivot();
+    const target = pointer.inside
+      ? Math.atan2(pointer.y - pivot.y, pointer.x - pivot.x)
+      : Math.PI / 2;
+    const diff = Math.abs(angleDiff(target, game.marlinAngle));
+    game.marlinAngle = target;
+    const spin = diff / Math.max(0.001, dt);
+    game.marlinSwing = clamp(spin / 9, 0, 1);
+    game.marlinStillT = spin < .25 ? game.marlinStillT + dt : 0;
+    const len = 122;
+    const dx = Math.cos(game.marlinAngle);
+    const dy = Math.sin(game.marlinAngle);
+    // 命中线跟随鱼身，而不是尾巴外侧
+    game.marlinTipX = pivot.x - dx * len;
+    game.marlinTipY = pivot.y - dy * len;
+    for (const sh of game.sharks) {
+      if (sh.pickupCd > 0) sh.pickupCd = Math.max(0, sh.pickupCd - dt);
+    }
+    if (game.marlinSwing <= .06) return;
+    const damage = (0.15 + game.marlinSwing * 1.1) * (game.damageMul || 1);
+    for (const sh of game.sharks) {
+      if (sh.dead || sh.pickupCd > 0) continue;
+      if (segPointDist(pivot.x, pivot.y, game.marlinTipX, game.marlinTipY, sh.x, sh.y) > sh.cfg.hitR + 7) continue;
+      hitShark(sh, sh.x, sh.y, -dx, -dy, {
+        damage,
+        headshot: false,
+        weapon: 'marlin',
+        knockback: 42,
+        stagger: .4
+      });
+      sh.pickupCd = .24;
+      game.shake = Math.max(game.shake, 2.2);
+    }
+    for (const bird of game.birds) {
+      if (bird.dead) continue;
+      if (segPointDist(pivot.x, pivot.y, game.marlinTipX, game.marlinTipY, bird.x, bird.y) > bird.r + 6) continue;
+      hitBird(bird);
+      game.hitMark = .1;
+      game.hitMarkX = bird.x;
+      game.hitMarkY = bird.y;
+      break;
+    }
+  }
+
+  function drawHeldMarlin() {
+    if (!game || !game.pickupMode) return;
+    const pivot = pickupPivot();
+    ctx.save();
+    ctx.translate(pivot.x, pivot.y);
+    ctx.rotate(game.marlinAngle);
+    ctx.scale(.55, .55);
+    ctx.translate(-120, -172);
+    game._holdingMarlin = true;
+    drawMarlin();
+    game._holdingMarlin = false;
+    ctx.restore();
+    // 抓住鱼尾的手
+    ctx.fillStyle = '#a66f49';
+    ctx.fillRect(pivot.x - 3, pivot.y - 2, 7, 5);
+    ctx.fillStyle = '#c99063';
+    ctx.fillRect(pivot.x - 2, pivot.y - 1, 5, 2);
+    ctx.fillStyle = '#5e3a24';
+    ctx.fillRect(pivot.x - 1, pivot.y + 2, 4, 1);
+  }
+
   function drawMarlin() {
     if (!game) return;
+    if (game.pickupMode && !game._holdingMarlin) return;
     ctx.save();
     ctx.translate(0, FISH_DY);
     const skeleton = game.meat <= 0.02;
@@ -7796,7 +7889,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     drawBoat();
     drawMarlin();
     drawFishStatus();
-    drawRopes();
+    if (!game.pickupMode) drawRopes();
     drawLanternGlow();
     drawOldMan();
     ctx.restore();
@@ -8057,6 +8150,7 @@ import { createBossModule as createShoehorn, meta as shoehornMeta } from './boss
     drawParticles();
     drawLanternGlow();
     drawOldMan();
+    drawHeldMarlin();
     drawHurtFlash();
 
     ctx.restore();
